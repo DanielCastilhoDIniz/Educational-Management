@@ -3,9 +3,10 @@ from enum import Enum
 
 class EnrollmentState(Enum):
     """
-    possible Enrollment states”
+    possible Enrollment states:
+    ACTIVE, SUSPENDED, CONCLUDED, CANCELLED
     """
     ACTIVE = 'active'
     SUSPENDED = 'suspended'
-    COMPLETED = 'completed'
+    CONCLUDED = 'concluded'
     CANCELLED = 'cancelled'

@@ -8,6 +8,9 @@ from dataclasses import dataclass, field
 class StateTransition:
     """
         Transition between enrollment states
+        from_state -> to_state
+        occurred_at date of transition
+        justification: is optional
     """
 
     from_state: EnrollmentState
@@ -15,3 +18,4 @@ class StateTransition:
     to_state: EnrollmentState
     occurred_at: datetime = field(default_factory=datetime.now)
     justification: str | None = None
+
