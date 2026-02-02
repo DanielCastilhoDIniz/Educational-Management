@@ -18,4 +18,3 @@ class StateTransition:
     to_state: EnrollmentState
     occurred_at: datetime = field(default_factory=datetime.now)
     justification: str | None = None
-

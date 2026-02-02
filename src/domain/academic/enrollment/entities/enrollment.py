@@ -15,6 +15,7 @@ from ..errors.enrollment_errors import (
     ConclusionNotAllowedError,
     JustificationRequiredError,
     EnrollmentNotActiveError,
+    DomainError
 
 )
 
@@ -22,8 +23,9 @@ from ..errors.enrollment_errors import (
 @dataclass
 class Enrollment:
     """
-        Enrollment entity
-
+        Represents an Enrollment aggregate root in the educational domain.
+        Handles the state management, transitions,
+        and domain events for a student's enrollment.
     """
     id: str
     student_id: str
@@ -32,15 +34,41 @@ class Enrollment:
     state: EnrollmentState
     created_at: datetime
     concluded_at: datetime | None = None
+
+    # Internal state history to track all lifecycle changes
     transitions: list[StateTransition] = field(
         default_factory=lambda: cast(list[StateTransition], []))
+
+    # Stores events to be dispatched after successful database persistence
     _domain_events: list[DomainEvent] = field(
         default_factory=lambda: cast(list[DomainEvent], []))
+
+    def __post_init__(self):
+        """
+        Validates the entity's integrity after initialization.
+        Ensures the enrollment is in a consistent state.
+        """
+        if not self.id:
+            raise DomainError(code="invalid_id",
+                              message="Enrollment must have a valid ID",
+                              details={"reasons": self.id})
+
+        # Integrity rule: Concluded state requires a timestamp
+        if self.state == EnrollmentState.CONCLUDED and not self.concluded_at:
+            raise DomainError(
+                code="missing_concluded_at",
+                message="Concluded enrollment must have a conclusion date")
 
     def conclude(self, *, actor_id: str,
                  verdict: ConclusionVerdict,
                  occurred_at: datetime | None = None,
                  justification: str | None = None) -> None:
+
+        """
+        Transitions the enrollment state to CONCLUDED.
+        Validates business policies through a
+        verdict and records the transition.
+        """
 
         if occurred_at is None:
             occurred_at = datetime.now()
@@ -74,7 +102,7 @@ class Enrollment:
                 )
 
         from_state = self.state
-
+        # Persist the transition in history for audit purposes
         self.transitions.append(
             StateTransition(
                 from_state=from_state,
@@ -87,6 +115,8 @@ class Enrollment:
         self.state = EnrollmentState.CONCLUDED
         self.concluded_at = occurred_at
 
+        # Record the Domain Event to notify other
+        # subdomains (Certificates, Billing)
         self._domain_events.append(
             EnrollmentConcluded(
                 aggregate_id=self.id,
@@ -99,19 +129,27 @@ class Enrollment:
         )
 
     def pull_domain_events(self) -> list[DomainEvent]:
+        """
+        Extracts and clears all accumulated domain events.
+        Useful for dispatching events after a successful transaction.
+        """
         events = list(self._domain_events)
         self._domain_events.clear()
         return events
 
     def is_final(self) -> bool:
+
+        """
+        Checks if the enrollment has reached a
+        terminal state where no further actions are allowed.
+        """
         return self.state in {
             EnrollmentState.CONCLUDED,
             EnrollmentState.CANCELLED
         }
 
+    def cancel(self):
+        ...
 
-
-
-
-
-
+    def suspend(self):
+        ...
