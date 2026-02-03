@@ -1,3 +1,4 @@
+---
 
 # DOMAIN_RULES.md
 
@@ -5,17 +6,19 @@
 
 ---
 
-## 0. Natureza e Autoridade deste Documento
+## 0. Natureza, Autoridade e Escopo deste Documento
 
-Este documento define as **regras de domínio** do Sistema de Gestão Escolar.
+Este documento define as **regras centrais do domínio educacional** do Sistema de Gestão Escolar.
 
 As regras aqui descritas:
 
 * **não dependem** de tecnologia, banco de dados, API ou interface;
 * **devem ser respeitadas** por qualquer meio de entrada no sistema (API, admin, importações, jobs, integrações);
-* **têm precedência** sobre decisões técnicas.
+* **têm precedência** sobre decisões técnicas e de implementação.
 
-Sempre que houver conflito entre código e este documento, **o documento prevalece**.
+Em caso de divergência entre código e este documento, **o domínio prevalece**.
+
+Este documento é a **fonte de verdade do negócio**.
 
 ---
 
@@ -25,7 +28,7 @@ Os termos abaixo possuem **significado único e não ambíguo** dentro do sistem
 
 ### 1.1 Instituição
 
-Entidade administrativa responsável por uma ou mais unidades escolares, com autonomia para configurar políticas pedagógicas dentro da legislação vigente.
+Entidade administrativa responsável por uma ou mais unidades escolares, com autonomia para configurar políticas pedagógicas **dentro da legislação vigente**.
 
 ### 1.2 Unidade Escolar
 
@@ -33,7 +36,7 @@ Estabelecimento físico ou virtual onde ocorrem atividades educacionais (escola,
 
 ### 1.3 Período Letivo
 
-Intervalo de datas oficialmente definido para execução de atividades acadêmicas (ano, semestre, módulo).
+Intervalo de datas oficialmente definido para execução das atividades acadêmicas (ano, semestre ou módulo).
 
 ### 1.4 Turma
 
@@ -41,15 +44,17 @@ Agrupamento de alunos associado a:
 
 * uma unidade escolar,
 * um período letivo,
-* uma estrutura curricular.
+* uma estrutura curricular definida.
 
 ### 1.5 Matrícula
 
-Vínculo acadêmico entre um aluno e uma turma em um determinado período letivo.
+Vínculo acadêmico entre um aluno e uma turma em um período letivo específico.
 
 > Matrícula **não é** o aluno
 > Matrícula **não é** a turma
 > Matrícula **é o estado acadêmico do aluno naquela turma e período**
+
+A Matrícula é tratada como **Aggregate Root** do domínio acadêmico.
 
 ### 1.6 Frequência
 
@@ -57,24 +62,24 @@ Registro de presença ou ausência do aluno em atividades letivas oficialmente c
 
 ### 1.7 Avaliação
 
-Instrumento formal de verificação de aprendizagem, com peso e critérios definidos.
+Instrumento formal de verificação de aprendizagem, com critérios, pesos e regras definidos.
 
 ---
 
-## 2. Princípios Gerais do Domínio
+## 2. Princípios Fundamentais do Domínio
 
-As regras abaixo são **invariantes globais**.
+As regras abaixo são **invariantes globais**, válidas em todo o sistema:
 
 1. Nenhuma atividade acadêmica ocorre fora de um **período letivo válido**.
-2. Nenhuma informação acadêmica relevante pode existir sem **rastreabilidade temporal e institucional**.
+2. Nenhuma informação acadêmica relevante existe sem **rastreabilidade temporal, institucional e de autoria**.
 3. Alterações de estado acadêmico **devem ser auditáveis**.
-4. Estados acadêmicos possuem **transições explícitas e limitadas**.
+4. Estados acadêmicos possuem **transições explícitas, limitadas e irreversíveis quando finais**.
 
 ---
 
-## 3. Estados Acadêmicos e Invariantes
+## 3. Estados Acadêmicos da Matrícula
 
-### 3.1 Estados da Matrícula
+### 3.1 Estados Possíveis
 
 Uma matrícula **sempre** se encontra em exatamente um dos estados abaixo:
 
@@ -83,13 +88,13 @@ Uma matrícula **sempre** se encontra em exatamente um dos estados abaixo:
 * `CANCELADA`
 * `CONCLUÍDA`
 
-#### Definições formais
+### 3.2 Definições Formais
 
 * **ATIVA**
-  Matrícula válida para participação em aulas, avaliações e frequência.
+  Matrícula válida para participação em aulas, avaliações e contagem de frequência.
 
 * **TRANCADA**
-  Matrícula temporariamente suspensa, sem contagem de frequência ou notas durante o período de trancamento.
+  Matrícula temporariamente suspensa, sem lançamento de notas ou frequência durante o período de trancamento.
 
 * **CANCELADA**
   Matrícula encerrada sem conclusão acadêmica (abandono, desistência, transferência).
@@ -99,26 +104,28 @@ Uma matrícula **sempre** se encontra em exatamente um dos estados abaixo:
 
 ---
 
-### 3.2 Invariantes da Matrícula
+## 4. Invariantes da Matrícula
 
 1. Um aluno **não pode possuir mais de uma matrícula ATIVA**:
 
    * na mesma turma;
    * no mesmo período letivo.
 
-2. Matrículas CANCELADAS ou CONCLUÍDAS **não retornam** ao estado ATIVA.
+2. Matrículas em estado `CANCELADA` ou `CONCLUÍDA` são **estados finais** e **não podem retornar** ao estado `ATIVA`.
 
-3. Qualquer mudança de estado:
+3. Toda transição de estado deve:
 
-   * deve registrar data, autor e justificativa (quando aplicável).
+   * registrar data e hora;
+   * identificar o ator responsável (usuário ou sistema);
+   * registrar justificativa quando exigido por política.
 
 ---
 
-## 4. Regras de Transição de Estado (Matrícula)
+## 5. Regras de Transição de Estado
 
-### 4.1 Criação
+### 5.1 Criação da Matrícula
 
-Uma matrícula **só pode ser criada** se:
+Uma matrícula só pode ser criada se:
 
 * o período letivo estiver ATIVO;
 * a turma estiver ATIVA;
@@ -126,12 +133,12 @@ Uma matrícula **só pode ser criada** se:
 
 ---
 
-### 4.2 Trancamento
+### 5.2 Trancamento
 
 O trancamento é permitido se:
 
 * a matrícula estiver ATIVA;
-* o número mínimo de dias letivos decorridos for atingido (parâmetro institucional).
+* o número mínimo de dias letivos decorridos tiver sido atingido (parâmetro institucional).
 
 Durante o trancamento:
 
@@ -140,33 +147,34 @@ Durante o trancamento:
 
 ---
 
-### 4.3 Cancelamento
+### 5.3 Cancelamento
 
 O cancelamento:
 
-* pode ocorrer a qualquer momento;
-* encerra definitivamente a matrícula;
-* gera registro para fins estatísticos e legais (ex: Censo Escolar).
+* pode ocorrer a qualquer momento enquanto a matrícula não for final;
+* encerra definitivamente o vínculo acadêmico;
+* gera registros obrigatórios para fins estatísticos e legais (ex.: Censo Escolar).
 
 ---
 
-### 4.4 Conclusão
+### 5.4 Conclusão
 
-Uma matrícula **só pode ser concluída** se:
+Uma matrícula só pode ser concluída se:
 
 * o período letivo estiver ENCERRADO;
 * os critérios de aprovação forem atendidos.
 
-Conclusão é:
+A conclusão é:
 
-* **automática** ao final do período, quando elegível;
+* **automática** ao final do período quando elegível;
+* **manual e excepcional**, quando autorizada por instância pedagógica;
 * **irreversível**.
 
 ---
 
-## 5. Frequência Acadêmica
+## 6. Frequência Acadêmica
 
-### 5.1 Invariantes
+### 6.1 Invariantes
 
 1. Frequência só pode ser registrada para:
 
@@ -174,135 +182,150 @@ Conclusão é:
    * turma ATIVA;
    * período letivo ATIVO.
 
-2. O percentual mínimo de frequência é:
+2. O percentual mínimo de frequência:
 
-   * configurável por instituição;
-   * nunca inferior ao mínimo legal vigente.
+   * é configurável por instituição;
+   * **nunca pode ser inferior ao mínimo legal vigente**.
 
----
+### 6.2 Reprovação por Frequência
 
-### 5.2 Regras de Reprovação por Frequência
-
-* Frequência inferior ao mínimo:
-
-  * **impede aprovação**, salvo exceção pedagógica formalmente registrada.
+* Frequência inferior ao mínimo **impede aprovação**, salvo exceção pedagógica formal.
 * Exceções exigem:
 
-  * justificativa;
-  * responsável pedagógico autorizado.
+  * justificativa documentada;
+  * autorização de responsável pedagógico.
 
 ---
 
-## 6. Avaliações e Notas
+## 7. Avaliações, Notas e Resultado Acadêmico
 
-### 6.1 Regras Gerais
+### 7.1 Avaliações
 
-1. Avaliações:
+* pertencem a uma turma;
+* possuem pesos e critérios explícitos;
+* seguem o modelo de avaliação institucional.
 
-   * pertencem a uma turma;
-   * possuem peso e critérios explícitos.
+### 7.2 Notas
 
-2. Notas:
+* só podem ser lançadas para matrícula ATIVA;
+* só podem ser lançadas em avaliações válidas e não encerradas.
 
-   * só podem ser lançadas para matrícula ATIVA;
-   * só podem ser lançadas em avaliações válidas e não encerradas.
+### 7.3 Média Final
 
----
+A média final é calculada conforme política institucional, podendo ser:
 
-### 6.2 Média Final
-
-A média final:
-
-* é calculada conforme política institucional;
-* pode ser:
-
-  * aritmética,
-  * ponderada,
-  * modular.
+* aritmética;
+* ponderada;
+* modular.
 
 ---
 
-## 7. Aprovação, Reprovação e Recuperação
+## 8. Aprovação, Reprovação e Recuperação
 
-### 7.1 Aprovação
+### 8.1 Aprovação
 
-Uma matrícula é considerada APROVADA se:
+Uma matrícula é APROVADA se:
 
 * frequência ≥ mínima **E**
-* média final ≥ mínima **OU**
-* recuperação aprovada (se aplicável).
+* média final ≥ mínima
+  **OU**
+* recuperação for aprovada, quando aplicável.
 
----
-
-### 7.2 Reprovação
+### 8.2 Reprovação
 
 Uma matrícula é REPROVADA se:
 
-* pelo menos uma disciplina não atingir os critérios;
+* pelo menos uma disciplina não atender aos critérios;
 * e não houver recuperação válida.
 
 ---
 
-## 8. Monitoramento de Evasão (Busca Ativa)
+## 9. Monitoramento de Evasão (Busca Ativa)
 
-Eventos de alerta são gerados quando ocorre:
+Alertas devem ser gerados quando ocorrer:
 
 * faltas consecutivas acima do limite configurado;
 * ausência prolongada;
 * percentual crítico de faltas em período parcial.
 
-A matrícula **não pode** ser marcada como evasão sem:
+Uma matrícula **não pode ser classificada como evasão** sem:
 
 * registro de tentativa de contato;
 * justificativa formal.
 
 ---
 
-## 9. Eventos de Domínio (Obrigatórios)
+## 10. Eventos de Domínio
 
-Exemplos de eventos relevantes:
+Eventos de domínio representam **fatos relevantes que já ocorreram**.
 
-* `MatriculaCriada`
-* `MatriculaTrancada`
-* `MatriculaCancelada`
-* `MatriculaConcluida`
-* `FrequenciaCriticaDetectada`
-* `AlunoElegivelParaAprovacao`
+Exemplos:
+
+* `EnrollmentCreated`
+* `EnrollmentSuspended`
+* `EnrollmentCancelled`
+* `EnrollmentConcluded`
+* `AttendanceCriticalDetected`
+* `StudentEligibleForApproval`
 
 Eventos:
 
-* **não executam lógica de negócio**
-* **informam que algo relevante ocorreu**
+* **não executam regras de negócio**
+* **não tomam decisões**
+* **apenas comunicam fatos consumidos por outras partes do sistema**
 
 ---
 
-## 10. Configurações Institucionais (Políticas)
+## 11. Políticas Institucionais (Configuráveis)
 
-Os seguintes parâmetros **não são regras fixas**, mas políticas configuráveis:
+Não são invariantes do domínio, mas parâmetros configuráveis:
 
 * percentual mínimo de frequência;
 * nota mínima para aprovação;
 * dias mínimos para trancamento;
-* modelo de média;
-* progressão continuada vs reprovação.
+* modelo de cálculo de média;
+* progressão continuada vs. reprovação.
 
 ---
 
-## 11. Fora do Escopo do Domínio
+## 12. Papéis, Autorizações e Responsabilidades
 
-Este documento **não define**:
+### 12.1 Papéis
 
-* códigos HTTP;
-* nomes de endpoints;
-* formatos de payload;
-* jobs, filas ou notificações técnicas;
-* layout de boletins.
+* **Administrador Institucional**
+  Acesso total às unidades da Instituição.
 
-Esses pertencem às camadas de **aplicação e infraestrutura**.
+* **Secretário Escolar**
+  Operacionaliza matrículas, trancamentos, cancelamentos e documentos.
+
+* **Coordenador Pedagógico**
+  Autoriza exceções acadêmicas e decisões de conselho.
+
+* **Professor**
+  Lança notas e frequência apenas nas turmas em que está alocado.
+
+### 12.2 Matriz de Autoridade (Resumo)
+
+| Ação                   | Autoridade Mínima | Justificativa | Evento              |
+| ---------------------- | ----------------- | ------------- | ------------------- |
+| Criar Matrícula        | Secretário        | Não           | EnrollmentCreated   |
+| Trancar Matrícula      | Secretário        | Sim           | EnrollmentSuspended |
+| Cancelar Matrícula     | Secretário        | Sim           | EnrollmentCancelled |
+| Concluir (Automática)  | Sistema           | Não           | EnrollmentConcluded |
+| Concluir (Exceção)     | Coordenador       | Sim (Ata)     | EnrollmentConcluded |
+| Alterar Nota Pós-Prazo | Coordenador       | Sim           | GradeCorrected      |
 
 ---
 
-## 12. Evolução e Governança
+## 13. Multi-tenancy e Segurança de Escopo
+
+* **Isolamento por Unidade:** usuários não acessam dados de outras unidades sem vínculo explícito.
+* **Princípio do Privilégio Mínimo:** acesso restrito ao necessário.
+* **Auditoria de Acesso:** leituras de dados sensíveis devem ser auditadas.
+
+---
+
+## 14. Evolução e Governança
 
 * Toda alteração neste documento:
 
@@ -311,12 +334,3 @@ Esses pertencem às camadas de **aplicação e infraestrutura**.
 * Regras novas **não podem contradizer invariantes existentes**.
 
 ---
-
-
-Ação  	    Autoridade        Mínima	Justificativa Exigida?	Evento Gerado
-Criar       Matrícula	        Secretário	    Não	            EnrollmentCreated
-Trancar     Matrícula	        Secretário	    Sim	            EnrollmentSuspended
-Cancelar    Matrícula	        Secretário	    Sim	            EnrollmentCancelled
-Concluir    (Regular)	        Sistema (Auto)	Não	            EnrollmentConcluded
-Concluir    (Exceção)	        Coordenador	    Sim             (Ata de Conselho)	EnrollmentConcluded
-Alterar     Nota (Pós-prazo)	Coordenador	    Sim	            GradeCorrected
