@@ -311,3 +311,12 @@ Esses pertencem às camadas de **aplicação e infraestrutura**.
 * Regras novas **não podem contradizer invariantes existentes**.
 
 ---
+
+
+Ação  	    Autoridade        Mínima	Justificativa Exigida?	Evento Gerado
+Criar       Matrícula	        Secretário	    Não	            EnrollmentCreated
+Trancar     Matrícula	        Secretário	    Sim	            EnrollmentSuspended
+Cancelar    Matrícula	        Secretário	    Sim	            EnrollmentCancelled
+Concluir    (Regular)	        Sistema (Auto)	Não	            EnrollmentConcluded
+Concluir    (Exceção)	        Coordenador	    Sim             (Ata de Conselho)	EnrollmentConcluded
+Alterar     Nota (Pós-prazo)	Coordenador	    Sim	            GradeCorrected

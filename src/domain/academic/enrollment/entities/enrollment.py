@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from dataclasses import dataclass, field
 from typing import cast
@@ -16,7 +16,6 @@ from ..errors.enrollment_errors import (
     JustificationRequiredError,
     EnrollmentNotActiveError,
     DomainError
-
 )
 
 
@@ -71,7 +70,7 @@ class Enrollment:
         """
 
         if occurred_at is None:
-            occurred_at = datetime.now()
+            occurred_at = datetime.now(timezone.utc)
 
         if self.state == EnrollmentState.CONCLUDED:
             return
