@@ -171,15 +171,15 @@ class Enrollment:
                 message="state transition not allowed",
                 details={'current_state': self.state.value,
                          'attempted_action': 'cancel',
-                         'allowed_states': ['active', 'suspended'],
-                         'forbidden_reasons': self.state.value}
+                         'allowed_from_states': ['active', 'suspended'],
+                         'forbidden_reason': self.state.value}
             )
 
         if not justification or not justification.strip():
             raise JustificationRequiredError(
                 code="required_justification",
                 message="justification is required to cancel enrollment",
-                details={'policy': 'requires_justification'}
+                details={'policy': 'justification_required'}
             )
 
         from_state = self.state
@@ -189,23 +189,24 @@ class Enrollment:
             StateTransition(
                 actor_id=actor_id,
                 from_state=from_state,
+                occurred_at=occurred_at,
                 to_state=EnrollmentState.CANCELLED,
                 justification=justification
             )
         )
         self.state = EnrollmentState.CANCELLED
+        self.concluded_at = occurred_at
 
         self._domain_events.append(
             EnrollmentCancelled(
                 aggregate_id=self.id,
                 actor_id=actor_id,
                 from_state=from_state,
+                occurred_at=occurred_at,
                 to_state=EnrollmentState.CANCELLED,
                 justification=justification
             )
         )
-
-
 
 
     def suspend(self):
