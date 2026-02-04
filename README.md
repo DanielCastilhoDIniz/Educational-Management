@@ -1,14 +1,4 @@
-Perfeito — vou montar um **README.md profissional**, honesto (aprendendo fazendo), **bem visto por recrutadores**, e alinhado com o nível arquitetural que você já demonstrou (DDD, Aggregate Root, eventos, regras explícitas).
 
-A ideia é que quem leia pense:
-
-> “Esse candidato não está só fazendo CRUD. Ele entende domínio, arquitetura e sabe evoluir um sistema.”
-
----
-
-# README.md
-
-````markdown
 # 🎓 School Management SaaS (Backend)
 
 Sistema de Gestão Escolar desenvolvido com foco em **arquitetura de domínio**, **boas práticas de engenharia de software** e **aprendizado prático enquanto constrói**.
@@ -115,7 +105,7 @@ src/
      │   └── policies/
  └── application/
  └── infrastructure/
-````
+```
 
 * `domain/` → regras de negócio puras
 * `application/` → orquestra casos de uso
