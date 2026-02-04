@@ -9,13 +9,16 @@ from ..value_objects.conclusion_verdict import ConclusionVerdict
 
 from ..events.enrollment_events import (
     DomainEvent,
-    EnrollmentConcluded
+    EnrollmentConcluded,
+    EnrollmentCancelled,
+    EnrollmentSuspended
 )
 from ..errors.enrollment_errors import (
     ConclusionNotAllowedError,
     JustificationRequiredError,
     EnrollmentNotActiveError,
-    DomainError
+    DomainError,
+    InvalidStateTransitionError
 )
 
 
@@ -147,8 +150,63 @@ class Enrollment:
             EnrollmentState.CANCELLED
         }
 
-    def cancel(self):
-        ...
+    def cancel(
+            self, *,
+            actor_id: str,
+            occurred_at: datetime | None = None,
+            justification: str
+    ):
+
+        """
+        Transitions the enrollment state to CANCELLED.
+
+        """
+
+        if self.state == EnrollmentState.CANCELLED:
+            return
+
+        if self.state == EnrollmentState.CONCLUDED:
+            raise InvalidStateTransitionError(
+                code="invalid_state_transition",
+                message="state transition not allowed",
+                details={'current_state': self.state.value,
+                         'attempted_action': 'cancel',
+                         'allowed_states': ['active', 'suspended'],
+                         'forbidden_reasons': self.state.value}
+            )
+
+        if not justification or not justification.strip():
+            raise JustificationRequiredError(
+                code="required_justification",
+                message="justification is required to cancel enrollment",
+                details={'policy': 'requires_justification'}
+            )
+
+        from_state = self.state
+        occurred_at = occurred_at or datetime.now(timezone.utc)
+
+        self.transitions.append(
+            StateTransition(
+                actor_id=actor_id,
+                from_state=from_state,
+                to_state=EnrollmentState.CANCELLED,
+                justification=justification
+            )
+        )
+        self.state = EnrollmentState.CANCELLED
+
+        self._domain_events.append(
+            EnrollmentCancelled(
+                aggregate_id=self.id,
+                actor_id=actor_id,
+                from_state=from_state,
+                to_state=EnrollmentState.CANCELLED,
+                justification=justification
+            )
+        )
+
+
+
 
     def suspend(self):
         ...
