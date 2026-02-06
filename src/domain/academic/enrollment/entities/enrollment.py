@@ -208,6 +208,5 @@ class Enrollment:
             )
         )
 
-
     def suspend(self):
         ...

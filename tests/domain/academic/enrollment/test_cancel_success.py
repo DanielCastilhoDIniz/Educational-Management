@@ -7,10 +7,12 @@ import pytest
 from domain.academic.enrollment.entities.enrollment import Enrollment
 from domain.academic.enrollment.events.enrollment_events import EnrollmentCancelled
 from domain.academic.enrollment.value_objects.enrollment_status import EnrollmentState
+from domain.academic.enrollment.errors.enrollment_errors import InvalidStateTransitionError
 
 
 def make_enrollment(*, state: EnrollmentState) -> Enrollment:
-    """Factory mínima para criar um Enrollment válido para testes de domínio."""
+    """Factory mínima para criar um Enrollment válido
+      para testes de domínio."""
     now = datetime.now(timezone.utc)
     concluded_at = now if state == EnrollmentState.CONCLUDED else None
 
@@ -60,7 +62,8 @@ def assert_cancel_success(
     # Consistência forte (pega bug bobo)
     assert e.occurred_at == t.occurred_at
 
-    # Se o teste forneceu occurred_at explícito, ele precisa ser exatamente respeitado
+    # Se o teste forneceu occurred_at
+    # explícito, ele precisa ser exatamente respeitado
     if expected_occurred_at is not None:
         assert t.occurred_at == expected_occurred_at
         assert e.occurred_at == expected_occurred_at
@@ -124,3 +127,31 @@ def test_cancel_with_explicit_occurred_at_success() -> None:
         justification=justification,
         expected_occurred_at=occurred_at,
     )
+
+
+def test_cancel_from_concluded_raises_invalid_transition() -> None:
+    # Arrange: enrollment concluído (válido)
+    enrollment = make_enrollment(state=EnrollmentState.CONCLUDED)
+
+    # Arrange: baseline (provar que nada muda)
+    state_before = enrollment.state
+    transitions_before = len(enrollment.transitions)
+    events_before = len(enrollment._domain_events)
+
+    # Act: tentativa de cancelar deve falhar
+    with pytest.raises(InvalidStateTransitionError) as excinfo:
+        enrollment.cancel(actor_id="u-1", justification="motivo válido")
+
+    # Assert: erro correto + contrato mínimo
+    err = excinfo.value
+    assert err.code == "invalid_state_transition"
+    assert err.details["attempted_action"] == "cancel"
+    assert err.details["current_state"] == EnrollmentState.CONCLUDED.value
+
+    # Assert: não houve efeitos colaterais
+    assert enrollment.state == state_before
+    assert len(enrollment.transitions) == transitions_before
+    assert len(enrollment._domain_events) == events_before
+
+
+
