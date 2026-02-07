@@ -195,7 +195,6 @@ class Enrollment:
             )
         )
         self.state = EnrollmentState.CANCELLED
-        self.concluded_at = occurred_at
 
         self._domain_events.append(
             EnrollmentCancelled(

@@ -5,9 +5,13 @@ from datetime import datetime, timezone
 import pytest
 
 from domain.academic.enrollment.entities.enrollment import Enrollment
-from domain.academic.enrollment.events.enrollment_events import EnrollmentCancelled
-from domain.academic.enrollment.value_objects.enrollment_status import EnrollmentState
-from domain.academic.enrollment.errors.enrollment_errors import InvalidStateTransitionError
+from domain.academic.enrollment.events.enrollment_events import (
+    EnrollmentCancelled)
+from domain.academic.enrollment.value_objects.enrollment_status import (
+    EnrollmentState)
+from domain.academic.enrollment.errors.enrollment_errors import (
+    JustificationRequiredError,
+    InvalidStateTransitionError)
 
 
 def make_enrollment(*, state: EnrollmentState) -> Enrollment:
@@ -139,11 +143,12 @@ def test_cancel_from_concluded_raises_invalid_transition() -> None:
     events_before = len(enrollment._domain_events)
 
     # Act: tentativa de cancelar deve falhar
-    with pytest.raises(InvalidStateTransitionError) as excinfo:
+    with pytest.raises(InvalidStateTransitionError) as exc_info:
         enrollment.cancel(actor_id="u-1", justification="motivo válido")
 
     # Assert: erro correto + contrato mínimo
-    err = excinfo.value
+    err = exc_info.value
+    assert err.details is not None
     assert err.code == "invalid_state_transition"
     assert err.details["attempted_action"] == "cancel"
     assert err.details["current_state"] == EnrollmentState.CONCLUDED.value
@@ -152,6 +157,3 @@ def test_cancel_from_concluded_raises_invalid_transition() -> None:
     assert enrollment.state == state_before
     assert len(enrollment.transitions) == transitions_before
     assert len(enrollment._domain_events) == events_before
-
-
-
