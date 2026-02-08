@@ -76,6 +76,7 @@ O domínio é tratado como **fonte de verdade**, independente de framework ou ba
 - **PostgreSQL**
 - **Docker & Docker Compose**
 - **Pytest** (testes de domínio e integração)
+- possivelmente replicarei o mesmo projeto em outra stack, Java ou Node.
 
 > O domínio é desenvolvido **sem dependência direta do Django**, facilitando testes e evolução.
 
