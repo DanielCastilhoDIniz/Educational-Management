@@ -1,0 +1,28 @@
+[flake8]
+# Define o tamanho máximo da linha (88 é o padrão do Black, 100-120 é comum em DDD)
+max-line-length = 120
+
+# Ignora completamente estas pastas
+exclude =
+    .git,
+    __pycache__,
+    venv,
+    .venv,
+    # Aqui ignoramos a pasta de testes
+    tests,
+    migrations,
+    build,
+    dist
+    test_
+
+# Ignora erros específicos
+# E203: espaço antes de ':' (incompatível com o formatador Black)
+# W503: quebra de linha antes de operador binário
+# extend-ignore = E203, W503
+
+# Define o nível de complexidade ciclomática aceitável
+max-complexity = 10
+
+# Permite que arquivos __init__.py tenham variáveis não usadas (comum em exports de pacotes)
+per-file-ignores =
+    __init__.py: F401

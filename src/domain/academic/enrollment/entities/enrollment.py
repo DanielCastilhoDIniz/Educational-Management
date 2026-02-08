@@ -65,13 +65,13 @@ class Enrollment:
 
         if self.state == EnrollmentState.CANCELLED and not self.cancelled_at:
             raise DomainError(
-                code="missing_canceled_at",
+                code="missing_cancelled_at",
                 message="Cancelled enrollment must have a cancellation date")
 
-        # if self.state == EnrollmentState.SUSPENDED and not self.suspended_at:
-        #     raise DomainError(
-        #         code="missing_suspended_at",
-        #         message="Suspended enrollment must have a suspension date")
+        if self.state == EnrollmentState.SUSPENDED and not self.suspended_at:
+            raise DomainError(
+                code="missing_suspended_at",
+                message="Suspended enrollment must have a suspension date")
 
     def conclude(self, *, actor_id: str,
                  verdict: ConclusionVerdict,
@@ -167,8 +167,6 @@ class Enrollment:
             actor_id: str,
             occurred_at: datetime | None = None,
             justification: str,
-            canceled_at: datetime | None = None
-
     ):
         """
         Transitions the enrollment state to CANCELLED.
@@ -181,10 +179,11 @@ class Enrollment:
             raise InvalidStateTransitionError(
                 code="invalid_state_transition",
                 message="state transition not allowed",
-                details={'current_state': self.state.value,
-                         'attempted_action': 'cancel',
-                         'allowed_from_states': ['active', 'suspended'],
-                         'forbidden_reason': self.state.value}
+                details={
+                    'current_state': self.state.value,
+                    'attempted_action': 'cancel',
+                    'allowed_from_states': ['active', 'suspended'],
+                    'forbidden_reason': self.state.value}
             )
 
         if not justification or not justification.strip():
@@ -220,5 +219,69 @@ class Enrollment:
             )
         )
 
-    def suspend(self):
-        ...
+    def suspend(self,
+                *,
+                actor_id: str,
+                occurred_at: datetime | None = None,
+                justification: str,
+                ):
+
+        """
+        Transitions the enrollment state to SUSPENDED.
+        """
+        if self.state == EnrollmentState.SUSPENDED:
+            return
+
+        if self.state == EnrollmentState.CONCLUDED:
+            raise InvalidStateTransitionError(
+                code="invalid_state_transition",
+                message="state transition not allowed",
+                details={
+                    'current_state': self.state.value,
+                    'attempted_action': 'suspend',
+                    'allowed_from_states': ['active'],
+                    'forbidden_reason': self.state.value}
+            )
+
+        if self.state == EnrollmentState.CANCELLED:
+            raise InvalidStateTransitionError(
+                code="invalid_state_transition",
+                message="state transition not allowed",
+                details={
+                    'current_state': self.state.value,
+                    'attempted_action': 'suspend',
+                    'allowed_from_states': ['active'],
+                    'forbidden_reason': self.state.value}
+            )
+        if not justification or not justification.strip():
+            raise JustificationRequiredError(
+                code="required_justification",
+                message="justification is required to suspend enrollment",
+                details={'policy': 'justification_required'}
+            )
+
+        from_state = self.state
+        occurred_at = occurred_at or datetime.now(timezone.utc)
+
+        self.transitions.append(
+            StateTransition(
+                actor_id=actor_id,
+                from_state=from_state,
+                occurred_at=occurred_at,
+                to_state=EnrollmentState.SUSPENDED,
+                justification=justification
+            )
+        )
+        self.state = EnrollmentState.SUSPENDED
+        self.suspended_at = occurred_at
+
+        self._domain_events.append(
+            EnrollmentSuspended(
+                aggregate_id=self.id,
+                actor_id=actor_id,
+                from_state=from_state,
+                occurred_at=occurred_at,
+                to_state=EnrollmentState.SUSPENDED,
+                justification=justification
+            )
+        )

@@ -11,7 +11,9 @@ from domain.academic.enrollment.value_objects.enrollment_status import (
     EnrollmentState)
 from domain.academic.enrollment.errors.enrollment_errors import (
     JustificationRequiredError,
-    InvalidStateTransitionError)
+    InvalidStateTransitionError,
+    DomainError
+)
 
 
 def make_enrollment(*, state: EnrollmentState) -> Enrollment:
@@ -220,3 +222,50 @@ def test_cancel_when_justification_required_raises_error() -> None:
     assert enrollment.cancelled_at == cancelled_at_before
 
 
+def test_enrollment_cancelled_requires_cancelled_att() -> None:
+    """
+    Tests enrollment cancelled requires concluded_at
+    """
+    # Arrange
+    now = datetime.now(timezone.utc)
+
+    # Act + Assert
+    with pytest.raises(DomainError) as exc_info:
+        Enrollment(
+            id="enr-1",
+            student_id="stu-1",
+            class_group_id="cls-1",
+            academic_period_id="per-1",
+            state=EnrollmentState.CANCELLED,
+            created_at=now,
+            cancelled_at=None,  # <-
+        )
+
+    err = exc_info.value
+    assert err.code == "missing_cancelled_at"
+    assert "Cancelled enrollment must have a cancellation date" in err.message
+
+
+def test_cancel_sets_cancelled_at_and_propagates_occurred_at() -> None:
+    """
+    Tests enrollment cancelled fills occurred_at automatically
+    """
+    # Arrange
+    enrollment = make_enrollment(state=EnrollmentState.ACTIVE)
+    actor_id = "u-1"
+    cancelled_att = None
+
+    # Act
+    enrollment.cancel(
+        actor_id=actor_id,
+        justification="motivo válido",
+        occurred_at=cancelled_att
+    )
+
+    assert_cancel_success(
+        enrollment=enrollment,
+        expected_from=EnrollmentState.ACTIVE,
+        actor_id=actor_id,
+        justification="motivo válido"
+    )
+    assert enrollment.cancelled_at is not None

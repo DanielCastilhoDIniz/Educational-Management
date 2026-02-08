@@ -7,7 +7,6 @@ from domain.academic.enrollment.events.enrollment_events import EnrollmentConclu
 from domain.academic.enrollment.value_objects.enrollment_status import EnrollmentState
 from domain.academic.enrollment.value_objects.conclusion_verdict import ConclusionVerdict
 from domain.academic.enrollment.errors.enrollment_errors import (
-    InvalidStateTransitionError,
     EnrollmentNotActiveError,
     ConclusionNotAllowedError,
     JustificationRequiredError,
@@ -21,6 +20,8 @@ def make_enrollment(*, state: EnrollmentState) -> Enrollment:
     now = datetime.now(timezone.utc)
 
     concluded_at = now if state == EnrollmentState.CONCLUDED else None
+    suspended_at = now if state == EnrollmentState.SUSPENDED else None
+    cancelled_at = now if state == EnrollmentState.CANCELLED else None
 
     return Enrollment(
         id="enr-1",
@@ -30,6 +31,8 @@ def make_enrollment(*, state: EnrollmentState) -> Enrollment:
         state=state,
         created_at=now,
         concluded_at=concluded_at,
+        suspended_at=suspended_at,
+        cancelled_at=cancelled_at
     )
 
 
@@ -136,6 +139,8 @@ def test_conclude_from_not_active_raises_error() -> None:
     justification = None
     verdict = ConclusionVerdict()
 
+
+
     with pytest.raises(EnrollmentNotActiveError) as exc_info:
         enrollment.conclude(
             actor_id=actor_id,
@@ -143,12 +148,14 @@ def test_conclude_from_not_active_raises_error() -> None:
             justification=justification,
             verdict=verdict
         )
+
     err = exc_info.value
     assert err.code == "enrollment_not_active"
     assert err.details is not None
     assert err.details["current_state"] == EnrollmentState.SUSPENDED.value
     assert err.details["required_state"] == EnrollmentState.ACTIVE.value
     assert err.details["attempted_action"] == "conclude"
+
 
 
 def test_enrollment_requires_valid_id() -> None:

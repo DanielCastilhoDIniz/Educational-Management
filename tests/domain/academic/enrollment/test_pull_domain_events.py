@@ -1,7 +1,5 @@
 from datetime import datetime, timezone
 
-import pytest
-
 from domain.academic.enrollment.entities.enrollment import Enrollment
 from domain.academic.enrollment.events.enrollment_events import EnrollmentCancelled
 from domain.academic.enrollment.value_objects.enrollment_status import EnrollmentState
