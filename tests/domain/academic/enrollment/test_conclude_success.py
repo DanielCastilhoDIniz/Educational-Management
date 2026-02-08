@@ -3,9 +3,9 @@ from datetime import datetime, timezone
 import pytest
 
 from domain.academic.enrollment.entities.enrollment import Enrollment
-import domain.academic.enrollment.events.enrollment_events
-import domain.academic.enrollment.value_objects.enrollment_status
-import domain.academic.enrollment.value_objects.conclusion_verdict
+from domain.academic.enrollment.events.enrollment_events import EnrollmentConcluded
+from domain.academic.enrollment.value_objects.enrollment_status import EnrollmentState
+from domain.academic.enrollment.value_objects.conclusion_verdict import ConclusionVerdict
 from domain.academic.enrollment.errors.enrollment_errors import (
     InvalidStateTransitionError,
     EnrollmentNotActiveError,
@@ -15,12 +15,12 @@ from domain.academic.enrollment.errors.enrollment_errors import (
 )
 
 
-def make_enrollment(*, state: domain.academic.enrollment.value_objects.enrollment_status.EnrollmentState) -> Enrollment:
+def make_enrollment(*, state: EnrollmentState) -> Enrollment:
     """Factory mínima para criar um Enrollment válido
       para testes de domínio."""
     now = datetime.now(timezone.utc)
 
-    concluded_at = now if state == domain.academic.enrollment.value_objects.enrollment_status.EnrollmentState.CONCLUDED else None
+    concluded_at = now if state == EnrollmentState.CONCLUDED else None
 
     return Enrollment(
         id="enr-1",
@@ -36,14 +36,14 @@ def make_enrollment(*, state: domain.academic.enrollment.value_objects.enrollmen
 def assert_conclude_success(
         enrollment: Enrollment,
         *,
-        expected_from: domain.academic.enrollment.value_objects.enrollment_status.EnrollmentState,
+        expected_from: EnrollmentState,
         actor_id: str,
         expected_occurred_at: datetime,
         justification: str | None = None
         ):
     """Asserts comuns para cenários de conclusão com sucesso"""
 
-    assert enrollment.state == domain.academic.enrollment.value_objects.enrollment_status.EnrollmentState.CONCLUDED
+    assert enrollment.state == EnrollmentState.CONCLUDED
 
     assert enrollment.concluded_at is not None
     assert enrollment.concluded_at == expected_occurred_at
@@ -52,7 +52,7 @@ def assert_conclude_success(
     assert len(enrollment.transitions) == 1
     t = enrollment.transitions[-1]
     assert t.from_state == expected_from
-    assert t.to_state == domain.academic.enrollment.value_objects.enrollment_status.EnrollmentState.CONCLUDED
+    assert t.to_state == EnrollmentState.CONCLUDED
     assert t.actor_id == actor_id
     assert t.justification == justification
     assert t.occurred_at == expected_occurred_at
@@ -60,10 +60,10 @@ def assert_conclude_success(
     # events
     assert len(enrollment._domain_events) == 1
     e = enrollment._domain_events[-1]
-    assert isinstance(e, domain.academic.enrollment.events.enrollment_events.EnrollmentConcluded)
+    assert isinstance(e, EnrollmentConcluded)
     assert e.aggregate_id == enrollment.id
     assert e.from_state == expected_from
-    assert e.to_state == domain.academic.enrollment.value_objects.enrollment_status.EnrollmentState.CONCLUDED
+    assert e.to_state == EnrollmentState.CONCLUDED
     assert e.actor_id == actor_id
     assert e.justification == justification
     assert e.occurred_at is not None
@@ -75,11 +75,11 @@ def assert_conclude_success(
 def test_conclude_from_active_success() -> None:
 
     # Arrange
-    enrollment = make_enrollment(state=domain.academic.enrollment.value_objects.enrollment_status.EnrollmentState.ACTIVE)
+    enrollment = make_enrollment(state=EnrollmentState.ACTIVE)
     actor_id = "u-1"
     occurred_at = datetime.now(timezone.utc)
     justification = None
-    verdict = domain.academic.enrollment.value_objects.conclusion_verdict.ConclusionVerdict()
+    verdict = ConclusionVerdict()
 
     # Act
     enrollment.conclude(
@@ -91,7 +91,7 @@ def test_conclude_from_active_success() -> None:
 
     assert_conclude_success(
         enrollment=enrollment,
-        expected_from=domain.academic.enrollment.value_objects.enrollment_status.EnrollmentState.ACTIVE,
+        expected_from=EnrollmentState.ACTIVE,
         actor_id=actor_id,
         expected_occurred_at=occurred_at,
         justification=justification
@@ -100,10 +100,10 @@ def test_conclude_from_active_success() -> None:
 
 def test_conclude_is_idempotent_when_already_concluded() -> None:
 
-    enrollment = make_enrollment(state=domain.academic.enrollment.value_objects.enrollment_status.EnrollmentState.CONCLUDED)
+    enrollment = make_enrollment(state=EnrollmentState.CONCLUDED)
     actor_id = "u-1"
     occurred_at = datetime(2026, 1, 2, 10, 0, tzinfo=timezone.utc)
-    verdict = domain.academic.enrollment.value_objects.conclusion_verdict.ConclusionVerdict()
+    verdict = ConclusionVerdict()
 
     state_before = enrollment.state
     concluded_before = enrollment.concluded_at
@@ -130,11 +130,11 @@ def test_conclude_is_idempotent_when_already_concluded() -> None:
 
 
 def test_conclude_from_not_active_raises_error() -> None:
-    enrollment = make_enrollment(state=domain.academic.enrollment.value_objects.enrollment_status.EnrollmentState.SUSPENDED)
+    enrollment = make_enrollment(state=EnrollmentState.SUSPENDED)
     actor_id = "u-1"
     occurred_at = datetime.now(timezone.utc)
     justification = None
-    verdict = domain.academic.enrollment.value_objects.conclusion_verdict.ConclusionVerdict()
+    verdict = ConclusionVerdict()
 
     with pytest.raises(EnrollmentNotActiveError) as exc_info:
         enrollment.conclude(
@@ -146,8 +146,8 @@ def test_conclude_from_not_active_raises_error() -> None:
     err = exc_info.value
     assert err.code == "enrollment_not_active"
     assert err.details is not None
-    assert err.details["current_state"] == domain.academic.enrollment.value_objects.enrollment_status.EnrollmentState.SUSPENDED.value
-    assert err.details["required_state"] == domain.academic.enrollment.value_objects.enrollment_status.EnrollmentState.ACTIVE.value
+    assert err.details["current_state"] == EnrollmentState.SUSPENDED.value
+    assert err.details["required_state"] == EnrollmentState.ACTIVE.value
     assert err.details["attempted_action"] == "conclude"
 
 
@@ -162,7 +162,7 @@ def test_enrollment_requires_valid_id() -> None:
             student_id="stu-1",
             class_group_id="cls-1",
             academic_period_id="per-1",
-            state=domain.academic.enrollment.value_objects.enrollment_status.EnrollmentState.ACTIVE,
+            state=EnrollmentState.ACTIVE,
             created_at=now,
             concluded_at=None,
         )
@@ -172,6 +172,9 @@ def test_enrollment_requires_valid_id() -> None:
 
 
 def test_enrollment_concluded_requires_concluded_at() -> None:
+    """
+    Tests enrollment concluded requires concluded_at
+    """
     # Arrange
     now = datetime.now(timezone.utc)
 
@@ -182,7 +185,7 @@ def test_enrollment_concluded_requires_concluded_at() -> None:
             student_id="stu-1",
             class_group_id="cls-1",
             academic_period_id="per-1",
-            state=domain.academic.enrollment.value_objects.enrollment_status.EnrollmentState.CONCLUDED,
+            state=EnrollmentState.CONCLUDED,
             created_at=now,
             concluded_at=None,  # <-
         )
@@ -193,12 +196,14 @@ def test_enrollment_concluded_requires_concluded_at() -> None:
 
 
 def test_enrollment_concluded_fills_occurred_at_automatically() -> None:
+    """
+    Tests enrollment concluded fills occurred_at automatically
+    """
     # Arrange
-    # Arrange
-    enrollment = make_enrollment(state=domain.academic.enrollment.value_objects.enrollment_status.EnrollmentState.ACTIVE)
+    enrollment = make_enrollment(state=EnrollmentState.ACTIVE)
     actor_id = "u-1"
     justification = None
-    verdict = domain.academic.enrollment.value_objects.conclusion_verdict.ConclusionVerdict()
+    verdict = ConclusionVerdict()
 
     transitions_before = len(enrollment.transitions)
     events_before = len(enrollment._domain_events)
@@ -213,24 +218,24 @@ def test_enrollment_concluded_fills_occurred_at_automatically() -> None:
     )
 
     # Assert
-    assert enrollment.state == domain.academic.enrollment.value_objects.enrollment_status.EnrollmentState.CONCLUDED
+    assert enrollment.state == EnrollmentState.CONCLUDED
     assert enrollment.concluded_at is not None
 
     assert len(enrollment.transitions) == transitions_before + 1
     t = enrollment.transitions[-1]
     assert t.occurred_at is not None
     assert t.occurred_at == enrollment.concluded_at
-    assert t.from_state == domain.academic.enrollment.value_objects.enrollment_status.EnrollmentState.ACTIVE
-    assert t.to_state == domain.academic.enrollment.value_objects.enrollment_status.EnrollmentState.CONCLUDED
+    assert t.from_state == EnrollmentState.ACTIVE
+    assert t.to_state == EnrollmentState.CONCLUDED
     assert t.actor_id == actor_id
     assert t.justification == justification
 
     assert len(enrollment._domain_events) == events_before + 1
     e = enrollment._domain_events[-1]
-    assert isinstance(e, domain.academic.enrollment.events.enrollment_events.EnrollmentConcluded)
+    assert isinstance(e, EnrollmentConcluded)
     assert e.aggregate_id == enrollment.id
-    assert e.from_state == domain.academic.enrollment.value_objects.enrollment_status.EnrollmentState.ACTIVE
-    assert e.to_state == domain.academic.enrollment.value_objects.enrollment_status.EnrollmentState.CONCLUDED
+    assert e.from_state == EnrollmentState.ACTIVE
+    assert e.to_state == EnrollmentState.CONCLUDED
     assert e.actor_id == actor_id
     assert e.justification == justification
     assert e.occurred_at is not None
@@ -243,11 +248,11 @@ def test_should_not_conclude_enrollment_when_verdict_is_disallowed() -> None:
     tests when verdict is not allowed
     """
 
-    enrollment = make_enrollment(state=domain.academic.enrollment.value_objects.enrollment_status.EnrollmentState.ACTIVE)
+    enrollment = make_enrollment(state=EnrollmentState.ACTIVE)
     actor_id = "u-1"
     # occurred_at = datetime.now(timezone.utc)
     justification = None
-    verdict = domain.academic.enrollment.value_objects.conclusion_verdict.ConclusionVerdict(is_allowed=False, reasons=["low frequency"])
+    verdict = ConclusionVerdict(is_allowed=False, reasons=["low frequency"])
 
     state_before = enrollment.state
     transitions_before = len(enrollment.transitions)
@@ -276,11 +281,11 @@ def test_should_not_conclude_enrollment_when_verdict_is_disallowed() -> None:
 
 def test_conclude_when_verdict_raises_justification_required() -> None:
     """
-    tests when verdict requires justification
+    Tests when verdict requires justification to conclude enrollment.
     """
-    enrollment = make_enrollment(state=domain.academic.enrollment.value_objects.enrollment_status.EnrollmentState.ACTIVE)
+    enrollment = make_enrollment(state=EnrollmentState.ACTIVE)
     actor_id = "u-1"
-    verdict = domain.academic.enrollment.value_objects.conclusion_verdict.ConclusionVerdict(requires_justification=True)
+    verdict = ConclusionVerdict(requires_justification=True)
 
     state_before = enrollment.state
     transitions_before = len(enrollment.transitions)

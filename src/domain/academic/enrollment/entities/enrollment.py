@@ -36,6 +36,8 @@ class Enrollment:
     state: EnrollmentState
     created_at: datetime
     concluded_at: datetime | None = None
+    cancelled_at: datetime | None = None
+    suspended_at: datetime | None = None
 
     # Internal state history to track all lifecycle changes
     transitions: list[StateTransition] = field(
@@ -60,6 +62,16 @@ class Enrollment:
             raise DomainError(
                 code="missing_concluded_at",
                 message="Concluded enrollment must have a conclusion date")
+
+        if self.state == EnrollmentState.CANCELLED and not self.cancelled_at:
+            raise DomainError(
+                code="missing_canceled_at",
+                message="Cancelled enrollment must have a cancellation date")
+
+        # if self.state == EnrollmentState.SUSPENDED and not self.suspended_at:
+        #     raise DomainError(
+        #         code="missing_suspended_at",
+        #         message="Suspended enrollment must have a suspension date")
 
     def conclude(self, *, actor_id: str,
                  verdict: ConclusionVerdict,
@@ -154,12 +166,12 @@ class Enrollment:
             self, *,
             actor_id: str,
             occurred_at: datetime | None = None,
-            justification: str
-    ):
+            justification: str,
+            canceled_at: datetime | None = None
 
+    ):
         """
         Transitions the enrollment state to CANCELLED.
-
         """
 
         if self.state == EnrollmentState.CANCELLED:
@@ -195,6 +207,7 @@ class Enrollment:
             )
         )
         self.state = EnrollmentState.CANCELLED
+        self.cancelled_at = occurred_at
 
         self._domain_events.append(
             EnrollmentCancelled(

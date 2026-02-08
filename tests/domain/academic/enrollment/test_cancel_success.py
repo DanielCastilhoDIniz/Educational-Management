@@ -18,7 +18,9 @@ def make_enrollment(*, state: EnrollmentState) -> Enrollment:
     """Factory mínima para criar um Enrollment válido
       para testes de domínio."""
     now = datetime.now(timezone.utc)
+    cancelled_at = now if state == EnrollmentState.CANCELLED else None
     concluded_at = now if state == EnrollmentState.CONCLUDED else None
+    suspended_at = now if state == EnrollmentState.SUSPENDED else None
 
     return Enrollment(
         id="enr-1",
@@ -27,7 +29,9 @@ def make_enrollment(*, state: EnrollmentState) -> Enrollment:
         academic_period_id="per-1",
         state=state,
         created_at=now,
+        cancelled_at=cancelled_at,
         concluded_at=concluded_at,
+        suspended_at=suspended_at,
     )
 
 
@@ -62,6 +66,10 @@ def assert_cancel_success(
     assert e.actor_id == actor_id
     assert e.justification == justification
     assert e.occurred_at is not None
+
+    assert enrollment.cancelled_at is not None
+    assert enrollment.cancelled_at == t.occurred_at
+    assert enrollment.cancelled_at == e.occurred_at
 
     # Consistência forte (pega bug bobo)
     assert e.occurred_at == t.occurred_at
@@ -141,6 +149,7 @@ def test_cancel_from_concluded_raises_invalid_transition() -> None:
     state_before = enrollment.state
     transitions_before = len(enrollment.transitions)
     events_before = len(enrollment._domain_events)
+    cancelled_at_before = enrollment.cancelled_at
 
     # Act: tentativa de cancelar deve falhar
     with pytest.raises(InvalidStateTransitionError) as exc_info:
@@ -157,3 +166,57 @@ def test_cancel_from_concluded_raises_invalid_transition() -> None:
     assert enrollment.state == state_before
     assert len(enrollment.transitions) == transitions_before
     assert len(enrollment._domain_events) == events_before
+    assert enrollment.cancelled_at == cancelled_at_before
+
+
+def test_cancel_is_idempotent_when_already_cancelled() -> None:
+    # Arrange
+    enrollment = make_enrollment(state=EnrollmentState.CANCELLED)
+    actor_id = "u-1"
+    justification = "motivo válido"
+
+    state_before = enrollment.state
+    transitions_before = len(enrollment.transitions)
+    events_before = len(enrollment._domain_events)
+    cancelled_att_before = enrollment.cancelled_at
+
+    transitions_copy = list(enrollment.transitions)
+    events_copy = list(enrollment._domain_events)
+    # Act
+    enrollment.cancel(actor_id=actor_id, justification=justification)
+
+    # Assert
+    assert enrollment.state == state_before
+    assert len(enrollment.transitions) == transitions_before
+    assert len(enrollment._domain_events) == events_before
+    assert enrollment.cancelled_at == cancelled_att_before
+
+    assert enrollment.transitions == transitions_copy
+    assert enrollment._domain_events == events_copy
+
+
+def test_cancel_when_justification_required_raises_error() -> None:
+    # Arrange
+    enrollment = make_enrollment(state=EnrollmentState.ACTIVE)
+    actor_id = "u-1"
+    state_before = enrollment.state
+    transitions_before = len(enrollment.transitions)
+    events_before = len(enrollment._domain_events)
+    cancelled_at_before = enrollment.cancelled_at
+
+    # Act + Assert
+    with pytest.raises(JustificationRequiredError) as exc_info:
+        enrollment.cancel(actor_id=actor_id, justification="")
+
+    err = exc_info.value
+    assert err.code == "required_justification"
+    assert err.message == "justification is required to cancel enrollment"
+    assert err.details is not None
+    assert err.details["policy"] == "justification_required"
+
+    assert enrollment.state == state_before
+    assert len(enrollment.transitions) == transitions_before
+    assert len(enrollment._domain_events) == events_before  # <-
+    assert enrollment.cancelled_at == cancelled_at_before
+
+
