@@ -139,8 +139,6 @@ def test_conclude_from_not_active_raises_error() -> None:
     justification = None
     verdict = ConclusionVerdict()
 
-
-
     with pytest.raises(EnrollmentNotActiveError) as exc_info:
         enrollment.conclude(
             actor_id=actor_id,
