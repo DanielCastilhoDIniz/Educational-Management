@@ -105,3 +105,4 @@ class EnrollmentSuspended(DomainEvent):
                     'expected_state': EnrollmentState.SUSPENDED.value
                 }
             )
+# verificar se aqui é o melhor local para reativação de matricula. <---------

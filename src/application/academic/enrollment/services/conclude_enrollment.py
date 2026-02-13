@@ -1,10 +1,13 @@
 from datetime import datetime
 
-from src.application.academic.enrollment.ports.enrollment_repository import EnrollmentRepository
-from src.application.academic.enrollment.errors.enrollment_errors import EnrollmentNotFoundError
-from src.application.academic.enrollment.dto.results import ApplicationResult
+from application.academic.enrollment.ports.enrollment_repository import EnrollmentRepository
+from application.academic.enrollment.errors.enrollment_errors import EnrollmentNotFoundError
+from application.academic.enrollment.dto.results import ApplicationResult
 
-from src.domain.academic.enrollment.value_objects.conclusion_verdict import ConclusionVerdict
+from domain.academic.enrollment.value_objects.conclusion_verdict import ConclusionVerdict
+
+
+
 
 
 class ConcludeEnrollmentService:
