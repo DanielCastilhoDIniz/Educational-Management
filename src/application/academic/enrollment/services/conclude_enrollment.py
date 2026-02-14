@@ -7,9 +7,6 @@ from application.academic.enrollment.dto.results import ApplicationResult
 from domain.academic.enrollment.value_objects.conclusion_verdict import ConclusionVerdict
 
 
-
-
-
 class ConcludeEnrollmentService:
     """Application service to conclude an enrollment.
     Responsibilities:
