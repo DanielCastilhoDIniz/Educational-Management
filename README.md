@@ -1,167 +1,224 @@
 
-# 🎓 School Management SaaS (Backend)
+---
 
-Sistema de Gestão Escolar desenvolvido com foco em **arquitetura de domínio**, **boas práticas de engenharia de software** e **aprendizado prático enquanto constrói**.
+# 🎓 School Management SaaS — Backend
 
-Este projeto faz parte de um estudo aprofundado sobre **Domain-Driven Design (DDD)** aplicado a um contexto real do setor educacional brasileiro (Ensino Fundamental II e Ensino Médio).
+Sistema de Gestão Escolar construído com foco em **arquitetura de domínio, consistência transacional e engenharia de software orientada a longo prazo**.
+
+O projeto aplica **Domain-Driven Design (DDD)** em um contexto real do setor educacional brasileiro (Ensino Fundamental II e Ensino Médio), modelando processos acadêmicos com rigor estrutural e preocupação com escalabilidade.
 
 ---
 
-## 🚀 Objetivo do Projeto
+## 🚀 Objetivo
 
-Construir uma **API backend profissional e escalável** para gestão acadêmica, cobrindo processos como:
+Desenvolver uma **API backend profissional, consistente e evolutiva**, cobrindo:
 
-- Matrículas
-- Estados acadêmicos (ativa, trancada, cancelada, concluída)
-- Frequência
-- Avaliações e notas
-- Aprovação, reprovação e evasão
-- Auditoria e eventos de domínio
+* Matrículas
+* Estados acadêmicos (ativa, suspensa, cancelada, concluída)
+* Transições controladas
+* Auditoria imutável
+* Eventos de domínio
+* Regras institucionais explícitas
 
-O foco principal **não é velocidade**, mas sim:
-- clareza de domínio,
-- código sustentável,
-- decisões arquiteturais conscientes.
+O foco do projeto não é apenas entregar funcionalidades, mas:
 
-> Este projeto é desenvolvido no modelo **“learning by doing”**: cada decisão é pensada, documentada e validada antes da implementação.
+* preservar invariantes de negócio,
+* garantir integridade transacional,
+* manter separação clara entre camadas,
+* documentar decisões arquiteturais.
+
+Este projeto segue a filosofia:
+
+> Construir aprendendo — mas com padrões de produção.
 
 ---
 
-## 🧠 Abordagem Arquitetural
+## 🧠 Arquitetura
 
 ### ✔ Domain-Driven Design (DDD)
 
-O sistema é estruturado com base em conceitos de DDD:
+O sistema é estruturado com separação rigorosa entre:
 
-- **Aggregate Roots** (ex.: `Enrollment`)
-- **Entidades e Value Objects**
-- **Eventos de Domínio**
-- **Regras explícitas e documentadas**
-- **Separação clara entre Domínio, Aplicação e Infraestrutura**
+* **Domínio** (regras puras)
+* **Aplicação** (orquestração de casos de uso)
+* **Infraestrutura** (Django + Postgres)
+* **Interfaces** (API REST — fase posterior)
 
-O domínio é tratado como **fonte de verdade**, independente de framework ou banco de dados.
+Conceitos aplicados:
 
-📄 Consulte: [`DOMAIN_RULES.md`](./DOMAIN_RULES.md)
+* Aggregate Roots (`Enrollment`)
+* Entidades e Value Objects
+* Eventos de Domínio imutáveis
+* Controle explícito de transições de estado
+* Controle otimista de concorrência
+* Tradução de erros de infraestrutura
 
----
+O domínio é totalmente independente de framework.
 
-### ✔ Clean Code & SOLID
-
-- Métodos pequenos e expressivos
-- Regras de negócio centralizadas no domínio
-- Tratamento explícito de erros de domínio
-- Estados e transições controladas
-
----
-
-## 🧩 Principais Conceitos Modelados
-
-- Matrícula como **Aggregate Root**
-- Estados finais e transições explícitas
-- Eventos como fatos imutáveis (`EnrollmentConcluded`, `EnrollmentCancelled`, etc.)
-- Políticas institucionais configuráveis
-- Separação entre:
-  - regras de negócio,
-  - autorizações,
-  - decisões técnicas
+📄 Documentação de regras: `DOMAIN_RULES.md`
+📄 Decisões de persistência: `docs/adr/001-enrollment-persistence.md`
 
 ---
 
-## 🛠️ Stack Tecnológica (Planejada)
+## 🏛 Estratégia de Persistência
+
+### Snapshot + Log Imutável
+
+O aggregate `Enrollment` é persistido utilizando:
+
+* **Tabela Snapshot (`Enrollment`)**
+* **Tabela Append-Only (`EnrollmentTransition`)**
+
+Características:
+
+* Estado atual como fonte da verdade
+* Histórico completo de transições
+* Auditoria com `actor_id`
+* `transition_id` único para deduplicação
+* Controle otimista via campo `version`
+* Transação única por comando
+
+Essa abordagem garante:
+
+* Consistência
+* Idempotência
+* Integridade sob concorrência
+* Evolução futura sem reescrita estrutural
+
+---
+
+## 🛠 Stack Tecnológica
 
 ### Backend (fase atual)
-- **Python 3.12+**
-- **Django**
-- **Django REST Framework (DRF)**
-- **PostgreSQL**
-- **Docker & Docker Compose**
-- **Pytest** (testes de domínio e integração)
-- possivelmente replicarei o mesmo projeto em outra stack, Java ou Node.
 
-> O domínio é desenvolvido **sem dependência direta do Django**, facilitando testes e evolução.
+* Python 3.12+
+* Django
+* PostgreSQL
+* Pytest
+* Estrutura modular inspirada em Clean Architecture
 
----
+Infraestrutura planejada:
 
-### Frontend (fase futura)
-Após a consolidação da API, o projeto será reimplementado no frontend utilizando:
+* Docker & Docker Compose
+* Separação de ambientes (local / produção)
+* Configuração via variáveis de ambiente
 
-- **JavaScript (ES6+)**
-- **React** (ou framework equivalente)
-- Consumo da mesma API REST
-
-O objetivo é demonstrar **reuso de domínio e contratos estáveis**.
+O domínio não depende do Django.
 
 ---
 
-## 📁 Estrutura do Projeto (Resumo)
+## 📁 Estrutura do Projeto
 
 ```text
 src/
- └── domain/
-     ├── enrollment/
-     │   ├── entities/
-     │   ├── value_objects/
-     │   ├── events/
-     │   ├── errors/
-     │   └── policies/
- └── application/
- └── infrastructure/
+ ├── domain/
+ │   └── academic/
+ │       └── enrollment/
+ │           ├── entities/
+ │           ├── value_objects/
+ │           ├── events/
+ │           └── errors/
+ │
+ ├── application/
+ │   └── academic/
+ │       └── enrollment/
+ │           ├── services/
+ │           ├── ports/
+ │           └── errors/
+ │
+ ├── infrastructure/
+ │   └── django/
+ │        ├── config/
+ │        └── apps/
+ │            └── academic/
+ │                └── enrollment/
+ │                    ├── models/
+ │                    ├── mappers/
+ │                    └── repositories/
+ │
+ │
+ ├── tests/
+ |
 ```
 
-* `domain/` → regras de negócio puras
-* `application/` → orquestra casos de uso
-* `infrastructure/` → banco, API, frameworks
+### Camadas
+
+* `domain/` → regras puras e invariantes
+* `application/` → casos de uso e orquestração
+* `infrastructure/` → ORM, banco, adapters
+* `interfaces/` → API REST (em breve)
 
 ---
 
 ## 🧪 Testes
 
-O projeto prioriza:
+O projeto prioriza testes estruturais:
 
-* testes de domínio (sem banco ou Django)
-* testes de invariantes
-* testes de transição de estado
+* Testes de domínio (100% isolados de framework)
+* Testes de transição de estado
+* Testes de idempotência
+* Testes de controle de concorrência
+* Testes de integração com PostgreSQL
 
-A ideia é que **quebrar uma regra de negócio seja impossível sem um teste falhar**.
+Objetivo:
 
----
-
-## 📌 Status do Projeto
-
-🚧 **Em desenvolvimento ativo**
-
-Funcionalidades são adicionadas de forma incremental, sempre precedidas por:
-
-1. modelagem do domínio
-2. documentação da regra
-3. implementação
-4. testes
+> Quebrar uma regra de negócio deve obrigatoriamente quebrar um teste.
 
 ---
 
-## 👨‍💻 Sobre o Autor
+## 📌 Status
 
-Projeto desenvolvido por um **desenvolvedor backend em transição**, com sólida base em:
+🚧 Em desenvolvimento ativo
 
-* lógica,
-* sistemas,
-* modelagem de domínio,
-* e resolução de problemas complexos.
+Fluxo de desenvolvimento:
 
-Este repositório representa não apenas um produto, mas **um processo de aprendizado consciente** sobre como construir software de qualidade no longo prazo.
+1. Modelagem do domínio
+2. Documentação da regra
+3. Implementação
+4. Testes
+5. Integração com infraestrutura
+
+Sem atalhos.
+
+---
+
+## 🎯 Próximos Passos
+
+* Finalizar Repository com controle otimista
+* Testes de integração transacionais
+* Exposição via Django REST Framework
+* Dockerização
+* Implementação de novos casos de uso
+
+---
+
+## 👨‍💻 Sobre
+
+Desenvolvido por um backend developer em transição de carreira, com sólida base em:
+
+* Física
+* Modelagem matemática
+* Lógica formal
+* Estruturação de sistemas complexos
+
+Este repositório representa um processo disciplinado de construção de software de qualidade, aplicando conceitos de arquitetura em um cenário real.
 
 ---
 
 ## 📬 Contato
 
-Caso queira conversar sobre arquitetura, backend ou oportunidades:
+GitHub:
+[https://github.com/DanielCastilhoDIniz](https://github.com/DanielCastilhoDIniz)
 
-* GitHub: *https://github.com/DanielCastilhoDIniz*
-* LinkedIn: *(https://www.linkedin.com/in/daniel-castilho-diniz/)*
+LinkedIn:
+[https://www.linkedin.com/in/daniel-castilho-diniz/](https://www.linkedin.com/in/daniel-castilho-diniz/)
 
 ---
 
 ## 📄 Licença
 
-Projeto para fins educacionais e demonstração técnica.
+Projeto educacional e demonstrativo.
+
+---
+
 
