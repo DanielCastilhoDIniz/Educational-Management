@@ -4,6 +4,7 @@ from application.academic.enrollment.errors.enrollment_errors import EnrollmentN
 
 from domain.academic.enrollment.entities.enrollment import Enrollment
 from domain.academic.enrollment.value_objects.enrollment_status import EnrollmentState
+from domain.academic.enrollment.errors.enrollment_errors import JustificationRequiredError
 
 import pytest
 
@@ -47,6 +48,7 @@ def test_suspend_enrollment_success():
     repo = InMemoryEnrollmentRepository()
     enrollment = make_enrollment(state=EnrollmentState.ACTIVE)
 
+
     service = SuspendEnrollmentService(repo=repo)
     repo.save(enrollment)
     repo.save_calls = 0
@@ -71,9 +73,8 @@ def test_suspend_enrollment_success():
     assert repo.save_calls == 1
 
     persisted_enrollment = repo.get_by_id(enrollment.id)
-    assert persisted_enrollment is not None
+    assert persisted_enrollment.suspended_at is not None
     assert persisted_enrollment.state == EnrollmentState.SUSPENDED
-    assert persisted_enrollment.suspend is not None
 
 
 def test_suspend_enrollment_not_found():
@@ -116,3 +117,28 @@ def test_suspend_enrollment_idempotent_when_already_suspended():
 
     assert persisted_enrollment.state == EnrollmentState.SUSPENDED
     assert persisted_enrollment.suspended_at == original_suspended_at
+
+
+def test_suspend_enrollment_requires_justification():
+    repo = InMemoryEnrollmentRepository()
+
+    enrollment = make_enrollment(state=EnrollmentState.ACTIVE)
+    repo.save(enrollment)
+    repo.save_calls = 0
+
+    service = SuspendEnrollmentService(repo=repo)
+
+    with pytest.raises(JustificationRequiredError):
+        service.execute(
+            enrollment_id=enrollment.id,
+            actor_id="user-1",
+            justification="",
+            occurred_at=datetime.now(timezone.utc),
+        )
+
+    assert repo.save_calls == 0
+
+    persisted_enrollment = repo.get_by_id(enrollment.id)
+    assert persisted_enrollment is not None
+    assert persisted_enrollment.state == EnrollmentState.ACTIVE
+    assert persisted_enrollment.suspended_at is None

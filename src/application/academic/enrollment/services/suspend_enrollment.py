@@ -10,7 +10,7 @@ class SuspendEnrollmentService:
     Responsibilities:
 - Orchestrate the process of suspending an enrollment, including:
     - Retrieving the enrollment aggregate.
-    - Emitting appropriate domain events (EnrollmentConcluded or EnrollmentCancelled).
+    - Emitting appropriate domain events (EnrollmentSuspended).
     - Persisting the updated aggregate state.    """
 
     repo: EnrollmentRepository
@@ -23,9 +23,10 @@ class SuspendEnrollmentService:
             *,
             enrollment_id: str,
             actor_id: str,
+            justification: str,
             occurred_at: datetime | None = None,
-            justification: str
     ) -> ApplicationResult:
+
         enrollment = self.repo.get_by_id(enrollment_id)
         if enrollment is None:
             raise EnrollmentNotFoundError(enrollment_id)
@@ -34,8 +35,8 @@ class SuspendEnrollmentService:
 
         enrollment.suspend(
             actor_id=actor_id,
+            justification=justification,
             occurred_at=occurred_at,
-            justification=justification
         )
 
         changed = enrollment.state != before_state
