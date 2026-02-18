@@ -1,5 +1,5 @@
 from .enrollment_status import EnrollmentState
-from datetime import datetime
+from datetime import datetime, timezone
 
 from dataclasses import dataclass, field
 
@@ -16,5 +16,5 @@ class StateTransition:
     from_state: EnrollmentState
     actor_id: str
     to_state: EnrollmentState
-    occurred_at: datetime = field(default_factory=datetime.now)
+    occurred_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     justification: str | None = None

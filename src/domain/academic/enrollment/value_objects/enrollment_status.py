@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class EnrollmentState(Enum):
+class EnrollmentState(str, Enum):
     """
     possible Enrollment states:
     ACTIVE, SUSPENDED, CONCLUDED, CANCELLED

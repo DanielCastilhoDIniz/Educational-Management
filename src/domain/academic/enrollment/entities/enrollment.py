@@ -38,6 +38,7 @@ class Enrollment:
     concluded_at: datetime | None = None
     cancelled_at: datetime | None = None
     suspended_at: datetime | None = None
+    version: int = 1
 
     # Internal state history to track all lifecycle changes
     transitions: list[StateTransition] = field(
@@ -138,7 +139,8 @@ class Enrollment:
                 actor_id=actor_id,
                 from_state=from_state,
                 to_state=EnrollmentState.CONCLUDED,
-                justification=justification
+                justification=justification,
+
             )
         )
 

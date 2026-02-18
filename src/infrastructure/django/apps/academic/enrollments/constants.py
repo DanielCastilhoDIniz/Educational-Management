@@ -1,0 +1,3 @@
+import uuid
+
+ACADEMIC_ENROLLMENT_TRANSITION_NS = uuid.UUID("3d110ebc-8563-4edf-b8f7-d22a69044787")
