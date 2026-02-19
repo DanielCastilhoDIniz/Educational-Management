@@ -1,15 +1,4 @@
-Perfeito. Abaixo está um **documento em Markdown**, pensado para **consulta rápida**, **uso prático** e **alinhado exatamente com o que você está construindo**.
-Não é teórico demais, nem superficial: é um **guia operacional de DDD**.
 
-Você pode salvar como, por exemplo:
-
-```
-DDD_GUIDE.md
-```
-
----
-
-```markdown
 # 📘 DDD_GUIDE.md
 ## Domain-Driven Design — Guia Prático para Consulta e Aplicação
 

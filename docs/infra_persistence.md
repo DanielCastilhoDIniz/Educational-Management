@@ -1,8 +1,4 @@
 
-Para garantir a integridade entre o sistema e a persistência, adotaremos uma estratégia de mapeamento direto por espelhamento, onde a estrutura do banco de dados reflete fielmente o estado do Agregado de Domínio. Nesta abordagem, a tabela principal de matrículas atuará como um snapshot em tempo real, contendo colunas que correspondem exatamente aos atributos da entidade, como a coluna state (representando o EnrollmentState). Simultaneamente, a lista interna de transitions será persistida em uma tabela de histórico relacionada via chave estrangeira, garantindo que cada mudança de estado registrada no objeto de domínio possua um lastro físico idêntico no banco de dados. Esse alinhamento elimina ambiguidades na tradução de dados e facilita a reidratação da entidade, permitindo que o repositório reconstrua o objeto com sua história completa sem a necessidade de lógicas de conversão complexas.
-
-
-
 Tabela Enrollment (estado atual)
 
 Campos mínimos?
