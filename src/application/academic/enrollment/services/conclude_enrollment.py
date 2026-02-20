@@ -57,14 +57,14 @@ class ConcludeEnrollmentService:
 
         if changed:
             self.repo.save(enrollment)
-            events = tuple(enrollment.pull_domain_events())
+            domain_events = tuple(enrollment.pull_domain_events())
         else:
-            events = ()
+            domain_events = ()
 
         new_state = enrollment.state.value if changed else None
 
         return ApplicationResult(
             aggregate_id=enrollment.id,
             changed=changed,
-            events=events,
+            domain_events=domain_events,
             new_state=new_state)
