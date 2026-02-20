@@ -1,6 +1,5 @@
----
 
-# DOMAIN_RULES.md
+# DOMAIN_RULES
 
 **Sistema de Gestão Escolar — Regras de Domínio**
 
