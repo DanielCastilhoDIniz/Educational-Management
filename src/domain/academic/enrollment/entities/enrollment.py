@@ -13,6 +13,7 @@ from ..events.enrollment_events import (
     EnrollmentConcluded,
     EnrollmentCancelled,
     EnrollmentSuspended,
+    EnrollmentReactivated,
 )
 from ..errors.enrollment_errors import (
     ConclusionNotAllowedError,
@@ -50,11 +51,34 @@ class Enrollment:
     _domain_events: list[DomainEvent] = field(default_factory=list)
 
     def __post_init__(self) -> None:
-        # 1) Identity
+        self._validate_identity()
+        self._normalize_and_validate_state()
+        self._validate_version()
+        self._normalize_datetimes()
+        self._validate_state_integrity()
+
+    def _validate_identity(self) -> None:
         if not self.id or not self.id.strip():
             raise DomainError(code="invalid_id", message="Enrollment must have a valid ID")
 
-        # 2) Version invariant (optimistic concurrency)
+    def _normalize_and_validate_state(self) -> None:
+        if isinstance(self.state, str):
+            try:
+                self.state = EnrollmentState(self.state)
+            except ValueError as exc:
+                raise DomainError(
+                    code="invalid_state",
+                    message="Enrollment state is invalid",
+                    details={"state": self.state},
+                ) from exc
+        elif not isinstance(self.state, EnrollmentState):
+            raise DomainError(
+                code="invalid_state_type",
+                message="Enrollment state must be EnrollmentState or valid state string",
+                details={"type": type(self.state).__name__},
+            )
+
+    def _validate_version(self) -> None:
         if not isinstance(self.version, int) or self.version < 1:
             raise DomainError(
                 code="invalid_version",
@@ -62,7 +86,7 @@ class Enrollment:
                 details={"version": self.version},
             )
 
-        # 3) Datetime normalization (rehydration-safe)
+    def _normalize_datetimes(self) -> None:
         self.created_at = self._normalize_datetime_strict(self.created_at, field_name="created_at")
 
         if self.concluded_at is not None:
@@ -72,19 +96,52 @@ class Enrollment:
         if self.suspended_at is not None:
             self.suspended_at = self._normalize_datetime_strict(self.suspended_at, field_name="suspended_at")
 
-        # 4) State × timestamp integrity
-        required_map = {
-            EnrollmentState.CONCLUDED: ("concluded_at", self.concluded_at),
-            EnrollmentState.CANCELLED: ("cancelled_at", self.cancelled_at),
-            EnrollmentState.SUSPENDED: ("suspended_at", self.suspended_at),
+    def _validate_state_integrity(self) -> None:
+        # 4) State Consistency Matrix (Solution Implementation)
+        # Define: {State: (Required Fields, Forbidden Fields)}
+        state_integrity_matrix = {
+            EnrollmentState.ACTIVE: (
+                [],
+                ["concluded_at", "cancelled_at", "suspended_at"]
+            ),
+            EnrollmentState.SUSPENDED: (
+                ["suspended_at"],
+                ["concluded_at", "cancelled_at"]
+            ),
+            EnrollmentState.CONCLUDED: (
+                ["concluded_at"],
+                ["cancelled_at", "suspended_at"]
+            ),
+            EnrollmentState.CANCELLED: (
+                ["cancelled_at"],
+                ["concluded_at", "suspended_at"]
+            ),
         }
-        if self.state in required_map:
-            field_name, dt_value = required_map[self.state]
-            if dt_value is None:
+
+        state_integrity = state_integrity_matrix.get(self.state)
+        if state_integrity is None:
+            raise DomainError(
+                code="invalid_state",
+                message="Enrollment state is invalid",
+                details={"state": str(self.state)},
+            )
+        required, forbidden = state_integrity
+
+        # Validation A: Require mandatory fields for the current state.
+        for field_name in required:
+            if getattr(self, field_name) is None:
                 raise DomainError(
                     code=f"missing_{field_name}",
-                    message=f"{self.state.value} enrollment must have {field_name}",
-                    details={"state": self.state.value},
+                    message=f"Enrollment {self.state.value} requires filling out {field_name}."
+                )
+
+        # Validation B: Prohibit fields from other states (Total Uniqueness)
+        for field_name in forbidden:
+            if getattr(self, field_name) is not None:
+                raise DomainError(
+                    code="inconsistent_timestamps",
+                    message=f"Registration number {self.state.value} cannot have {field_name} field in.",
+                    details={"state": self.state.value, "forbidden_field": field_name}
                 )
 
     @staticmethod
@@ -129,24 +186,38 @@ class Enrollment:
         justification: Optional[str] = None,
     ) -> None:
         """
-        Atomic transition:
-        - resolves occurred_at
-        - appends StateTransition (VO)
-        - updates state + lifecycle timestamp
-        - appends DomainEvent
+        Atomic transition: logic first, mutation last.
+        Ensures the aggregate never reaches an inconsistent state if an
+        exception occurs during object instantiation.
         """
+        # 1. Preparation and Validation (It can fail here without corrupting the state)
         utc_now = self._occurred_at_or_now(occurred_at)
         from_state = self.state
 
-        self.transitions.append(
-            StateTransition(
-                from_state=from_state,
-                to_state=to_state,
-                actor_id=actor_id,
-                occurred_at=utc_now,
-                justification=justification,
-            )
+        # Instancia o VO de Transição
+        new_transition = StateTransition(
+            from_state=from_state,
+            to_state=to_state,
+            actor_id=actor_id,
+            occurred_at=utc_now,
+            justification=justification,
         )
+
+        # Instantiates the Domain Event (Event __post_init__ validations run here)
+        new_event = event_cls(
+            aggregate_id=self.id,
+            actor_id=actor_id,
+            from_state=from_state,
+            to_state=to_state,
+            occurred_at=utc_now,
+            justification=justification,
+        )
+
+        # 2. Final Mutation (Happy Path: nothing here should throw exceptions)
+        # Total reset to satisfy the Consistency Matrix
+        self.concluded_at = None
+        self.cancelled_at = None
+        self.suspended_at = None
 
         self.state = to_state
         if to_state == EnrollmentState.CONCLUDED:
@@ -156,16 +227,9 @@ class Enrollment:
         elif to_state == EnrollmentState.SUSPENDED:
             self.suspended_at = utc_now
 
-        self._domain_events.append(
-            event_cls(
-                aggregate_id=self.id,
-                actor_id=actor_id,
-                from_state=from_state,
-                to_state=to_state,
-                occurred_at=utc_now,
-                justification=justification,
-            )
-        )
+        # Record in internal records
+        self.transitions.append(new_transition)
+        self._domain_events.append(new_event)
 
     def pull_domain_events(self) -> list[DomainEvent]:
         events = list(self._domain_events)
@@ -274,4 +338,43 @@ class Enrollment:
             event_cls=EnrollmentSuspended,
             occurred_at=occurred_at,
             justification=justification,
+        )
+
+    def reactivate(
+            self,
+            *,
+            actor_id: str,
+            justification: str,
+            occurred_at: Optional[datetime] = None
+            ) -> None:
+        """
+            Transitions the enrollment back to ACTIVE state.
+            Strict Rule: Only allowed from SUSPENDED state.
+        """
+        if self.state == EnrollmentState.ACTIVE:
+            return
+
+        if self.state != EnrollmentState.SUSPENDED:
+            raise InvalidStateTransitionError(
+                code="invalid_state_transition",
+                message=f"Reactivation is only allowed for SUSPENDED enrollments. Current state: {self.state.value}",
+                details={
+                    "current_state": self.state.value,
+                    "required_state": EnrollmentState.SUSPENDED.value,
+                    "attempted_action": "reactivate"
+                }
+            )
+
+        if not justification or not justification.strip():
+            raise JustificationRequiredError(
+                code="required_justification",
+                message="A justification is mandatory to reactivate an enrollment."
+            )
+
+        self._apply_state_transition(
+            to_state=EnrollmentState.ACTIVE,
+            actor_id=actor_id,
+            event_cls=EnrollmentReactivated,
+            occurred_at=occurred_at,
+            justification=justification
         )

@@ -5,36 +5,12 @@ from domain.academic.enrollment.entities.enrollment import Enrollment
 from domain.academic.enrollment.value_objects.enrollment_status import EnrollmentState
 from domain.academic.enrollment.value_objects.state_transition import StateTransition
 
-from datetime import timezone, datetime
-
 
 class EnrollmentMapper:
     """
         Mapper to convert between ORM models
         (EnrollmentModel and EnrollmentTransitionModel) and domain entities (Enrollment).
     """
-
-    @staticmethod
-    def normalize_to_utc(dt: datetime) -> datetime:
-
-        """
-            Ensure the datetime object is UTC-aware.
-            A) Protection against None: Raises a ValueError if the data is missing.
-            B) Normalization: If naive, assume UTC. If aware, convert to UTC.
-        """
-
-        if dt is None:
-            raise ValueError("O campo 'dt' (datetime) não pode ser None. Dado inconsistente.")
-
-        if not isinstance(dt, datetime):
-            raise TypeError(f"Esperado datetime, recebido {type(dt).__name__}")
-
-        if dt.tzinfo is None:
-            # It's naive to assume that the origin was already UTC (or applies the standard rule).
-            return dt.replace(tzinfo=timezone.utc)
-
-        # is aware: converts any time zone (Ex: -03:00) to the UTC standard (+00:00)
-        return dt.astimezone(timezone.utc)
 
     @staticmethod
     def to_domain(
@@ -50,28 +26,18 @@ class EnrollmentMapper:
             ensuring that all necessary transformations (like datetime normalization and enum conversions)
             are handled appropriately.
         """
-        # ---- Snapshot fields (local variables; do NOT mutate ORM) ----
+        # ---- Snapshot fields (local variables; do NOT mutate ORM)  (ORM -> Domain)----
         enrollment_id = str(snapshot.id)
         student_id = str(snapshot.student_id)
         class_group_id = str(snapshot.class_group_id)
         academic_period_id = str(snapshot.academic_period_id)
 
-        state = EnrollmentState(snapshot.state)
+        state: EnrollmentState = EnrollmentState(snapshot.state)
 
-        concluded_at =(
-            EnrollmentMapper.normalize_to_utc(snapshot.concluded_at)
-            if snapshot.concluded_at else None
-        )
-        cancelled_at = (
-            EnrollmentMapper.normalize_to_utc(snapshot.cancelled_at)
-            if snapshot.cancelled_at else None
-        )
-        suspended_at = (
-            EnrollmentMapper.normalize_to_utc(snapshot.suspended_at)
-            if snapshot.suspended_at else None
-        )
-
-        snapshot.created_at = EnrollmentMapper.normalize_to_utc(snapshot.created_at)
+        created_at = snapshot.created_at
+        concluded_at = snapshot.concluded_at
+        cancelled_at = snapshot.cancelled_at
+        suspended_at = snapshot.suspended_at
 
         version = snapshot.version
 
@@ -79,39 +45,32 @@ class EnrollmentMapper:
         domain_transitions: list[StateTransition] = []
 
         for t in transitions:
-            from_state = t.from_state
-            to_state = t.to_state
-
-            actor_id = str(t.actor_id)
-            occurred_at = t.occurred_at
-
-            actor_id = str(actor_id)
-
-            occurred_at = EnrollmentMapper.normalize_to_utc(occurred_at)
+            from_state: EnrollmentState = EnrollmentState(t.from_state)
+            to_state: EnrollmentState = EnrollmentState(t.to_state)
 
             domain_transitions.append(
                 StateTransition(
                     from_state=EnrollmentState(from_state),
-                    actor_id=actor_id,
+                    actor_id=str(t.actor_id),
                     to_state=EnrollmentState(to_state),
-                    occurred_at=occurred_at,
+                    occurred_at=t.occurred_at,
                     justification=t.justification,
                 )
             )
 
-        # ---- Build aggregate once ----
+        # Build aggregate once - domain validates invariants + normalizes datetimes
         return Enrollment(
-                transitions=domain_transitions,
                 id=enrollment_id,
                 student_id=student_id,
                 class_group_id=class_group_id,
                 academic_period_id=academic_period_id,
                 state=state,
+                created_at=created_at,
                 concluded_at=concluded_at,
                 cancelled_at=cancelled_at,
                 suspended_at=suspended_at,
-                created_at=snapshot.created_at,
-                version=snapshot.version,
+                version=version,
+                transitions=domain_transitions,
             )
 
     @staticmethod
@@ -122,7 +81,8 @@ class EnrollmentMapper:
     ) -> EnrollmentModel:
         """
             Apply the state of a domain Enrollment entity back to an EnrollmentModel snapshot.
-            This is used when saving changes to the database, ensuring that the ORM model reflects the current state of the domain entity.
+            This is used when saving changes to the database,
+            ensuring that the ORM model reflects the current state of the domain entity.
             The method updates all relevant fields in the snapshot based on the domain entity's attributes.
         """
         snapshot.id = enrollment.id

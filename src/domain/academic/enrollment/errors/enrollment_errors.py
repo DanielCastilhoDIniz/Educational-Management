@@ -29,43 +29,33 @@ class DomainError(Exception):
 
 
 class InvalidStateTransitionError(DomainError):
+    """Raised when a state transition is logically impossible (e.g. Active -> Active)."""
+    ...
+
+
+class IrreversibleStateError(DomainError):
     """
-        Raise errors message in domain layer,
-        when state transition is invalid
+    Raised when attempting to change a terminal state.
+    Strictly implements DOMAIN_RULES Rule 4.2: 'CANCELADA' or 'CONCLUÍDA' cannot return to 'ATIVA'.
     """
     ...
 
 
 class EnrollmentNotActiveError(DomainError):
-    """
-        Raise errors message in domain layer,
-        when enrollment is not active.
-    """
-
+    """Raised when an operation requires an ACTIVE state but the enrollment is in another state."""
     ...
 
 
 class EnrollmentAlreadyFinalError(DomainError):
-    """
-        Raise errors message in domain layer,
-        when enrollment is already final.
-    """
-
+    """Raised when trying to modify an aggregate that has reached a terminal state."""
     ...
 
 
 class ConclusionNotAllowedError(DomainError):
-    """
-        Raise errors message in domain layer,
-        when conclusion is no allowed.
-    """
+    """Raised when pedagogical or institutional criteria for conclusion are not met (Rule 5.4)."""
     ...
 
 
 class JustificationRequiredError(DomainError):
-    """
-        Raise errors message in domain layer,
-        when justification is required.
-    """
-
+    """Raised when an action (like cancellation or suspension) lacks a mandatory justification."""
     ...

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from ..value_objects.enrollment_status import EnrollmentState
 
@@ -23,7 +23,7 @@ class DomainEvent:
         event_id: Globally unique identifier of the event (UUID v4)
     """
     aggregate_id: str
-    occurred_at: datetime = field(default_factory=datetime.now)
+    occurred_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     event_id: str = field(default_factory=lambda: str(uuid4()))
 
 
@@ -105,4 +105,34 @@ class EnrollmentSuspended(DomainEvent):
                     'expected_state': EnrollmentState.SUSPENDED.value
                 }
             )
-# verificar se aqui é o melhor local para reativação de matricula. <---------
+
+# verificar se aqui é o melhor local para reativação de matricula. <------
+
+
+@dataclass(frozen=True, kw_only=True)
+class EnrollmentReactivated(DomainEvent):
+    """
+    Domain event: Enrollment has been reactivated.
+    Emitted when a SUSPENDED enrollment returns to the ACTIVE state.
+    """
+    actor_id: str
+    from_state: EnrollmentState
+    to_state: EnrollmentState
+    justification: str | None = None
+
+    def __post_init__(self):
+        if self.to_state != EnrollmentState.ACTIVE:
+            raise InvalidStateTransitionError(
+                code="invalid_event_state",
+                message="EnrollmentReactivated event must have to_state=ACTIVE",
+                details={
+                    'event': "EnrollmentReactivated",
+                    'actual_state': self.to_state.value,
+                    'expected_state': EnrollmentState.ACTIVE.value
+                }
+            )
+        if self.from_state != EnrollmentState.SUSPENDED:
+            raise InvalidStateTransitionError(
+                code="invalid_origin_state",
+                message="Regra 4.2: Reativação só é permitida a partir do estado TRANCADA."
+            )
