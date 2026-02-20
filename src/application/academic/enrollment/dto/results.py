@@ -11,9 +11,15 @@ class ApplicationResult:
     """
     aggregate_id: str
     changed: bool
-    events: list[DomainEvent]
+    events: tuple[DomainEvent, ...]
     new_state: str | None
 
     def __post_init__(self):
-        if self.changed is False and self.events:
+        if not self.changed and self.events:
             raise ValueError("If 'changed' is False, 'events' must be empty.")
+
+        if self.changed and self.new_state is None:
+            raise ValueError("If 'changed' is True, 'new_state' is required.")
+
+        if not self.changed and self.new_state is not None:
+            raise ValueError("If 'changed' is False, 'new_state' must be None.")

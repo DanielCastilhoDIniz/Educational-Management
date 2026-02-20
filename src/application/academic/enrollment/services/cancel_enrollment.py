@@ -41,9 +41,9 @@ class CancelEnrollmentService:
 
         if changed:
             self.repo.save(enrollment)
-            events = enrollment.pull_domain_events()
+            events = tuple(enrollment.pull_domain_events())
         else:
-            events = []
+            events = ()
 
         new_state = enrollment.state.value if changed else None
 

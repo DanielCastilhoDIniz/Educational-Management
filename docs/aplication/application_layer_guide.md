@@ -1,4 +1,3 @@
-
 ---
 
 # 📘 Application Layer — Guia Norteador
@@ -26,7 +25,7 @@ Este documento tem **autoridade arquitetural** para a camada de Application.
 * Executa comandos do domínio
 * Decide **quando persistir**
 * Extrai Domain Events (`pull_domain_events`)
-* Retorna resultados padronizados para a camada superior
+* Retorna resultados padronizados para a camada superior (**sem exceptions em fluxos esperados**)
 
 ### 1.2 O que a Application **não faz**
 
@@ -54,14 +53,12 @@ Qualquer violação desta regra é considerada **erro arquitetural**.
 ## 3. Estrutura de Pastas Recomendada
 
 Estrutura mínima:
-
-```
 src/application/
-  services/
-  ports/
-  errors/
-  dto/
-```
+services/
+ports/
+errors/
+dto/
+
 
 ### 3.1 `services/`
 
@@ -98,7 +95,7 @@ Regras:
 
 ### 3.3 `errors/`
 
-Define erros **da camada de Application**.
+Define erros **da camada de Application** (quando houver).
 
 Exemplo:
 
@@ -109,6 +106,10 @@ Regras:
 * Não duplicar erros de domínio
 * Não conter regras de negócio
 * Expressar falhas de orquestração, IO ou contexto
+
+> **Importante (contrato A):**
+> Mesmo quando existirem erros de Application, **os services não devem lançar**.
+> Eles devem converter em `ApplicationResult(success=false, error=...)`.
 
 ---
 
@@ -161,54 +162,91 @@ Exemplo conceitual:
 
 ### 5.2 Output (Contrato Padronizado)
 
-Todos os Application Services **devem retornar um resultado padronizado**.
+Todos os Application Services **devem retornar um resultado padronizado**: `ApplicationResult`.
 
 #### Estrutura conceitual: `ApplicationResult`
 
 Campos mínimos:
 
 * `aggregate_id`
+* `success` (bool)
 * `changed` (bool)
-* `events` (lista de DomainEvent)
+* `domain_events` (lista de DomainEvent)
 * `new_state` (opcional)
+* `error` (opcional, quando `success=false`)
 
 > A camada de Application **não retorna o aggregate inteiro**.
 
 ---
 
-## 6. Fluxo Interno do Application Service
+### 5.3 Regra de Ouro: Sem Exceptions em Fluxos Esperados (Contrato A)
+
+Os services **não devem lançar exceções** em situações esperadas:
+
+- aggregate não encontrado
+- violação de regra de domínio
+- transição inválida
+- justificativa ausente
+- conclusão não permitida
+- pré-condições de application (quando existirem)
+
+Em vez disso, devem retornar:
+
+- `ApplicationResult(success=false, changed=false, domain_events=[], error=...)`
+
+Exceções só são aceitáveis para falhas **inesperadas** (bug/infra não mapeada).
+Essas falhas devem ser tratadas no adaptador superior (API), retornando `UNEXPECTED_ERROR`.
+
+---
+
+### 5.4 Contrato de Erro (quando `success=false`)
+
+`error` deve conter:
+
+- `code` (estável, para integração)
+- `message` (humano)
+- `details` (opcional, estruturado)
+
+#### Codes mínimos recomendados
+- `ENROLLMENT_NOT_FOUND`
+- `JUSTIFICATION_REQUIRED`
+- `INVALID_STATE_TRANSITION`
+- `ENROLLMENT_NOT_ACTIVE`
+- `CONCLUSION_NOT_ALLOWED`
+- `STATE_INTEGRITY_VIOLATION` (se aplicável)
+- `UNEXPECTED_ERROR` (apenas no adaptador/API)
+
+---
+
+## 6. Fluxo Interno do Application Service (Sequência Obrigatória)
 
 Todo `execute` segue **exatamente esta sequência**:
 
 1. **Load**
-
    * Buscar aggregate via repository
-   * Se não existir → erro de Application
+   * Se não existir → retornar `ApplicationResult.failure(code=ENROLLMENT_NOT_FOUND)`
 
-2. **Snapshot**
-
-   * Capturar estado mínimo antes da operação
-
-3. **Execute Domain Command**
-
+2. **Execute Domain Command**
    * Chamar método do aggregate
-   * Propagar exceções de domínio
+   * Capturar exceções de domínio e converter em `ApplicationResult.failure(...)`
+
+3. **Pull Events (uma única vez)**
+   * Extrair e limpar Domain Events
+   * **Regra:** o service deve chamar `pull_domain_events()` no máximo uma vez por execução.
 
 4. **Detect Change**
-
-   * Verificar se houve mudança real de estado
+   * `changed = (len(domain_events) > 0)`
+   * **Regra:** “mudança” no contrato da Application é definida pela existência de eventos do domínio.
+     (Isso evita armadilhas futuras onde algo muda sem trocar estado.)
 
 5. **Persist**
+   * Persistir **somente se** `changed=true`
+   * Persistência deve acontecer **antes** de qualquer publicação externa (a publicação é responsabilidade da infra).
 
-   * Persistir **somente se houve mudança**
-
-6. **Pull Events**
-
-   * Extrair e limpar Domain Events
-
-7. **Return Result**
-
-   * Retornar `ApplicationResult`
+6. **Return Result**
+   * Sucesso com mudança: `success=true, changed=true, new_state` presente, `domain_events` presentes
+   * Sucesso sem mudança: `success=true, changed=false, new_state` ausente, `domain_events=[]`
+   * Falha: `success=false, changed=false, domain_events=[]`, `error` preenchido
 
 ---
 
@@ -222,11 +260,9 @@ Todo `execute` segue **exatamente esta sequência**:
 ### 7.2 Regras
 
 * `get_by_id` retorna `None` se não existir
-* `save` persiste o estado atual
+* `save` persiste o estado atual (snapshot) e histórico (quando aplicável)
 * Concorrência/versionamento:
-
-  * decisão documentada
-  * implementação futura
+  * decisão documentada em ADR (ex.: versionamento otimista)
 
 ---
 
@@ -236,11 +272,11 @@ Todo `execute` segue **exatamente esta sequência**:
 
 * Provar o **contrato do caso de uso**
 * Verificar:
-
-  * persistência correta
-  * idempotência
-  * propagação de erros
-  * extração de eventos
+  * retorno padronizado (success/changed/error)
+  * persistência correta **somente quando changed=true**
+  * idempotência (changed=false)
+  * captura e tradução de erros de domínio
+  * extração de eventos (pull uma vez)
 
 ### 8.2 O que usar
 
@@ -250,24 +286,24 @@ Todo `execute` segue **exatamente esta sequência**:
 
 ### 8.3 Casos mínimos por service
 
-1. Caminho feliz
-2. Aggregate não encontrado
-3. Domínio bloqueia operação
-4. Persistência ocorre somente quando há mudança
-5. Eventos são extraídos corretamente
+1. Caminho feliz (success=true, changed=true)
+2. Aggregate não encontrado (success=false, code=ENROLLMENT_NOT_FOUND)
+3. Domínio bloqueia operação (success=false, code correspondente)
+4. Persistência ocorre somente quando há mudança (changed=true)
+5. Eventos são extraídos uma única vez e retornados corretamente
+6. Idempotência: chamada repetida retorna success=true, changed=false (quando aplicável)
 
 ---
 
 ## 9. Evolução Planejada
 
 ### 9.1 Próximos Application Services
-
 * `CancelEnrollmentService`
 * `SuspendEnrollmentService`
+* `ConcludeEnrollmentService`
 
 ### 9.2 Integração futura
-
-* DRF chamará Application Service
+* DRF chamará Application Service e mapeará `ApplicationResult` para HTTP
 * Infra implementará ports
 * Domain permanece isolado
 
@@ -280,6 +316,7 @@ Todo `execute` segue **exatamente esta sequência**:
 * **Infra executa**
 * **Testes são contrato**
 * **Eventos comunicam fatos**
+* **Sem exceptions em fluxos esperados (Contrato A)**
 
 ---
 
@@ -289,8 +326,84 @@ Uma implementação da camada de Application é considerada correta se:
 
 * nenhuma regra de negócio está fora do domínio
 * todos os casos de uso seguem o mesmo padrão
+* services retornam `ApplicationResult` em todos fluxos esperados
+* persistência só ocorre quando `changed=true`
+* `pull_domain_events()` é chamado no máximo uma vez por execução
 * testes de aplicação passam sem mocks frágeis
-* mudanças no domínio quebram testes de aplicação (quando esperado)
 
 ---
 
+## 12. Mapeamento Padrão `error.code` → HTTP (Contrato do Adaptador / DRF)
+
+> **Objetivo**
+>
+> A camada Presentation (DRF) deve ser apenas um adaptador.
+> Ela converte `ApplicationResult` em HTTP de forma **determinística** e **estável**.
+>
+> Regra: **o código HTTP não depende da exceção**, mas sim do `error.code`.
+
+### 12.1 Regras gerais
+
+- Se `success=true` e `changed=true` → **200 OK** (ou 201 Created quando fizer sentido)
+- Se `success=true` e `changed=false` → **200 OK** (ou 204 No Content se endpoint for comando puro)
+- Se `success=false` → usar a tabela abaixo
+
+### 12.2 Tabela de mapeamento
+
+| `error.code`                 | HTTP | Quando usar (semântica) |
+| --------------------------- | ---- | ------------------------ |
+| `ENROLLMENT_NOT_FOUND`      | 404  | Aggregate não existe     |
+| `JUSTIFICATION_REQUIRED`    | 422  | Falta dado obrigatório para ação válida (justificativa) |
+| `INVALID_STATE_TRANSITION`  | 409  | Conflito de estado (ação não compatível com estado atual) |
+| `ENROLLMENT_NOT_ACTIVE`     | 409  | Conflito de estado (pré-condição interna: precisa estar ATIVA) |
+| `CONCLUSION_NOT_ALLOWED`    | 422  | Regra de domínio impede conclusão (veredito/política) |
+| `STATE_INTEGRITY_VIOLATION` | 500  | Violação de invariantes (erro grave: dados inconsistentes) |
+| `CONCURRENCY_CONFLICT`      | 409  | Controle otimista falhou (versão divergente) |
+| `DATA_INTEGRITY_ERROR`      | 500  | Infra detectou inconsistência estrutural (FK/constraints) |
+| `UNEXPECTED_ERROR`          | 500  | Fallback do adaptador para falhas não mapeadas |
+
+> **Nota**
+>
+> - **409 Conflict** é usado para “estado atual não permite a intenção” (conflito com o recurso).
+> - **422 Unprocessable Entity** é usado para “inputs válidos em forma, mas insuficientes/inadequados ao domínio”.
+
+### 12.3 Payload de erro HTTP (padrão)
+
+Quando `success=false`, o adaptador deve responder com um payload estável:
+
+- `error.code`
+- `error.message`
+- `error.details` (se existir)
+- `aggregate_id` (se aplicável)
+
+Exemplo conceitual:
+
+```json
+{
+  "success": false,
+  "aggregate_id": "enr-123",
+  "error": {
+    "code": "INVALID_STATE_TRANSITION",
+    "message": "Cannot conclude enrollment from CANCELLED state.",
+    "details": {
+      "from_state": "CANCELLED",
+      "to_state": "CONCLUDED"
+    }
+  }
+}
+```
+
+
+### 12.4 Checklist do Adaptador (DRF)
+
+ Nunca chamar domínio diretamente
+
+ Sempre chamar Application Service
+
+ Nunca depender de try/except para mapear regra (usar ApplicationResult)
+
+ success=false sempre retorna error.code/message
+
+ HTTP status vem apenas do error.code
+
+ Não vazar stacktrace em responses

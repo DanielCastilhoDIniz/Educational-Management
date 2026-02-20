@@ -210,7 +210,7 @@ class Enrollment:
             from_state=from_state,
             to_state=to_state,
             occurred_at=utc_now,
-            justification=justification,
+            justification=justification, # type: ignore
         )
 
         # 2. Final Mutation (Happy Path: nothing here should throw exceptions)
