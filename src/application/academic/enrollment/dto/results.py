@@ -10,9 +10,11 @@ class ApplicationResult:
     Base class for application results.
     """
     aggregate_id: str
+    success: bool
     changed: bool
-    events: tuple[DomainEvent, ...]
+    domain_events: tuple[DomainEvent, ...]
     new_state: str | None
+    error: Exception | None = None
 
     def __post_init__(self):
         if not self.changed and self.events:
