@@ -232,9 +232,17 @@ class Enrollment:
         self._domain_events.append(new_event)
 
     def pull_domain_events(self) -> list[DomainEvent]:
-        events = list(self._domain_events)
+        """
+        Return and clear pending domain events recorded by this aggregate.
+        This is a "pull" operation:
+        - returns a snapshot of `_domain_events`;
+        - clears the internal buffer (subsequent calls return an empty list).
+
+        Intended to be called by the Application Layer once per use case.
+"""
+        domain_events = list(self._domain_events)
         self._domain_events.clear()
-        return events
+        return domain_events
 
     def is_final(self) -> bool:
         return self.state in {EnrollmentState.CONCLUDED, EnrollmentState.CANCELLED}

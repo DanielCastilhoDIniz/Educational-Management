@@ -57,9 +57,9 @@ enrollment:<id>|action:<action>|from:<from>|to:<to>|at:<iso_utc>|actor:<actor>|j
 - Tratar unique violation como retry idempotente quando o snapshot estiver consistente.
 
 ## Checklist de Implementação
-- [ ] Definir `ACADEMIC_ENROLLMENT_TRANSITION_NS` como constante hardcoded
+- [x] Definir `ACADEMIC_ENROLLMENT_TRANSITION_NS` como constante hardcoded
 - [ ] Criar helper único para:
-  - [ ] normalizar `occurred_at` para UTC timezone-aware
+  - [x] normalizar `occurred_at` para UTC timezone-aware
   - [ ] normalizar `justification` (None → "", trim)
   - [ ] construir fingerprint estável
   - [ ] gerar UUIDv5(namespace, fingerprint)

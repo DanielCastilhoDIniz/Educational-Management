@@ -208,13 +208,15 @@ Essas falhas devem ser tratadas no adaptador superior (API), retornando `UNEXPEC
 - `details` (opcional, estruturado)
 
 #### Codes mínimos recomendados
-- `ENROLLMENT_NOT_FOUND`
-- `JUSTIFICATION_REQUIRED`
-- `INVALID_STATE_TRANSITION`
-- `ENROLLMENT_NOT_ACTIVE`
-- `CONCLUSION_NOT_ALLOWED`
-- `STATE_INTEGRITY_VIOLATION` (se aplicável)
-- `UNEXPECTED_ERROR` (apenas no adaptador/API)
+- `ENROLLMENT_NOT_FOUND`  repo retornou None
+- `JUSTIFICATION_REQUIRED` → domínio exigiu justificativa
+- `INVALID_STATE_TRANSITION` → conflito com estado atual (409)
+- `ENROLLMENT_NOT_ACTIVE` → conflito com estado atual (409)
+- `CONCLUSION_NOT_ALLOWED` → regra/política de conclusão (422)
+- `CONCURRENCY_CONFLICT` (se aplicável)
+- `DATA_INTEGRITY_ERROR` (se aplicável)
+- `STATE_INTEGRITY_VIOLATION` (se aplicável) → dados inconsistentes (500)
+- `UNEXPECTED_ERROR` (apenas no adaptador/API)→ fallback do adaptador (500)
 
 ---
 
@@ -350,7 +352,7 @@ Uma implementação da camada de Application é considerada correta se:
 
 ### 12.2 Tabela de mapeamento
 
-| `error.code`                 | HTTP | Quando usar (semântica) |
+| `error.code`                | HTTP | Quando usar (semântica) |
 | --------------------------- | ---- | ------------------------ |
 | `ENROLLMENT_NOT_FOUND`      | 404  | Aggregate não existe     |
 | `JUSTIFICATION_REQUIRED`    | 422  | Falta dado obrigatório para ação válida (justificativa) |
@@ -370,6 +372,8 @@ Uma implementação da camada de Application é considerada correta se:
 ### 12.3 Payload de erro HTTP (padrão)
 
 Quando `success=false`, o adaptador deve responder com um payload estável:
+
+* details inclui aggregate_id, action, current_state como padrão. al
 
 - `error.code`
 - `error.message`
@@ -407,3 +411,37 @@ Exemplo conceitual:
  HTTP status vem apenas do error.code
 
  Não vazar stacktrace em responses
+
+
+ ### 12.5 Contrato de Mapeamento — DomainError → ErrorCodes (Application)
+
+A camada de Application captura `DomainError` (e subclasses) e converte para `ApplicationError`
+usando `ErrorCodes` como contrato público estável.
+
+> Regra: **não vazar exceções** para camadas superiores (Contrato A).
+> Sempre retornar `ApplicationResult(success=false, ...)`.
+
+#### Tabela de mapeamento
+
+| Exceção de Domínio (DomainError)         | `ErrorCodes`                    | HTTP (padrão) | Significado |
+| ---------------------------------------- | ------------------------------- | ------------- | ----------- |
+| `InvalidStateTransitionError`            | `INVALID_STATE_TRANSITION`      | 409           | Ação incompatível com o estado atual |
+| `IrreversibleStateError`                 | `INVALID_STATE_TRANSITION`      | 409           | Tentativa de sair de estado final / irreversível |
+| `EnrollmentAlreadyFinalError`            | `INVALID_STATE_TRANSITION`      | 409           | Aggregate em estado final não pode ser modificado |
+| `EnrollmentNotActiveError`               | `ENROLLMENT_NOT_ACTIVE`         | 409           | Operação exige matrícula ATIVA |
+| `JustificationRequiredError`             | `JUSTIFICATION_REQUIRED`        | 422           | Campo obrigatório ausente (justificativa) |
+| `ConclusionNotAllowedError`              | `CONCLUSION_NOT_ALLOWED`        | 422           | Critérios pedagógicos/institucionais impedem conclusão |
+| Qualquer outro `DomainError` (raro)      | `STATE_INTEGRITY_VIOLATION`*    | 500           | Invariante violada / inconsistência grave |
+
+\* Se for claramente um erro inesperado de infraestrutura/bug não classificado, o adaptador pode usar `UNEXPECTED_ERROR` (500). Preferir `STATE_INTEGRITY_VIOLATION` quando a origem for o domínio.
+
+#### Regras para `details`
+
+- `ApplicationError.details` deve preservar o máximo possível de `DomainError.details` quando existir.
+- É permitido acrescentar contexto de orquestração:
+  - `enrollment_id` (sempre que disponível)
+  - `current_state`
+  - `action` (ex.: `"cancel"`, `"suspend"`, `"conclude"`)
+- Não incluir stack traces, dados sensíveis ou detalhes internos de infraestrutura.
+
+---

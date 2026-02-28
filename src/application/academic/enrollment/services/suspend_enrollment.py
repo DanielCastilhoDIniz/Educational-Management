@@ -1,8 +1,10 @@
 from datetime import datetime
 
 from application.academic.enrollment.ports.enrollment_repository import EnrollmentRepository
-from application.academic.enrollment.errors.enrollment_errors import EnrollmentNotFoundError
+
 from application.academic.enrollment.dto.results import ApplicationResult
+from application.academic.enrollment.dto.errors.application_error import ApplicationError
+from application.academic.enrollment.dto.errors.error_codes import ErrorCodes
 
 
 class SuspendEnrollmentService:
@@ -29,9 +31,18 @@ class SuspendEnrollmentService:
 
         enrollment = self.repo.get_by_id(enrollment_id)
         if enrollment is None:
-            raise EnrollmentNotFoundError(enrollment_id)
-
-        before_state = enrollment.state
+            return ApplicationResult(
+                aggregate_id=enrollment_id,
+                success=False,
+                changed=False,
+                domain_events=(),
+                new_state=None,
+                error=ApplicationError(
+                    code=ErrorCodes.ENROLLMENT_NOT_FOUND,
+                    message=f"Enrollment with id {enrollment_id} not found.",
+                    details={"enrollment_id": enrollment_id}
+                )
+            )
 
         enrollment.suspend(
             actor_id=actor_id,

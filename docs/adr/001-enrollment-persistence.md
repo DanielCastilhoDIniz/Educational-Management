@@ -51,7 +51,7 @@ Adotar a estratégia **Snapshot + Log Append-Only**:
 - [x] Modelar `Enrollment` (snapshot) com `version` e timestamps (`created_at`, `updated_at`, `*_at`)
 - [x] Criar constraints de coerência por estado (timestamps obrigatórios/proibidos)
 - [x] Criar índices: `state`, `student_id`, e compostos conforme consulta
-- [ ] Modelar `EnrollmentTransition` (append-only)
+- [x] Modelar `EnrollmentTransition` (append-only)
 - [x] Garantir `transition_id` unique (ADR 002)
 - [x] Garantir `actor_id` obrigatório
 - [x] Definir FK `enrollment_id` com ON DELETE PROTECT

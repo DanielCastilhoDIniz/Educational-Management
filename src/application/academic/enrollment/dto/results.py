@@ -10,7 +10,12 @@ from domain.academic.enrollment.value_objects.enrollment_status import Enrollmen
 @dataclass(frozen=True, kw_only=True)
 class ApplicationResult:
     """
-    Base class for application results.
+        Stable output contract returned by Application Services (Contract A).
+
+        Represents one of:
+        - Success with change (domain_events + new_state present),
+        - Success with no-op (no events, no new_state),
+        - Failure (error present; no change, no events).
     """
     aggregate_id: str
     success: bool
