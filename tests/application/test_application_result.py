@@ -18,19 +18,24 @@ def test_application_result_raises_when_changed_false_and_events_not_empty():
     with pytest.raises(ValueError, match="events.*must be empty"):
         ApplicationResult(
             aggregate_id="enr-1",
+            success=True,
             changed=False,
-            events=[event],
+            domain_events=(event,),
             new_state=None,
+            error=None,
         )
 
 
 def test_application_result_allows_changed_false_with_empty_events():
     result = ApplicationResult(
         aggregate_id="enr-1",
+        success=True,
         changed=False,
-        events=[],
+        domain_events=(),
         new_state=None,
+        error=None,
     )
 
+    assert result.success is True
     assert result.changed is False
-    assert result.events == []
+    assert result.domain_events == ()

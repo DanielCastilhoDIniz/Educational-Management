@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Any
 
-from dto.errors.error_codes import ErrorCodes
+from application.academic.enrollment.dto.errors.error_codes import ErrorCodes
 
 
 @dataclass(frozen=True, kw_only=True)

@@ -176,6 +176,12 @@ class Enrollment:
             return datetime.now(timezone.utc)
         return Enrollment._normalize_datetime_strict(occurred_at, field_name="occurred_at")
 
+    def peek_domain_events(self) -> list[DomainEvent]:
+        """
+        Return pending domain events
+        """
+        return list(self._domain_events)
+
     def _apply_state_transition(
         self,
         *,
@@ -210,7 +216,7 @@ class Enrollment:
             from_state=from_state,
             to_state=to_state,
             occurred_at=utc_now,
-            justification=justification, # type: ignore
+            justification=justification,  # type: ignore
         )
 
         # 2. Final Mutation (Happy Path: nothing here should throw exceptions)

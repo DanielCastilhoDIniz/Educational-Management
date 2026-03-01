@@ -1,12 +1,9 @@
 from datetime import datetime, timezone
 from application.academic.enrollment.services.suspend_enrollment import SuspendEnrollmentService
-from application.academic.enrollment.errors.enrollment_errors import EnrollmentNotFoundError
+from application.academic.enrollment.dto.errors.error_codes import ErrorCodes
 
 from domain.academic.enrollment.entities.enrollment import Enrollment
 from domain.academic.enrollment.value_objects.enrollment_status import EnrollmentState
-from domain.academic.enrollment.errors.enrollment_errors import JustificationRequiredError
-
-import pytest
 
 
 def make_enrollment(*, state: EnrollmentState) -> Enrollment:
@@ -59,14 +56,15 @@ def test_suspend_enrollment_success():
         justification="valid justification",
         occurred_at=datetime.now(timezone.utc)
     )
-    assert len(result.events) == 1
+    assert result.success is True
+    assert len(result.domain_events) == 1
 
-    event = result.events[0]
+    event = result.domain_events[0]
 
     assert result.changed is True
     assert result.aggregate_id == enrollment.id
 
-    assert result.new_state == EnrollmentState.SUSPENDED.value
+    assert result.new_state == EnrollmentState.SUSPENDED
     assert event.from_state.value == EnrollmentState.ACTIVE.value
     assert event.to_state.value == EnrollmentState.SUSPENDED.value
 
@@ -81,13 +79,19 @@ def test_suspend_enrollment_not_found():
     repo = InMemoryEnrollmentRepository()
     service = SuspendEnrollmentService(repo=repo)
 
-    with pytest.raises(EnrollmentNotFoundError):
-        service.execute(
-            enrollment_id="enr-missing",
-            actor_id="user-1",
-            justification="valid justification",
-            occurred_at=datetime.now(timezone.utc)
-        )
+    result = service.execute(
+        enrollment_id="enr-missing",
+        actor_id="user-1",
+        justification="valid justification",
+        occurred_at=datetime.now(timezone.utc)
+    )
+
+    assert result.success is False
+    assert result.changed is False
+    assert result.domain_events == ()
+    assert result.new_state is None
+    assert result.error is not None
+    assert result.error.code == ErrorCodes.ENROLLMENT_NOT_FOUND
     assert repo.save_calls == 0
 
 
@@ -109,8 +113,10 @@ def test_suspend_enrollment_idempotent_when_already_suspended():
         occurred_at=datetime.now(timezone.utc)
     )
 
+    assert result.success is True
     assert result.changed is False
-    assert result.events == []
+    assert result.domain_events == ()
+    assert result.new_state is None
     assert repo.save_calls == 0
 
     persisted_enrollment = repo.get_by_id(enrollment.id)
@@ -128,14 +134,19 @@ def test_suspend_enrollment_requires_justification():
 
     service = SuspendEnrollmentService(repo=repo)
 
-    with pytest.raises(JustificationRequiredError):
-        service.execute(
-            enrollment_id=enrollment.id,
-            actor_id="user-1",
-            justification="",
-            occurred_at=datetime.now(timezone.utc),
-        )
+    result = service.execute(
+        enrollment_id=enrollment.id,
+        actor_id="user-1",
+        justification="",
+        occurred_at=datetime.now(timezone.utc),
+    )
 
+    assert result.success is False
+    assert result.changed is False
+    assert result.domain_events == ()
+    assert result.new_state is None
+    assert result.error is not None
+    assert result.error.code == ErrorCodes.JUSTIFICATION_REQUIRED
     assert repo.save_calls == 0
 
     persisted_enrollment = repo.get_by_id(enrollment.id)
