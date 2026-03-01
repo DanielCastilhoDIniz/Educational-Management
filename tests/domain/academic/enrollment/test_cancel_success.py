@@ -163,6 +163,10 @@ def test_cancel_from_concluded_raises_invalid_transition() -> None:
     assert err.code == "invalid_state_transition"
     assert err.details["attempted_action"] == "cancel"
     assert err.details["current_state"] == EnrollmentState.CONCLUDED.value
+    assert err.details["allowed_from_states"] == [
+        EnrollmentState.ACTIVE.value,
+        EnrollmentState.SUSPENDED.value,
+    ]
 
     # Assert: não houve efeitos colaterais
     assert enrollment.state == state_before
@@ -211,10 +215,11 @@ def test_cancel_when_justification_required_raises_error() -> None:
         enrollment.cancel(actor_id=actor_id, justification="")
 
     err = exc_info.value
-    assert err.code == "required_justification"
-    assert err.message == "justification is required to cancel enrollment"
+    assert err.code == "justification_required"
+    assert err.message == "Justification is required to cancel enrollment."
     assert err.details is not None
     assert err.details["policy"] == "justification_required"
+    assert err.details["attempted_action"] == "cancel"
 
     assert enrollment.state == state_before
     assert len(enrollment.transitions) == transitions_before
@@ -243,7 +248,9 @@ def test_enrollment_cancelled_requires_cancelled_att() -> None:
 
     err = exc_info.value
     assert err.code == "missing_cancelled_at"
-    assert "Cancelled enrollment must have a cancellation date" in err.message
+    assert err.details is not None
+    assert err.details["state"] == EnrollmentState.CANCELLED.value
+    assert err.details["required_field"] == "cancelled_at"
 
 
 def test_cancel_sets_cancelled_at_and_propagates_occurred_at() -> None:

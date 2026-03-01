@@ -1,14 +1,14 @@
 from datetime import datetime
 
-from application.academic.enrollment.ports.enrollment_repository import EnrollmentRepository
-from application.academic.enrollment.errors.domain_error_mapper import to_application_error
 from domain.academic.enrollment.errors.enrollment_errors import DomainError
-from domain.academic.enrollment.value_objects.enrollment_status import EnrollmentState
-
 
 from application.academic.enrollment.dto.results import ApplicationResult
-from application.academic.enrollment.dto.errors.application_error import ApplicationError
-from application.academic.enrollment.dto.errors.error_codes import ErrorCodes
+from application.academic.enrollment.ports.enrollment_repository import EnrollmentRepository
+from application.academic.enrollment.services._state_change_flow import (
+    build_domain_failure_result,
+    build_not_found_result,
+    finalize_state_change,
+)
 
 
 class SuspendEnrollmentService:
@@ -23,101 +23,6 @@ class SuspendEnrollmentService:
 
     def __init__(self, repo: EnrollmentRepository):
         self.repo = repo
-
-    @staticmethod
-    def _build_not_found_result(enrollment_id: str) -> ApplicationResult:
-        return ApplicationResult(
-            aggregate_id=enrollment_id,
-            success=False,
-            changed=False,
-            domain_events=(),
-            new_state=None,
-            error=ApplicationError(
-                code=ErrorCodes.ENROLLMENT_NOT_FOUND,
-                message=f"Enrollment with id {enrollment_id} not found.",
-                details={
-                    "aggregate_id": enrollment_id,
-                    "action": "suspend",
-                    "current_state": None
-                }
-            )
-        )
-
-    @staticmethod
-    def _build_persistence_failure_result(
-            *,
-            enrollment_id: str,
-            current_state: str,
-            err: Exception,
-    ) -> ApplicationResult:
-        return ApplicationResult(
-            aggregate_id=enrollment_id,
-            success=False,
-            changed=False,
-            domain_events=(),
-            new_state=None,
-            error=ApplicationError(
-                code=ErrorCodes.UNEXPECTED_ERROR,
-                message="Failed to persist enrollment suspension.",
-                details={
-                    "aggregate_id": enrollment_id,
-                    "action": "suspend",
-                    "current_state": current_state,
-                    "exception_type": err.__class__.__name__,
-                    "exception_message": str(err),
-                }
-            )
-        )
-
-    @staticmethod
-    def _build_domain_failure_result(
-            *,
-            enrollment_id: str,
-            current_state: EnrollmentState,
-            action: str,
-            err: DomainError,
-    ) -> ApplicationResult:
-        return ApplicationResult(
-            aggregate_id=enrollment_id,
-            success=False,
-            changed=False,
-            domain_events=(),
-            new_state=None,
-            error=to_application_error(
-                err=err,
-                aggregate_id=enrollment_id,
-                action=action,
-                current_state=current_state
-            )
-        )
-
-    @staticmethod
-    def _build_state_integrity_result(
-            *,
-            enrollment_id: str,
-            previous_state: str,
-            current_state: str,
-            reason: str,
-            message: str,
-    ) -> ApplicationResult:
-        return ApplicationResult(
-            aggregate_id=enrollment_id,
-            success=False,
-            changed=False,
-            domain_events=(),
-            new_state=None,
-            error=ApplicationError(
-                code=ErrorCodes.STATE_INTEGRITY_VIOLATION,
-                message=message,
-                details={
-                    "aggregate_id": enrollment_id,
-                    "action": "suspend",
-                    "previous_state": previous_state,
-                    "current_state": current_state,
-                    "reason": reason,
-                }
-            )
-        )
 
     def execute(
             self,
@@ -134,7 +39,7 @@ class SuspendEnrollmentService:
         """
         enrollment = self.repo.get_by_id(enrollment_id)
         if enrollment is None:
-            return self._build_not_found_result(enrollment_id)
+            return build_not_found_result(enrollment_id=enrollment_id, action="suspend")
         previous_state = enrollment.state
         try:
             enrollment.suspend(
@@ -143,57 +48,19 @@ class SuspendEnrollmentService:
                 justification=justification
             )
         except DomainError as err:
-            return self._build_domain_failure_result(
+            return build_domain_failure_result(
                 enrollment_id=enrollment_id,
                 current_state=enrollment.state,
                 action="suspend",
                 err=err,
             )
-        state_changed = enrollment.state != previous_state
-        events_snapshot = tuple(enrollment.peek_domain_events())
-
-        if not state_changed:
-            if events_snapshot:
-                return self._build_state_integrity_result(
-                    enrollment_id=enrollment_id,
-                    previous_state=previous_state.value,
-                    current_state=enrollment.state.value,
-                    reason="event_without_state_change",
-                    message="Suspension produced pending domain events without a state change.",
-                )
-            return ApplicationResult(
-                aggregate_id=enrollment_id,
-                changed=False,
-                success=True,
-                domain_events=(),
-                new_state=None,
-                error=None
-            )
-        if not events_snapshot:
-            return self._build_state_integrity_result(
-                enrollment_id=enrollment_id,
-                previous_state=previous_state.value,
-                current_state=enrollment.state.value,
-                reason="state_changed_without_event",
-                message="Suspension changed state without emitting a domain event.",
-            )
-
-        try:
-            self.repo.save(enrollment)
-        except Exception as err:
-            return self._build_persistence_failure_result(
-                enrollment_id=enrollment_id,
-                current_state=enrollment.state.value,
-                err=err,
-            )
-
-        enrollment.pull_domain_events()
-
-        return ApplicationResult(
-            aggregate_id=enrollment_id,
-            changed=True,
-            success=True,
-            domain_events=events_snapshot,
-            new_state=enrollment.state,
-            error=None
+        return finalize_state_change(
+            repo=self.repo,
+            enrollment=enrollment,
+            enrollment_id=enrollment_id,
+            action="suspend",
+            previous_state=previous_state,
+            persistence_failure_message="Failed to persist enrollment suspension.",
+            event_without_state_change_message="Suspension produced pending domain events without a state change.",
+            state_changed_without_event_message="Suspension changed state without emitting a domain event.",
         )

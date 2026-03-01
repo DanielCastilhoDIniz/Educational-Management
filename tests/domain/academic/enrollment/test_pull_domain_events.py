@@ -46,6 +46,34 @@ def test_pull_without_events() -> None:
     assert events == []
 
 
+def test_peek_without_events() -> None:
+    enrollment = make_enrollment(state=EnrollmentState.ACTIVE)
+
+    events = enrollment.peek_domain_events()
+
+    assert events == []
+    assert len(enrollment._domain_events) == 0
+
+
+def test_peek_returns_pending_events_without_clearing_buffer() -> None:
+    enrollment = make_enrollment(state=EnrollmentState.ACTIVE)
+    actor_id = "u-1"
+    justification = "motivo válido"
+
+    enrollment.cancel(actor_id=actor_id, justification=justification)
+
+    first_peek = enrollment.peek_domain_events()
+    second_peek = enrollment.peek_domain_events()
+
+    assert len(first_peek) == 1
+    assert len(second_peek) == 1
+    assert isinstance(first_peek[0], EnrollmentCancelled)
+    assert isinstance(second_peek[0], EnrollmentCancelled)
+    assert len(enrollment._domain_events) == 1
+    assert first_peek[0] is enrollment._domain_events[0]
+    assert second_peek[0] is enrollment._domain_events[0]
+
+
 def test_pull_cancelled_event() -> None:
     # Arrange
     enrollment = make_enrollment(state=EnrollmentState.ACTIVE)

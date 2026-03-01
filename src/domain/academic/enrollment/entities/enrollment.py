@@ -132,7 +132,11 @@ class Enrollment:
             if getattr(self, field_name) is None:
                 raise DomainError(
                     code=f"missing_{field_name}",
-                    message=f"Enrollment {self.state.value} requires filling out {field_name}."
+                    message=f"Enrollment in state {self.state.value} requires field {field_name}.",
+                    details={
+                        "state": self.state.value,
+                        "required_field": field_name,
+                    }
                 )
 
         # Validation B: Prohibit fields from other states (Total Uniqueness)
@@ -267,21 +271,32 @@ class Enrollment:
         if self.state != EnrollmentState.ACTIVE:
             raise EnrollmentNotActiveError(
                 code="enrollment_not_active",
-                message=f"Cannot conclude enrollment in state {self.state.value}",
-                details={"current_state": self.state.value},
+                message=f"Cannot conclude enrollment from state {self.state.value}.",
+                details={
+                    "current_state": self.state.value,
+                    "required_state": EnrollmentState.ACTIVE.value,
+                    "attempted_action": "conclude",
+                },
             )
 
         if not verdict.is_allowed:
             raise ConclusionNotAllowedError(
                 code="conclusion_not_allowed",
-                message="Conclusion blocked by policy",
-                details={"reasons": verdict.reasons},
+                message="Conclusion is not allowed by policy.",
+                details={
+                    "reasons": verdict.reasons,
+                    "attempted_action": "conclude",
+                },
             )
 
         if verdict.requires_justification and not (justification and justification.strip()):
             raise JustificationRequiredError(
                 code="justification_required",
-                message="Justification required by verdict",
+                message="Justification is required to conclude enrollment.",
+                details={
+                    "policy": "verdict_requires_justification",
+                    "attempted_action": "conclude",
+                },
             )
 
         self._apply_state_transition(
@@ -305,14 +320,25 @@ class Enrollment:
         if self.is_final():
             raise InvalidStateTransitionError(
                 code="invalid_state_transition",
-                message=f"Cannot cancel from terminal state {self.state.value}",
-                details={"current_state": self.state.value},
+                message=f"Cannot cancel enrollment from state {self.state.value}.",
+                details={
+                    "current_state": self.state.value,
+                    "attempted_action": "cancel",
+                    "allowed_from_states": [
+                        EnrollmentState.ACTIVE.value,
+                        EnrollmentState.SUSPENDED.value,
+                    ],
+                },
             )
 
         if not justification or not justification.strip():
             raise JustificationRequiredError(
-                code="required_justification",
-                message="Justification required for cancellation",
+                code="justification_required",
+                message="Justification is required to cancel enrollment.",
+                details={
+                    "policy": "justification_required",
+                    "attempted_action": "cancel",
+                },
             )
 
         self._apply_state_transition(
@@ -336,14 +362,22 @@ class Enrollment:
         if self.state != EnrollmentState.ACTIVE:
             raise InvalidStateTransitionError(
                 code="invalid_state_transition",
-                message=f"Only ACTIVE enrollments can be suspended. Current: {self.state.value}",
-                details={"current_state": self.state.value},
+                message=f"Cannot suspend enrollment from state {self.state.value}.",
+                details={
+                    "current_state": self.state.value,
+                    "attempted_action": "suspend",
+                    "allowed_from_states": [EnrollmentState.ACTIVE.value],
+                },
             )
 
         if not justification or not justification.strip():
             raise JustificationRequiredError(
-                code="required_justification",
-                message="Justification required for suspension",
+                code="justification_required",
+                message="Justification is required to suspend enrollment.",
+                details={
+                    "policy": "justification_required",
+                    "attempted_action": "suspend",
+                },
             )
 
         self._apply_state_transition(
@@ -371,18 +405,23 @@ class Enrollment:
         if self.state != EnrollmentState.SUSPENDED:
             raise InvalidStateTransitionError(
                 code="invalid_state_transition",
-                message=f"Reactivation is only allowed for SUSPENDED enrollments. Current state: {self.state.value}",
+                message=f"Cannot reactivate enrollment from state {self.state.value}.",
                 details={
                     "current_state": self.state.value,
                     "required_state": EnrollmentState.SUSPENDED.value,
-                    "attempted_action": "reactivate"
+                    "attempted_action": "reactivate",
+                    "allowed_from_states": [EnrollmentState.SUSPENDED.value],
                 }
             )
 
         if not justification or not justification.strip():
             raise JustificationRequiredError(
-                code="required_justification",
-                message="A justification is mandatory to reactivate an enrollment."
+                code="justification_required",
+                message="Justification is required to reactivate enrollment.",
+                details={
+                    "policy": "justification_required",
+                    "attempted_action": "reactivate",
+                }
             )
 
         self._apply_state_transition(

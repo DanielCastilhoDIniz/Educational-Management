@@ -197,7 +197,9 @@ def test_enrollment_concluded_requires_concluded_at() -> None:
 
     err = exc_info.value
     assert err.code == "missing_concluded_at"
-    assert "Concluded enrollment must have a conclusion date" in err.message
+    assert err.details is not None
+    assert err.details["state"] == EnrollmentState.CONCLUDED.value
+    assert err.details["required_field"] == "concluded_at"
 
 
 def test_enrollment_concluded_fills_occurred_at_automatically() -> None:
@@ -277,8 +279,8 @@ def test_should_not_conclude_enrollment_when_verdict_is_disallowed() -> None:
     assert len(enrollment._domain_events) == events_before
 
     err = exc_info.value
-    assert err.code == "enrollment_conclusion_not_allowed"
-    assert err.message == "Conclusion is not allowed by policy"  # remove later
+    assert err.code == "conclusion_not_allowed"
+    assert err.message == "Conclusion is not allowed by policy."
     assert err.details is not None  # <---
     assert err.details["reasons"] == verdict.reasons
     assert err.details["attempted_action"] == "conclude"
@@ -310,6 +312,7 @@ def test_conclude_when_verdict_raises_justification_required() -> None:
 
     err = exc_info.value
     assert err.code == "justification_required"
-    assert err.message == "Justification is required to conclude enrollment"
+    assert err.message == "Justification is required to conclude enrollment."
     assert err.details is not None
-    assert err.details["policy"] == "requires_justification"
+    assert err.details["policy"] == "verdict_requires_justification"
+    assert err.details["attempted_action"] == "conclude"

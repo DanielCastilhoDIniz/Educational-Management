@@ -1,0 +1,140 @@
+from __future__ import annotations
+
+from datetime import datetime, timezone
+
+from domain.academic.enrollment.entities.enrollment import Enrollment
+from domain.academic.enrollment.events.enrollment_events import (
+    DomainEvent,
+    EnrollmentCancelled,
+    EnrollmentConcluded,
+    EnrollmentSuspended,
+)
+from domain.academic.enrollment.value_objects.enrollment_status import EnrollmentState
+
+
+def make_enrollment(*, state: EnrollmentState) -> Enrollment:
+    now = datetime.now(timezone.utc)
+
+    concluded_at = now if state == EnrollmentState.CONCLUDED else None
+    suspended_at = now if state == EnrollmentState.SUSPENDED else None
+    cancelled_at = now if state == EnrollmentState.CANCELLED else None
+
+    return Enrollment(
+        id="enr-1",
+        student_id="stu-1",
+        class_group_id="cls-1",
+        academic_period_id="per-1",
+        state=state,
+        created_at=now,
+        concluded_at=concluded_at,
+        suspended_at=suspended_at,
+        cancelled_at=cancelled_at
+    )
+
+
+class InMemoryEnrollmentRepository:
+    def __init__(self):
+        self.items: dict[str, object] = {}
+        self.save_calls: int = 0
+
+    def get_by_id(self, enrollment_id: str):
+        return self.items.get(enrollment_id)
+
+    def save(self, enrollment) -> None:
+        self.items[enrollment.id] = enrollment
+        self.save_calls += 1
+
+    def seed(self, enrollment) -> None:
+        self.items[enrollment.id] = enrollment
+
+
+class FailingEnrollmentRepository(InMemoryEnrollmentRepository):
+    def __init__(self, message: str = "database unavailable"):
+        super().__init__()
+        self.message = message
+
+    def save(self, enrollment) -> None:
+        self.save_calls += 1
+        raise RuntimeError(self.message)
+
+
+class ScriptedEnrollment:
+    def __init__(
+            self,
+            *,
+            enrollment_id: str,
+            state: EnrollmentState,
+            next_state: EnrollmentState,
+            command_events: list[DomainEvent],
+    ) -> None:
+        self.id = enrollment_id
+        self.state = state
+        self._next_state = next_state
+        self._command_events = list(command_events)
+        self._pending_events: list[DomainEvent] = []
+
+    def cancel(self, **_: object) -> None:
+        self._apply_script()
+
+    def suspend(self, **_: object) -> None:
+        self._apply_script()
+
+    def conclude(self, **_: object) -> None:
+        self._apply_script()
+
+    def peek_domain_events(self) -> list[DomainEvent]:
+        return list(self._pending_events)
+
+    def pull_domain_events(self) -> list[DomainEvent]:
+        pending_events = list(self._pending_events)
+        self._pending_events.clear()
+        return pending_events
+
+    def _apply_script(self) -> None:
+        self.state = self._next_state
+        self._pending_events = list(self._command_events)
+
+
+def make_cancelled_event(
+        *,
+        aggregate_id: str = "enr-1",
+        from_state: EnrollmentState = EnrollmentState.ACTIVE,
+) -> EnrollmentCancelled:
+    return EnrollmentCancelled(
+        aggregate_id=aggregate_id,
+        actor_id="user-1",
+        occurred_at=datetime.now(timezone.utc),
+        from_state=from_state,
+        to_state=EnrollmentState.CANCELLED,
+        justification="test",
+    )
+
+
+def make_suspended_event(
+        *,
+        aggregate_id: str = "enr-1",
+        from_state: EnrollmentState = EnrollmentState.ACTIVE,
+) -> EnrollmentSuspended:
+    return EnrollmentSuspended(
+        aggregate_id=aggregate_id,
+        actor_id="user-1",
+        occurred_at=datetime.now(timezone.utc),
+        from_state=from_state,
+        to_state=EnrollmentState.SUSPENDED,
+        justification="test",
+    )
+
+
+def make_concluded_event(
+        *,
+        aggregate_id: str = "enr-1",
+        from_state: EnrollmentState = EnrollmentState.ACTIVE,
+) -> EnrollmentConcluded:
+    return EnrollmentConcluded(
+        aggregate_id=aggregate_id,
+        actor_id="user-1",
+        occurred_at=datetime.now(timezone.utc),
+        from_state=from_state,
+        to_state=EnrollmentState.CONCLUDED,
+        justification="test",
+    )
