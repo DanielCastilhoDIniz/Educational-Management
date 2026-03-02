@@ -1,224 +1,189 @@
+# School Management SaaS Backend
 
----
+Backend for a school management system built around explicit domain modeling, stable application contracts, and long-term maintainability.
 
-# 🎓 School Management SaaS — Backend
+The current implementation is centered on the academic enrollment context, with a DDD-oriented structure and tests focused on business invariants.
 
-Sistema de Gestão Escolar construído com foco em **arquitetura de domínio, consistência transacional e engenharia de software orientada a longo prazo**.
+## Goals
 
-O projeto aplica **Domain-Driven Design (DDD)** em um contexto real do setor educacional brasileiro (Ensino Fundamental II e Ensino Médio), modelando processos acadêmicos com rigor estrutural e preocupação com escalabilidade.
+- Model academic enrollment lifecycle with explicit state transitions.
+- Keep domain rules isolated from framework concerns.
+- Expose stable application-layer results for expected failures.
+- Preserve auditability through transition records and domain events.
+- Prepare the codebase for Django/PostgreSQL adapters without coupling the core model to infrastructure.
 
----
+## Current Scope
 
-## 🚀 Objetivo
+The most mature module today is `academic.enrollment`.
 
-Desenvolver uma **API backend profissional, consistente e evolutiva**, cobrindo:
+Implemented in the domain layer:
 
-* Matrículas
-* Estados acadêmicos (ativa, suspensa, cancelada, concluída)
-* Transições controladas
-* Auditoria imutável
-* Eventos de domínio
-* Regras institucionais explícitas
+- `Enrollment` aggregate root
+- enrollment states: `active`, `suspended`, `cancelled`, `concluded`
+- command methods: `cancel`, `suspend`, `conclude`, `reactivate`
+- immutable domain events
+- transition history via `StateTransition`
+- invariant validation on construction and rehydration
 
-O foco do projeto não é apenas entregar funcionalidades, mas:
+Implemented in the application layer:
 
-* preservar invariantes de negócio,
-* garantir integridade transacional,
-* manter separação clara entre camadas,
-* documentar decisões arquiteturais.
+- use cases for `cancel`, `suspend`, and `conclude`
+- stable `ApplicationResult` output contract
+- `ApplicationError` + `ErrorCodes`
+- domain-to-application error mapping
+- common state change flow helper to keep orchestration consistent
 
-Este projeto segue a filosofia:
+Not implemented yet:
 
-> Construir aprendendo — mas com padrões de produção.
+- real persistence adapter with optimistic concurrency
+- typed persistence failures mapped to `CONCURRENCY_CONFLICT` / `DATA_INTEGRITY_ERROR`
+- authorization and policy ports for actor roles and institutional rules
+- API layer
+- application service for `reactivate`
 
----
+## Architecture
 
-## 🧠 Arquitetura
+The codebase follows a layered structure:
 
-### ✔ Domain-Driven Design (DDD)
+- `domain/`: business rules, invariants, entities, value objects, domain events
+- `application/`: use-case orchestration, ports, DTOs, error translation
+- `infrastructure/`: framework and persistence adapters
+- `tests/`: application and domain tests
 
-O sistema é estruturado com separação rigorosa entre:
+The domain is framework-independent.
 
-* **Domínio** (regras puras)
-* **Aplicação** (orquestração de casos de uso)
-* **Infraestrutura** (Django + Postgres)
-* **Interfaces** (API REST — fase posterior)
+## Enrollment Contracts
 
-Conceitos aplicados:
+### Domain
 
-* Aggregate Roots (`Enrollment`)
-* Entidades e Value Objects
-* Eventos de Domínio imutáveis
-* Controle explícito de transições de estado
-* Controle otimista de concorrência
-* Tradução de erros de infraestrutura
+The aggregate enforces:
 
-O domínio é totalmente independente de framework.
+- valid state normalization
+- datetime normalization to UTC
+- required and forbidden timestamps by state
+- idempotent behavior for repeated final-state operations where applicable
+- event emission only through aggregate transitions
 
-📄 Documentação de regras: `DOMAIN_RULES.md`
-📄 Decisões de persistência: `docs/adr/001-enrollment-persistence.md`
+### Application
 
----
+Application services return `ApplicationResult` instead of raising for expected failures.
 
-## 🏛 Estratégia de Persistência
+Possible outcomes:
 
-### Snapshot + Log Imutável
+- success with change: `changed=True`, `domain_events` not empty, `new_state` present
+- success with no-op: `changed=False`, no events
+- failure: `success=False`, `error` present
 
-O aggregate `Enrollment` é persistido utilizando:
+The current orchestration rule is:
 
-* **Tabela Snapshot (`Enrollment`)**
-* **Tabela Append-Only (`EnrollmentTransition`)**
+1. Load aggregate
+2. Execute domain command
+3. Snapshot pending events
+4. Persist aggregate
+5. Clear pending events
+6. Return `ApplicationResult`
 
-Características:
+This keeps events available if persistence fails, because the buffer is not drained before `save()`.
 
-* Estado atual como fonte da verdade
-* Histórico completo de transições
-* Auditoria com `actor_id`
-* `transition_id` único para deduplicação
-* Controle otimista via campo `version`
-* Transação única por comando
-
-Essa abordagem garante:
-
-* Consistência
-* Idempotência
-* Integridade sob concorrência
-* Evolução futura sem reescrita estrutural
-
----
-
-## 🛠 Stack Tecnológica
-
-### Backend (fase atual)
-
-* Python 3.12+
-* Django
-* PostgreSQL
-* Pytest
-* Estrutura modular inspirada em Clean Architecture
-
-Infraestrutura planejada:
-
-* Docker & Docker Compose
-* Separação de ambientes (local / produção)
-* Configuração via variáveis de ambiente
-
-O domínio não depende do Django.
-
----
-
-## 📁 Estrutura do Projeto
+## Project Structure
 
 ```text
 src/
- ├── domain/
- │   └── academic/
- │       └── enrollment/
- │           ├── entities/
- │           ├── value_objects/
- │           ├── events/
- │           └── errors/
- │
- ├── application/
- │   └── academic/
- │       └── enrollment/
- │           ├── services/
- │           ├── ports/
- │           └── errors/
- │
- ├── infrastructure/
- │   └── django/
- │        ├── config/
- │        └── apps/
- │            └── academic/
- │                └── enrollment/
- │                    ├── models/
- │                    ├── mappers/
- │                    └── repositories/
- │
- │
- ├── tests/
- |
+  domain/
+    academic/
+      enrollment/
+        entities/
+        errors/
+        events/
+        value_objects/
+  application/
+    academic/
+      enrollment/
+        dto/
+        errors/
+        ports/
+        services/
+  infrastructure/
+tests/
+  domain/
+    academic/
+      enrollment/
+  application/
+docs/
 ```
 
-### Camadas
+## Main References
 
-* `domain/` → regras puras e invariantes
-* `application/` → casos de uso e orquestração
-* `infrastructure/` → ORM, banco, adapters
-* `interfaces/` → API REST (em breve)
+- domain rules: `DOMIAIN_ROLES.md`
+- persistence decisions: `docs/adr/001-enrollment-persistence.md`
 
----
+## Development Setup
 
-## 🧪 Testes
+Python target: `3.12+`
 
-O projeto prioriza testes estruturais:
+Install development dependencies:
 
-* Testes de domínio (100% isolados de framework)
-* Testes de transição de estado
-* Testes de idempotência
-* Testes de controle de concorrência
-* Testes de integração com PostgreSQL
+```bash
+python -m pip install -r requirements/requirements_dev.txt
+```
 
-Objetivo:
+## Running Tests
 
-> Quebrar uma regra de negócio deve obrigatoriamente quebrar um teste.
+Run all tests:
 
----
+```bash
+python -m pytest
+```
 
-## 📌 Status
+Run with coverage:
 
-🚧 Em desenvolvimento ativo
+```bash
+python -m pytest --cov=src --cov-report=term-missing
+```
 
-Fluxo de desenvolvimento:
+Pytest is configured via [`pytest.ini`](d:/TI/School_management/Education_manegment/pytest.ini) with:
 
-1. Modelagem do domínio
-2. Documentação da regra
-3. Implementação
-4. Testes
-5. Integração com infraestrutura
+- `testpaths = tests`
+- `pythonpath = src`
 
-Sem atalhos.
+## Linting
 
----
+Ruff is configured in [`pyproject.toml`](d:/TI/School_management/Education_manegment/pyproject.toml).
 
-## 🎯 Próximos Passos
+Run lint:
 
-* Finalizar Repository com controle otimista
-* Testes de integração transacionais
-* Exposição via Django REST Framework
-* Dockerização
-* Implementação de novos casos de uso
+```bash
+ruff check .
+```
 
----
+## Current Status
 
-## 👨‍💻 Sobre
+Current state of the enrollment module:
 
-Desenvolvido por um backend developer em transição de carreira, com sólida base em:
+- domain model implemented and covered by focused unit tests
+- application services aligned to a stable result contract
+- error payloads standardized between domain and application
+- common state-change orchestration extracted to reduce duplication
 
-* Física
-* Modelagem matemática
-* Lógica formal
-* Estruturação de sistemas complexos
+The code is ready for the next phase: persistence adapters, authorization/policy ports, and API exposure.
 
-Este repositório representa um processo disciplinado de construção de software de qualidade, aplicando conceitos de arquitetura em um cenário real.
+## Next Steps
 
----
+- implement repository adapter with optimistic concurrency
+- map infrastructure failures to typed application errors
+- introduce actor context and authorization/policy ports
+- add application service for enrollment reactivation
+- expose use cases through Django/DRF
 
-## 📬 Contato
+## About
 
-GitHub:
-[https://github.com/DanielCastilhoDIniz](https://github.com/DanielCastilhoDIniz)
+This repository is a study and portfolio project with production-style design goals:
 
-LinkedIn:
-[https://www.linkedin.com/in/daniel-castilho-diniz/](https://www.linkedin.com/in/daniel-castilho-diniz/)
+- explicit modeling
+- layered architecture
+- stable contracts
+- test-driven business rules
 
----
+## License
 
-## 📄 Licença
-
-Projeto educacional e demonstrativo.
-
----
-
-
+Educational and demonstrative project.
