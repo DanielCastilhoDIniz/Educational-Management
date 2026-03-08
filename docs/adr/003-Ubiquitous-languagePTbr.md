@@ -1,68 +1,58 @@
-# ADR 003 — Linguagem Ubíqua em PT-BR e Mapeamento Técnico de Estados
-# ADR 003 — Ubiquitous Language in Brazilian Portuguese and Technical Mapping of States
+# ADR 003 - Linguagem Ubiqua em PT-BR e Mapeamento Tecnico de Estados
 
 ## Status
 Aprovado
 
 ## Contexto
-A documentação do domínio usa termos em PT-BR (ATIVA, TRANCADA, CANCELADA, CONCLUÍDA),
-enquanto a implementação utiliza um enum técnico em inglês (ACTIVE, SUSPENDED, CANCELLED, CONCLUDED).
+A documentacao do dominio usa termos em PT-BR (`ATIVA`, `TRANCADA`, `CANCELADA`, `CONCLUIDA`), enquanto a implementacao utiliza um enum tecnico em ingles (`ACTIVE`, `SUSPENDED`, `CANCELLED`, `CONCLUDED`).
 
-Sem um mapeamento oficial, surgem inconsistências entre:
-- documentação (fonte de verdade do negócio),
-- código (representação técnica),
-- UI e integrações externas.
+Sem um mapeamento oficial, surgem inconsistencias entre documentacao, codigo e interfaces externas.
 
-## Decisão
-Manter a **linguagem ubíqua em PT-BR** como fonte de verdade na documentação e adotar um
-**mapeamento oficial** entre termos do negócio e enum técnico:
+## Decisao
+Manter a linguagem ubiqua em PT-BR como fonte de verdade na documentacao e adotar um mapeamento oficial entre termos de negocio e enum tecnico:
 
-- ATIVA ↔ `ACTIVE`
-- TRANCADA ↔ `SUSPENDED`
-- CANCELADA ↔ `CANCELLED`
-- CONCLUÍDA ↔ `CONCLUDED`
+- `ATIVA` <-> `ACTIVE`
+- `TRANCADA` <-> `SUSPENDED`
+- `CANCELADA` <-> `CANCELLED`
+- `CONCLUIDA` <-> `CONCLUDED`
 
-O significado do estado (definição formal) prevalece sobre a nomenclatura técnica.
+O significado do estado prevalece sobre a nomenclatura tecnica.
 
-## Consequências
+## Consequencias
 
 ### Positivas
-- Consistência entre docs, código e UI.
-- Facilita comunicação com stakeholders e usuários finais.
-- Mantém domínio “limpo” sem renunciar ao padrão técnico interno.
+- consistencia entre docs, codigo e UI
+- melhor comunicacao com stakeholders
+- preserva linguagem de negocio sem perder padrao tecnico interno
 
 ### Negativas / Riscos
-- Se alguém alterar termos do documento sem atualizar o mapeamento, cria divergência.
-- Integrações externas precisam saber qual “idioma” usar (PT-BR vs enum técnico).
+- alterar a documentacao sem atualizar o mapeamento cria divergencia
+- integracoes externas precisam saber qual representacao usar
 
 ## Regras e Invariantes
-- Documentos de domínio devem referenciar ambos quando necessário:
-  - `ATIVA` (`ACTIVE`), `TRANCADA` (`SUSPENDED`), etc.
-- O enum técnico é a forma persistida/intercambiada internamente.
-- UI pode exibir PT-BR (linguagem ubíqua), sem alterar o core.
-- Novos estados só podem ser introduzidos com:
-  - definição formal no documento,
-  - atualização do enum técnico,
-  - atualização do mapeamento oficial.
+- documentos de dominio devem referenciar ambos quando necessario
+- o enum tecnico e a forma persistida/intercambiada internamente
+- UI pode exibir PT-BR sem alterar o core
+- novos estados exigem definicao formal, atualizacao do enum e do mapeamento
 
-## Plano de Implementação
-- Atualizar `DOMIAIN_ROLES.md` e demais docs para incluir a equivalência oficial.
-- Garantir que tabelas de transição e regras sempre mencionem PT-BR + enum técnico.
-- Definir convenção para API/UI:
-  - internamente usar enum técnico,
-  - externamente exibir PT-BR (ou aceitar ambos, se necessário).
+## Plano de Implementacao
+- atualizar `DOMIAIN_ROLES.md` e demais docs com a equivalencia oficial
+- garantir que regras e transicoes mencionem PT-BR + enum tecnico
+- definir convencao para API/UI:
+  - internamente usar enum tecnico
+  - externamente exibir PT-BR ou aceitar ambos, se necessario
 
-## Checklist de Implementação
-- [ ] Inserir “Nota de alinhamento” no capítulo de Estados (docs)
-- [ ] Atualizar tabelas de transição para exibir `PT-BR (ENUM)`
-- [ ] Padronizar nomenclatura nos capítulos 5–10 (Matrícula, Eventos, Fronteiras)
-- [ ] Documentar convenção de exposição na API (se a API expõe estado)
+## Checklist de Implementacao
+- [x] Inserir "Nota de alinhamento" no capitulo de Estados
+- [x] Atualizar tabelas e regras de transicao para exibir `PT-BR (ENUM)`
+- [ ] Padronizar nomenclatura nos capitulos 5-10 (Matricula, Eventos, Fronteiras)
+- [ ] Documentar convencao de exposicao na API (se a API expuser estado)
 
 ## Checklist de Code Review
-- [ ] Estado nunca é comparado por texto “PT-BR” no core (usar enum técnico)
-- [ ] Conversões PT-BR ↔ enum são centralizadas (não espalhadas)
-- [ ] Logs/auditoria registram enum técnico e (opcional) rótulo PT-BR
+- [x] Estado nunca e comparado por texto PT-BR no core (usar enum tecnico)
+- [ ] Conversoes `PT-BR <-> enum` sao centralizadas
+- [ ] Logs/auditoria registram enum tecnico e, opcionalmente, rotulo PT-BR
 
 ## Checklist de Testes
 - [ ] Tabelas/documentos citam corretamente o mapeamento
-- [ ] Serialização/deserialização de estado não perde informação
+- [ ] Serializacao/deserializacao de estado nao perde informacao

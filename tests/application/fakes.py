@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from typing import Protocol, cast
 
 from domain.academic.enrollment.entities.enrollment import Enrollment
 from domain.academic.enrollment.events.enrollment_events import (
@@ -10,6 +11,10 @@ from domain.academic.enrollment.events.enrollment_events import (
     EnrollmentSuspended,
 )
 from domain.academic.enrollment.value_objects.enrollment_status import EnrollmentState
+
+
+class HasAggregateId(Protocol):
+    id: str
 
 
 def make_enrollment(*, state: EnrollmentState) -> Enrollment:
@@ -33,18 +38,18 @@ def make_enrollment(*, state: EnrollmentState) -> Enrollment:
 
 
 class InMemoryEnrollmentRepository:
-    def __init__(self):
-        self.items: dict[str, object] = {}
+    def __init__(self) -> None:
+        self.items: dict[str, HasAggregateId] = {}
         self.save_calls: int = 0
 
-    def get_by_id(self, enrollment_id: str):
-        return self.items.get(enrollment_id)
+    def get_by_id(self, enrollment_id: str) -> Enrollment | None:
+        return cast(Enrollment | None, self.items.get(enrollment_id))
 
-    def save(self, enrollment) -> None:
+    def save(self, enrollment: Enrollment) -> None:
         self.items[enrollment.id] = enrollment
         self.save_calls += 1
 
-    def seed(self, enrollment) -> None:
+    def seed(self, enrollment: HasAggregateId) -> None:
         self.items[enrollment.id] = enrollment
 
 
@@ -53,7 +58,7 @@ class FailingEnrollmentRepository(InMemoryEnrollmentRepository):
         super().__init__()
         self.message = message
 
-    def save(self, enrollment) -> None:
+    def save(self, enrollment: Enrollment) -> None:
         self.save_calls += 1
         raise RuntimeError(self.message)
 

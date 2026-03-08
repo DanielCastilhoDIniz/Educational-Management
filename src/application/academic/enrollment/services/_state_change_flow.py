@@ -1,3 +1,13 @@
+"""Shared builders for enrollment application services.
+
+These helpers keep the three state-change use cases aligned around the same
+result contract:
+- expected failures are returned as ``ApplicationResult(success=False)``
+- successful changes are persisted before pending events are cleared
+- inconsistencies between state mutation and event emission are surfaced as
+  ``STATE_INTEGRITY_VIOLATION``
+"""
+
 from __future__ import annotations
 
 from typing import Any
@@ -12,6 +22,7 @@ from domain.academic.enrollment.value_objects.enrollment_status import Enrollmen
 
 
 def build_not_found_result(*, enrollment_id: str, action: str) -> ApplicationResult:
+    """Build the standard failure payload for a missing enrollment aggregate."""
     return ApplicationResult(
         aggregate_id=enrollment_id,
         success=False,
@@ -37,6 +48,7 @@ def build_domain_failure_result(
         action: str,
         err: DomainError,
 ) -> ApplicationResult:
+    """Translate a domain exception into the stable application error contract."""
     return ApplicationResult(
         aggregate_id=enrollment_id,
         success=False,
@@ -60,6 +72,7 @@ def build_persistence_failure_result(
         message: str,
         err: Exception,
 ) -> ApplicationResult:
+    """Return a generic infrastructure failure without leaking an exception."""
     return ApplicationResult(
         aggregate_id=enrollment_id,
         success=False,
@@ -89,6 +102,7 @@ def build_state_integrity_result(
         reason: str,
         message: str,
 ) -> ApplicationResult:
+    """Report an impossible state/event combination detected by the service."""
     return ApplicationResult(
         aggregate_id=enrollment_id,
         success=False,
@@ -110,6 +124,7 @@ def build_state_integrity_result(
 
 
 def build_no_change_result(*, enrollment_id: str) -> ApplicationResult:
+    """Return the canonical no-op result for idempotent commands."""
     return ApplicationResult(
         aggregate_id=enrollment_id,
         changed=False,
@@ -131,6 +146,15 @@ def finalize_state_change(
         event_without_state_change_message: str,
         state_changed_without_event_message: str,
 ) -> ApplicationResult:
+    """Finalize a successful domain command under the application contract.
+
+    Rules enforced here:
+    - no state change + pending events => integrity violation
+    - state change + no pending events => integrity violation
+    - on persistence failure, events remain buffered in the aggregate
+    - on success, the service returns an event snapshot and then clears the
+      aggregate buffer
+    """
     state_changed = enrollment.state != previous_state
     events_snapshot = tuple(enrollment.peek_domain_events())
 

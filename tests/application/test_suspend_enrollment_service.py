@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 
 from application.academic.enrollment.dto.errors.error_codes import ErrorCodes
 from application.academic.enrollment.services.suspend_enrollment import SuspendEnrollmentService
+from domain.academic.enrollment.events.enrollment_events import EnrollmentSuspended
 from domain.academic.enrollment.value_objects.enrollment_status import EnrollmentState
 from tests.application.fakes import (
     FailingEnrollmentRepository,
@@ -30,6 +31,7 @@ def test_suspend_enrollment_success():
     assert len(result.domain_events) == 1
 
     event = result.domain_events[0]
+    assert isinstance(event, EnrollmentSuspended)
 
     assert result.changed is True
     assert result.aggregate_id == enrollment.id

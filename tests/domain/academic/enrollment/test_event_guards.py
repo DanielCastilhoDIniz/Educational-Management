@@ -4,7 +4,8 @@ from domain.academic.enrollment.entities.enrollment import Enrollment
 from domain.academic.enrollment.events.enrollment_events import (
     EnrollmentConcluded,
     EnrollmentCancelled,
-    EnrollmentSuspended
+    EnrollmentReactivated,
+    EnrollmentSuspended,
 )
 import pytest
 
@@ -92,3 +93,34 @@ def test_enrollment_suspended_reject_wrong_state() -> None:
     assert err.details["event"] == "EnrollmentSuspended"
     assert err.details["actual_state"] == EnrollmentState.CONCLUDED.value
     assert err.details["expected_state"] == EnrollmentState.SUSPENDED.value
+
+
+def test_enrollment_reactivated_rejects_wrong_target_state() -> None:
+    with pytest.raises(InvalidStateTransitionError) as exc_info:
+        EnrollmentReactivated(
+            aggregate_id="enr-1",
+            actor_id="u-1",
+            from_state=EnrollmentState.SUSPENDED,
+            to_state=EnrollmentState.CONCLUDED,
+        )
+
+    err = exc_info.value
+    assert err.code == "invalid_event_state"
+    assert err.details is not None
+    assert err.details["event"] == "EnrollmentReactivated"
+    assert err.details["actual_state"] == EnrollmentState.CONCLUDED.value
+    assert err.details["expected_state"] == EnrollmentState.ACTIVE.value
+
+
+def test_enrollment_reactivated_rejects_wrong_origin_state() -> None:
+    with pytest.raises(InvalidStateTransitionError) as exc_info:
+        EnrollmentReactivated(
+            aggregate_id="enr-1",
+            actor_id="u-1",
+            from_state=EnrollmentState.ACTIVE,
+            to_state=EnrollmentState.ACTIVE,
+        )
+
+    err = exc_info.value
+    assert err.code == "invalid_origin_state"
+    assert err.message == "Regra 4.2: Reativação só é permitida a partir do estado TRANCADA."

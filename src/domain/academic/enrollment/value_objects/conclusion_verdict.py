@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
+from collections.abc import Sequence
 from domain.academic.enrollment.errors.enrollment_errors import DomainError
 
 
@@ -15,10 +16,13 @@ class ConclusionVerdict:
     - is_allowed=False => reasons must not be empty
     """
     is_allowed: bool = True
-    reasons: list[str] = field(default_factory=list)
+    reasons: Sequence[str] = ()
     requires_justification: bool = False
 
     def __post_init__(self) -> None:
+        # Normalize reasons to an immutable structure regardless of constructor input.
+        object.__setattr__(self, "reasons", tuple(self.reasons))
+
         if self.is_allowed:
             if self.reasons:
                 raise DomainError(
@@ -43,9 +47,17 @@ class ConclusionVerdict:
     @classmethod
     def allowed(cls, requires_justification: bool = False) -> 'ConclusionVerdict':
         """Create success verdict with justification requirement."""
-        return cls(is_allowed=True, reasons=[], requires_justification=requires_justification)
+        return cls(
+            is_allowed=True,
+            reasons=(),
+            requires_justification=requires_justification,
+        )
 
     @classmethod
-    def denied(cls, reasons: list[str]) -> 'ConclusionVerdict':
+    def denied(cls, reasons: Sequence[str]) -> 'ConclusionVerdict':
         """Create a denied verdict with defensive-copied reasons."""
-        return cls(is_allowed=False, reasons=list(reasons), requires_justification=False)
+        return cls(
+            is_allowed=False,
+            reasons=tuple(reasons),
+            requires_justification=False,
+        )

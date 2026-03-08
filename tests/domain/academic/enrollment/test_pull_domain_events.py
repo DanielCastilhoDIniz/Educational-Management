@@ -95,17 +95,18 @@ def test_pull_cancelled_event() -> None:
     # Assert
     assert len(pulled) == 1
     assert len(pulled2) == 0
-    assert isinstance(pulled[0], EnrollmentCancelled)
+    event = pulled[0]
+    assert isinstance(event, EnrollmentCancelled)
     assert enrollment.state == state_after_cancel
     assert enrollment.cancelled_at == cancelled_at_after_cancel
     assert events_count_in_buffer_before_pull == 1
     assert len(enrollment.transitions) == transitions_after_cancel
     assert enrollment.transitions == transitions_copy
     assert len(enrollment._domain_events) == 0
-    assert pulled[0].aggregate_id == enrollment.id
-    assert pulled[0].from_state == EnrollmentState.ACTIVE
-    assert pulled[0].to_state == EnrollmentState.CANCELLED
-    assert pulled[0].actor_id == actor_id
-    assert pulled[0].justification == justification
-    assert pulled[0].occurred_at is not None
-    assert pulled[0].occurred_at == enrollment.cancelled_at
+    assert event.aggregate_id == enrollment.id
+    assert event.from_state == EnrollmentState.ACTIVE
+    assert event.to_state == EnrollmentState.CANCELLED
+    assert event.actor_id == actor_id
+    assert event.justification == justification
+    assert event.occurred_at is not None
+    assert event.occurred_at == enrollment.cancelled_at

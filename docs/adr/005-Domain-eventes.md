@@ -1,72 +1,66 @@
-# ADR 005 — Eventos de Domínio via Acúmulo no Aggregate e Extração (Pull)
+# ADR 005 - Eventos de Dominio via Acumulo no Aggregate e Extracao (Pull)
 
 ## Status
 Aprovado
 
 ## Contexto
-Transições válidas do aggregate Matrícula geram eventos de domínio (ex.: matrícula trancada, cancelada, concluída).
-Precisamos:
+Transicoes validas do aggregate Matricula geram eventos de dominio. Precisamos:
 
-- evitar acoplamento do domínio com infraestrutura (fila, webhook, ORM, HTTP);
-- garantir que eventos externos só sejam publicados quando a mudança estiver persistida;
-- suportar retries sem publicar “fatos” que não foram confirmados no banco.
+- evitar acoplamento do dominio com fila, webhook, ORM ou HTTP
+- garantir que eventos externos so sejam publicados quando a mudanca estiver persistida
+- suportar retries sem publicar fatos nao confirmados
 
-## Decisão
-Adotar o padrão **Aggregate Event Buffer + Pull**:
+## Decisao
+Adotar o padrao `Aggregate Event Buffer + Pull`:
 
-1) O domínio cria e registra eventos internamente durante transições válidas;
-2) O aggregate acumula esses eventos em buffer interno;
-3) A Application Layer extrai eventos explicitamente ao final do caso de uso (`pull`);
-4) A Infrastructure publica externamente apenas após persistência bem-sucedida.
+1. o dominio cria e registra eventos internamente durante transicoes validas
+2. o aggregate acumula esses eventos em buffer interno
+3. a Application extrai eventos explicitamente ao final do caso de uso
+4. a Infrastructure publica externamente apenas apos persistencia bem-sucedida
 
-Eventos são fatos imutáveis e não carregam lógica de negócio.
+Eventos sao fatos imutaveis e nao carregam logica de negocio.
 
-## Consequências
+## Consequencias
 
 ### Positivas
-- Domínio permanece puro e testável.
-- Evita “evento publicado sem commit”.
-- Permite retries seguros (combinado com persistência idempotente).
-- Evolui naturalmente para Outbox se necessário.
+- dominio permanece puro e testavel
+- evita evento publicado sem commit
+- permite retries seguros
+- evolui naturalmente para Outbox
 
 ### Negativas / Riscos
-- Exige disciplina na Application: sempre persistir antes de extrair/publicar.
-- Se a Application esquecer de “pull”, eventos podem ficar presos (testes devem cobrir).
-- Publicação externa pode falhar após commit (requer estratégia de retry/outbox se crítico).
+- exige disciplina na Application
+- se a Application esquecer de fazer `pull`, eventos podem ficar presos
+- publicacao externa pode falhar apos commit
 
 ## Regras e Invariantes
-- Eventos são criados **apenas no domínio**.
-- Eventos **não** são publicados pelo domínio.
-- Extração é **explícita** e deve limpar o buffer do aggregate.
-- A Infrastructure só publica eventos provenientes da Application, após persistência confirmada.
-- Eventos oficiais do aggregate Matrícula são apenas os ligados a transições de estado (ver ADR 007).
+- eventos sao criados apenas no dominio
+- eventos nao sao publicados pelo dominio
+- a extracao e explicita e deve limpar o buffer do aggregate
+- a Infrastructure so publica eventos provenientes da Application
+- eventos oficiais da Matricula sao os ligados a transicoes de estado
 
-## Plano de Implementação
-- No domínio: manter buffer interno de eventos e operação de extração (“pull”).
-- Na Application: padrão de fluxo:
-  1) carregar aggregate
-  2) executar operação de domínio
-  3) persistir aggregate
-  4) extrair eventos
-  5) encaminhar para publisher (infra)
-- Na Infra: implementar publisher (log/queue/webhook) e, se necessário, Outbox (ADR futuro).
+## Plano de Implementacao
+- no dominio: manter buffer interno e operacao de `pull`
+- na Application: carregar, executar dominio, persistir, extrair, encaminhar ao publisher
+- na Infra: implementar publisher e, se necessario, Outbox
 
-## Checklist de Implementação
-- [ ] Domínio registra eventos apenas em transições válidas
-- [ ] Aggregate expõe operação de extração (`pull`) que limpa o buffer
-- [ ] Application executa persistência antes do `pull`
-- [ ] Publisher de infra recebe apenas eventos extraídos (não instancia eventos)
-- [ ] Falhas de publicação são tratadas (retry/log) sem quebrar consistência
+## Checklist de Implementacao
+- [x] Dominio registra eventos apenas em transicoes validas
+- [x] Aggregate expoe operacao de extracao (`pull`) que limpa o buffer
+- [x] Application executa persistencia antes do `pull`
+- [ ] Publisher de infra recebe apenas eventos extraidos (nao instancia eventos)
+- [ ] Falhas de publicacao sao tratadas (retry/log) sem quebrar consistencia
 
 ## Checklist de Code Review
-- [ ] Domínio não conhece fila/webhook/ORM/HTTP
-- [ ] Não existe publicação de evento antes do commit
-- [ ] Eventos são imutáveis (sem setters/mutações)
-- [ ] O buffer não “vaza” entre casos de uso (sempre limpo após pull)
-- [ ] Application não cria eventos “na mão”
+- [x] Dominio nao conhece fila/webhook/ORM/HTTP
+- [ ] Nao existe publicacao de evento antes do commit
+- [x] Eventos sao imutaveis (sem setters/mutacoes)
+- [x] O buffer nao vaza entre casos de uso (sempre limpo apos pull)
+- [x] Application nao cria eventos "na mao"
 
 ## Checklist de Testes
-- [ ] Transição válida gera evento esperado (domínio)
-- [ ] `pull` retorna eventos e limpa buffer (domínio)
+- [x] Transicao valida gera evento esperado (dominio)
+- [x] `pull` retorna eventos e limpa buffer (dominio)
 - [ ] Application persiste antes de publicar (teste de fluxo)
-- [ ] Falha de persistência não publica evento
+- [x] Falha de persistencia nao publica evento

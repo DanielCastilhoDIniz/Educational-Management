@@ -23,6 +23,7 @@ Implemented in the domain layer:
 - command methods: `cancel`, `suspend`, `conclude`, `reactivate`
 - immutable domain events
 - transition history via `StateTransition`
+- immutable `ConclusionVerdict` with invariant validation
 - invariant validation on construction and rehydration
 
 Implemented in the application layer:
@@ -32,6 +33,7 @@ Implemented in the application layer:
 - `ApplicationError` + `ErrorCodes`
 - domain-to-application error mapping
 - common state change flow helper to keep orchestration consistent
+- dedicated tests for application contracts and error translation
 
 Not implemented yet:
 
@@ -51,6 +53,21 @@ The codebase follows a layered structure:
 - `tests/`: application and domain tests
 
 The domain is framework-independent.
+
+## Architecture Decisions
+
+The project now has an ADR trail that documents the main architectural decisions of the enrollment module:
+
+- `001`: enrollment persistence strategy
+- `002`: deterministic transition identity
+- `003`: ubiquitous language and naming rules
+- `004`: aggregate boundary for enrollment
+- `005`: domain events
+- `006`: domain/application policy split
+- `007`: domain layer core
+- `008`: application layer use-case orchestration
+- `009`: infrastructure layer adapters, persistence, and event publication
+- `010`: interface/API boundary and HTTP mapping
 
 ## Enrollment Contracts
 
@@ -85,6 +102,17 @@ The current orchestration rule is:
 
 This keeps events available if persistence fails, because the buffer is not drained before `save()`.
 
+## Test Focus
+
+The current automated test suite is centered on contract protection:
+
+- aggregate invariants and rehydration rules
+- state transition and conclusion verdict value objects
+- domain event guards
+- application result and application error DTO contracts
+- domain-to-application error mapping
+- application services for `cancel`, `suspend`, and `conclude`
+
 ## Project Structure
 
 ```text
@@ -115,7 +143,15 @@ docs/
 ## Main References
 
 - domain rules: `DOMIAIN_ROLES.md`
+- ADR index: `docs/adr/`
 - persistence decisions: `docs/adr/001-enrollment-persistence.md`
+- aggregate boundary: `docs/adr/004- Aggregate-Bondary-Enrollment.md`
+- domain events: `docs/adr/005-Domain-eventes.md`
+- domain/application policies: `docs/adr/006-Politicas.md`
+- domain layer decision: `docs/adr/007-domain-layer-core.md`
+- application layer decision: `docs/adr/008-application-layer-use-case-orchestration.md`
+- infrastructure layer decision: `docs/adr/009-infrastructure-layer-adapters-persistence-publication.md`
+- interface layer decision: `docs/adr/010-interface-http-boundary.md`
 
 ## Development Setup
 
@@ -164,6 +200,7 @@ Current state of the enrollment module:
 - application services aligned to a stable result contract
 - error payloads standardized between domain and application
 - common state-change orchestration extracted to reduce duplication
+- ADRs `001` to `010` created and reviewed against the current codebase
 
 The code is ready for the next phase: persistence adapters, authorization/policy ports, and API exposure.
 
@@ -173,6 +210,7 @@ The code is ready for the next phase: persistence adapters, authorization/policy
 - map infrastructure failures to typed application errors
 - introduce actor context and authorization/policy ports
 - add application service for enrollment reactivation
+- add HTTP presenter/controller mapping from `ApplicationResult`
 - expose use cases through Django/DRF
 
 ## About
