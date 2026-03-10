@@ -37,7 +37,7 @@ Adotar a estrategia `Snapshot + Log Append-Only`:
 - todos os timestamps devem estar em UTC
 - `Enrollment.state` deve coincidir com o `to_state` da ultima transicao, quando houver transicoes
 
-## Plano de Implementacao
+## Plano de Implementação
 - modelar tabelas `Enrollment` e `EnrollmentTransition` com constraints e indices
 - implementar repository transacional (`get_by_id` + `save`)
 - traduzir erros do banco em erros de infra
@@ -45,7 +45,7 @@ Adotar a estrategia `Snapshot + Log Append-Only`:
 
 ## Checklist de Implementacao
 - [x] Modelar `Enrollment` (snapshot) com `version` e timestamps (`created_at`, `updated_at`, `*_at`)
-- [ ] Criar constraints de coerencia por estado (timestamps obrigatorios/proibidos)
+- [ ] Criar constraints de coerência por estado (timestamps obrigatórios/proibidos)
 - [ ] Criar indices: `state`, `student_id`, e compostos conforme consulta
 - [x] Modelar `EnrollmentTransition` (append-only)
 - [x] Garantir `transition_id` unique (ADR 002)

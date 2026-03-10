@@ -1,301 +1,341 @@
+﻿# Glossário
 
----
+Glossário do contexto `academic.enrollment`.
 
-# 📘 Dicionário de Conceitos — Linguagem Ubíqua
+Este documento registra a linguagem ubíqua usada no módulo de matrícula e ajuda a manter coerência entre:
 
-## 🔹 Identificadores e rastreabilidade
+- domínio
+- application
+- infrastructure
+- testes
+- documentação
 
-### **`aggregate_id`**
+## Identidade e rastreabilidade
 
-* **Camada:** Application / Domain
-* **Significado:** Identificador único do aggregate afetado pelo caso de uso.
-* **Uso:** Rastreamento de eventos, logs e resultados.
-* **Exemplo:** ID da matrícula (`Enrollment.id`).
+### `aggregate_id`
 
----
+- Camada: `application` / `domain`
+- Significado: identificador do aggregate afetado pelo caso de uso.
+- Uso: `ApplicationResult`, `ApplicationError`, eventos e rastreabilidade.
+- No contexto atual: corresponde a `Enrollment.id`.
 
-### **`enrollment_id`**
+### `enrollment_id`
 
-* **Camada:** Application
-* **Significado:** Identificador externo usado para localizar um aggregate `Enrollment`.
-* **Uso:** Entrada de casos de uso (ex.: concluir matrícula).
-* **Observação:** Após o load, vira `aggregate_id`.
+- Camada: `application`
+- Significado: identificador usado como entrada do caso de uso para localizar uma matrícula.
+- Uso: parâmetros de `cancel`, `suspend` e `conclude`.
+- Observação: depois do load, representa o mesmo aggregate identificado por `aggregate_id`.
 
----
+### `id`
 
-### **`id: str`**
+- Camada: `domain`
+- Significado: identidade do aggregate ou entidade.
+- Uso: `Enrollment.id`.
 
-* **Camada:** Domain
-* **Significado:** Identificador único interno de uma entidade ou aggregate.
-* **Uso:** Identidade do objeto no domínio.
-* **Exemplo:** `Enrollment.id`.
+### `actor_id`
 
----
+- Camada: `domain` / `application`
+- Significado: identificador de quem executou a ação.
+- Uso: auditoria, transições e eventos de domínio.
+- Exemplos: usuário, sistema, processo agendado.
 
-### **`actor_id: str`**
+### `event_id`
 
-* **Camada:** Domain / Application
-* **Significado:** Identificador de quem executou a ação.
-* **Uso:** Auditoria, eventos de domínio, rastreabilidade.
-* **Exemplo:** usuário, sistema, administrador.
+- Camada: `domain`
+- Significado: identificador único do evento de domínio.
+- Uso: rastreabilidade de eventos.
+- Observação: hoje os eventos usam `uuid4`.
 
----
+### `transition_id`
 
-## 🔹 Estado e transições
+- Camada: `infrastructure`
+- Significado: identificador determinístico de uma transição persistida.
+- Uso: deduplicação de retries no log append-only.
+- Referência: ADR `002`.
 
-### **`state`**
+## Aggregate e objetos centrais
 
-* **Camada:** Domain
-* **Significado:** Estado atual do aggregate.
-* **Uso:** Base para validação de transições e invariantes.
+### `Enrollment`
 
----
+- Camada: `domain`
+- Significado: aggregate root do contexto de matrícula.
+- Responsabilidades: validar invariantes internas, executar transições válidas e acumular eventos de domínio.
 
-### **`current_state`**
+### `StateTransition`
 
-* **Camada:** Domain (erros/eventos)
-* **Significado:** Estado em que o aggregate se encontra no momento da tentativa.
-* **Uso:** Mensagens de erro e eventos.
+- Camada: `domain`
+- Significado: value object que representa uma transição de estado.
+- Campos centrais: `from_state`, `to_state`, `actor_id`, `occurred_at`, `justification`.
+- Uso: histórico da matrícula e auditoria interna.
 
----
+### `ConclusionVerdict`
 
-### **`new_state`**
+- Camada: `domain`
+- Significado: value object que representa a decisão de permitir ou bloquear a conclusão.
+- Campos centrais: `is_allowed`, `reasons`, `requires_justification`.
+- Regra atual: `reasons` é imutável e armazenado como `tuple[str, ...]`.
 
-* **Camada:** Application
-* **Significado:** Estado final após execução bem-sucedida de um caso de uso.
-* **Uso:** Retorno padronizado para API/UI.
-* **Observação:** Não expõe o aggregate completo.
+### `DomainEvent`
 
----
+- Camada: `domain`
+- Significado: fato imutável ocorrido no negócio.
+- Uso: registro de mudanças relevantes após transições válidas.
+- Regra: o domínio cria eventos, mas não publica eventos externamente.
 
-### **`from_state`**
+## Estados e transições
 
-* **Camada:** Domain Event
-* **Significado:** Estado anterior à transição.
-* **Uso:** Eventos de domínio para histórico e auditoria.
+### `state`
 
----
+- Camada: `domain`
+- Significado: estado atual da matrícula.
+- Uso: base das invariantes e das transições permitidas.
 
-### **`to_state`**
+### `current_state`
 
-* **Camada:** Domain Event
-* **Significado:** Estado resultante da transição.
-* **Uso:** Consistência e validação de eventos.
+- Camada: `domain` / `application`
+- Significado: estado em que o aggregate se encontra no momento da tentativa.
+- Uso: `details` de erro, rastreabilidade e mapeamento para `ApplicationError`.
 
----
+### `new_state`
 
-### **Estados possíveis (`EnrollmentState`)**
+- Camada: `application`
+- Significado: estado final após uma mudança bem-sucedida.
+- Uso: retorno de `ApplicationResult` quando `changed=True`.
 
-* **`ACTIVE = 'active'`**
-  Matrícula válida e em andamento.
-* **`SUSPENDED = 'suspended'`**
-  Matrícula temporariamente interrompida.
-* **`CONCLUDED = 'concluded'`**
-  Matrícula finalizada com sucesso (estado final).
-* **`CANCELLED = 'cancelled'`**
-  Matrícula encerrada antes da conclusão (estado final).
+### `from_state`
 
----
+- Camada: `domain`
+- Significado: estado anterior de uma transição ou evento.
 
-## 🔹 Temporalidade
+### `to_state`
 
-### **`created_at: datetime`**
+- Camada: `domain`
+- Significado: estado resultante de uma transição ou evento.
 
-* **Camada:** Domain
-* **Significado:** Momento de criação do aggregate.
-* **Uso:** Auditoria e histórico.
+### `EnrollmentState`
 
----
+- Camada: `domain`
+- Significado: enum técnico dos estados da matrícula.
+- Valores atuais:
+  - `ACTIVE = "active"`
+  - `SUSPENDED = "suspended"`
+  - `CONCLUDED = "concluded"`
+  - `CANCELLED = "cancelled"`
 
-### **`occurred_at`**
+### Mapeamento PT-BR -> enum técnico
 
-* **Camada:** Domain / Event
-* **Significado:** Momento exato em que a ação ocorreu no mundo real.
-* **Uso:** Eventos de domínio, replay, integrações.
-* **Regra:** Preferencialmente UTC.
+- `ATIVA` -> `ACTIVE`
+- `TRANCADA` -> `SUSPENDED`
+- `CONCLUÍDA` -> `CONCLUDED`
+- `CANCELADA` -> `CANCELLED`
 
----
+Referência: ADR `003`.
 
-### **`concluded_at`**
+## Temporalidade
 
-* **Camada:** Domain
-* **Significado:** Timestamp da conclusão da matrícula.
-* **Invariante:** Obrigatório se `state == CONCLUDED`.
+### `created_at`
 
----
+- Camada: `domain` / `infrastructure`
+- Significado: momento de criação técnica da matrícula.
 
-### **`cancelled_at`**
+### `updated_at`
 
-* **Camada:** Domain
-* **Significado:** Timestamp do cancelamento.
-* **Invariante:** Obrigatório se `state == CANCELLED`.
+- Camada: `infrastructure`
+- Significado: momento da última atualização do snapshot persistido.
 
----
+### `occurred_at`
 
-### **`suspended_at`**
+- Camada: `domain`
+- Significado: momento em que a ação aconteceu no mundo de negócio.
+- Uso: transições e eventos.
+- Regra: deve ser normalizado para UTC.
 
-* **Camada:** Domain
-* **Significado:** Timestamp da suspensão.
-* **Invariante:** Obrigatório se `state == SUSPENDED`.
+### `concluded_at`
 
----
+- Camada: `domain`
+- Significado: timestamp da conclusão.
+- Invariante: obrigatório quando `state == CONCLUDED`.
 
-## 🔹 Regras, decisões e validações
+### `cancelled_at`
 
-### **`changed`**
+- Camada: `domain`
+- Significado: timestamp do cancelamento.
+- Invariante: obrigatório quando `state == CANCELLED`.
 
-* **Camada:** Application
-* **Significado:** Indica se o aggregate sofreu mudança real.
-* **Uso:** Idempotência, persistência condicional, publicação de eventos.
+### `suspended_at`
 
----
+- Camada: `domain`
+- Significado: timestamp da suspensão.
+- Invariante: obrigatório quando `state == SUSPENDED`.
 
-### **`events`**
+## Fluxo de eventos
 
-* **Camada:** Domain → Application
-* **Significado:** Lista de fatos imutáveis ocorridos durante o caso de uso.
-* **Uso:** Publicação, logging, integrações.
-* **Regra:** Se `changed == False`, deve ser vazio.
+### `domain_events`
 
----
+- Camada: `application`
+- Significado: snapshot imutável dos eventos pendentes do aggregate retornado pelo caso de uso.
+- Uso: `ApplicationResult`.
+- Regra: quando `changed=True`, `domain_events` não pode ser vazio.
 
-### **`transitions`**
+### `peek_domain_events()`
 
-* **Camada:** Domain
-* **Significado:** Conjunto de mudanças de estado permitidas.
-* **Uso:** Validação de regras de negócio.
+- Camada: `domain`
+- Significado: leitura não destrutiva do buffer de eventos do aggregate.
+- Uso: a `application` usa isso para capturar o snapshot antes do `save`.
 
----
+### `pull_domain_events()`
 
-### **`is_allowed`**
+- Camada: `domain`
+- Significado: extração destrutiva dos eventos pendentes.
+- Uso: limpar o buffer após persistência bem-sucedida.
 
-* **Camada:** Domain (Value Object)
-* **Significado:** Indica se uma ação é permitida segundo política de negócio.
-* **Uso:** Decisões como `verdict`.
+### Event buffer
 
----
+- Camada: `domain`
+- Significado: lista interna de eventos pendentes acumulados pelo aggregate.
+- Regra: não deve ser drenado antes da persistência.
+- Referência: ADR `005`.
 
-### **`reasons`**
+## Contrato da Application
 
-* **Camada:** Domain (Value Object)
-* **Significado:** Justificativas ou fundamentos de uma decisão.
-* **Uso:** Auditoria e explicabilidade.
+### `ApplicationResult`
 
----
+- Camada: `application`
+- Significado: contrato estável de saída dos casos de uso.
+- Campos centrais:
+  - `aggregate_id`
+  - `success`
+  - `changed`
+  - `domain_events`
+  - `new_state`
+  - `error`
 
-### **`requires_justification`**
+### `success`
 
-* **Camada:** Domain (Value Object)
-* **Significado:** Indica se uma ação exige justificativa explícita.
-* **Uso:** Validação antes de transições sensíveis.
+- Camada: `application`
+- Significado: indica se o caso de uso terminou sem falha esperada.
 
----
+### `changed`
 
-### **`justification`**
+- Camada: `application`
+- Significado: indica se houve mudança real de estado.
+- Regra:
+  - `changed=True` implica `domain_events` não vazio e `new_state` preenchido
+  - `changed=False` implica ausência de mudança efetiva
 
-* **Camada:** Domain
-* **Significado:** Texto explicando o motivo da ação.
-* **Uso:** Obrigatório quando `requires_justification == True`.
+### `ApplicationError`
 
----
+- Camada: `application`
+- Significado: payload estável e serializável de falha esperada.
+- Uso: retorno de `ApplicationResult(success=False)`.
 
-## 🔹 Estrutura do Aggregate Enrollment
+### `ErrorCodes`
 
-### **`student_id`**
+- Camada: `application`
+- Significado: códigos estáveis de máquina para falhas esperadas.
+- Valores atuais:
+  - `ENROLLMENT_NOT_FOUND`
+  - `JUSTIFICATION_REQUIRED`
+  - `UNEXPECTED_ERROR`
+  - `INVALID_STATE_TRANSITION`
+  - `ENROLLMENT_NOT_ACTIVE`
+  - `CONCLUSION_NOT_ALLOWED`
+  - `STATE_INTEGRITY_VIOLATION`
+  - `CONCURRENCY_CONFLICT`
+  - `DATA_INTEGRITY_ERROR`
 
-* **Camada:** Domain
-* **Significado:** Identificador do aluno vinculado à matrícula.
+## Erros e diagnóstico
 
----
+### `code`
 
-### **`class_group_id`**
+- Camada: `domain` / `application`
+- Significado: identificador estável do erro.
 
-* **Camada:** Domain
-* **Significado:** Identificador da turma à qual a matrícula pertence.
+### `message`
 
----
+- Camada: `domain` / `application`
+- Significado: descrição humana do problema.
 
-### **`academic_period_id`**
+### `details`
 
-* **Camada:** Domain
-* **Significado:** Identificador do período letivo (ano/semestre).
+- Camada: `domain` / `application`
+- Significado: metadados estruturados para diagnóstico e rastreabilidade.
 
----
+### `attempted_action`
 
-## 🔹 Erros e contratos de erro
+- Camada: `domain`
+- Significado: ação tentada pelo ator.
+- Exemplos: `cancel`, `suspend`, `conclude`, `reactivate`.
 
-### **`code`**
+### `required_state`
 
-* **Camada:** Domain Error
-* **Significado:** Identificador estável do erro.
-* **Uso:** Tradução, logging, testes.
+- Camada: `domain`
+- Significado: estado necessário para a ação ser válida.
 
----
+### `allowed_from_states`
 
-### **`message`**
+- Camada: `domain`
+- Significado: lista de estados aceitos como origem da transição.
 
-* **Camada:** Domain/Application Error
-* **Significado:** Descrição humana do erro.
-* **Uso:** Logs, API, debugging.
+### `domain_code`
 
----
+- Camada: `application`
+- Significado: código original do erro de domínio preservado no `details` do `ApplicationError`.
 
-### **`details`**
+### `STATE_INTEGRITY_VIOLATION`
 
-* **Camada:** Domain Error
-* **Significado:** Dados estruturados adicionais sobre o erro.
-* **Uso:** Diagnóstico e explicação.
+- Camada: `application`
+- Significado: inconsistência entre estado, eventos ou contrato interno do fluxo.
+- Exemplos:
+  - evento sem mudança de estado
+  - mudança de estado sem evento
+  - fallback de erro de domínio não mapeado
 
----
+## Persistência e infraestrutura
 
-### **`required_state`**
+### Snapshot
 
-* **Camada:** Domain Error
-* **Significado:** Estado necessário para executar uma ação.
-* **Uso:** Erros de transição inválida.
+- Camada: `infrastructure`
+- Significado: representação persistida do estado atual da matrícula.
+- No projeto: `EnrollmentModel`.
 
----
+### Transition log
 
-### **`attempted_action`**
+- Camada: `infrastructure`
+- Significado: histórico append-only das transições persistidas.
+- No projeto: `EnrollmentTransitionModel`.
 
-* **Camada:** Domain Error
-* **Significado:** Ação que o usuário tentou executar.
-* **Uso:** Mensagens claras e auditoria.
+### `version`
 
----
+- Camada: `domain` / `infrastructure`
+- Significado: versão do snapshot usada para concorrência otimista.
+- Estado atual: o campo existe; a aplicação completa da concorrência ainda está pendente.
 
-### **`allowed_from_states`**
+### `EnrollmentRepository`
 
-* **Camada:** Domain Error
-* **Significado:** Estados a partir dos quais a ação é permitida.
-* **Uso:** Explicação de falhas de regra.
+- Camada: `application`
+- Significado: port de persistência usado pelos casos de uso.
+- Operações atuais: `get_by_id` e `save`.
 
----
+## Termos preferidos
 
-### **`forbidden_reason`**
+Use estes termos no projeto:
 
-* **Camada:** Domain Error / Policy
-* **Significado:** Motivo pelo qual a ação foi bloqueada.
-* **Uso:** Transparência e justificativa do sistema.
+- `domain_events`, não `events`, no contrato da `application`
+- `aggregate_id`, não `entity_id`, quando o contexto for o aggregate
+- `EnrollmentState`, não strings soltas de estado no core
+- `ApplicationResult`, não exceção, como contrato esperado da camada de `application`
+- `ApplicationError`, não `Exception`, para falhas previstas
 
----
+## Referências
 
-## 🔹 Utilidades técnicas
-
-### **`default_factory`**
-
-* **Camada:** Técnica (dataclasses)
-* **Significado:** Função usada para criar valores padrão mutáveis.
-* **Uso:** Evitar estado compartilhado (ex.: listas).
-
----
-
-## 🎯 Observação final (importante)
-
-Este dicionário **não é só documentação**. Ele é:
-
-* referência para testes
-* base para API
-* linguagem comum entre domínio, aplicação e infra
-* material excelente para explicar o projeto em entrevista técnica
+- `DOMIAIN_ROLES.md`
+- `README.md`
+- `docs/adr/001-enrollment-persistence.md`
+- `docs/adr/003-Ubiquitous-languagePTbr.md`
+- `docs/adr/005-Domain-eventes.md`
+- `docs/adr/007-domain-layer-core.md`
+- `docs/adr/008-application-layer-use-case-orchestration.md`
+- `docs/adr/009-infrastructure-layer-adapters-persistence-publication.md`
+- `docs/adr/010-interface-http-boundary.md`
 

@@ -11,7 +11,7 @@ class EnrollmentRepository(Protocol):
 
     Responsibilities:
     - Retrieve an Enrollment aggregate by id.
-    - Persist an Enrollment aggregate state.
+    - Persist an existing Enrollment aggregate state.
 
     Non-responsibilities:
     - Must not enforce business rules (domain does).
@@ -19,10 +19,25 @@ class EnrollmentRepository(Protocol):
     """
 
     def get_by_id(self, enrollment_id: str) -> Enrollment | None:
-        """Return Enrollment if found, otherwise None."""
+        """
+        Return the Enrollment aggregate for the given id, or None if no record exists.
+
+        Implementations must reconstruct a semantically valid aggregate from
+        persisted data and must not silently mask persistence/mapping
+        inconsistencies as "not found".
+        """
         ...
 
-    def save(self, enrollment: Enrollment) -> None:
-        """Persist the current state of the aggregate."""
-        ...
+    def save(self, enrollment: Enrollment) -> int:
+        """
+        Persist the current state of an existing Enrollment aggregate and return
+        the new persisted version.
 
+        Implementations must treat the aggregate version as the expected origin
+        version, enforce optimistic concurrency control, and fail explicitly on:
+        - missing records for update
+        - concurrency conflicts
+        - data integrity violations
+        - unexpected persistence failures
+        """
+        ...
