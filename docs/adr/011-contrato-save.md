@@ -1,79 +1,78 @@
-# o contrato do save
+# Contrato do método `save`
 
-### Responsabilidade do método
+## Responsabilidade
+Persistir a atualização de uma matrícula existente usando concorrência otimista.
 
-Persistir atualização de matrícula existente com concorrência otimista.
+## Entrada
+- Um aggregate `Enrollment` existente, semanticamente válido, contendo a versão de origem esperada para a atualização.
 
-### Entrada
+## Pré-condições
+- O aggregate representa uma matrícula já existente
+- A `version` do aggregate é a versão de origem usada como condição de concorrência
+- O método não realiza criação implícita
 
-Aggregate existente com versão de origem.
+## Saída
+- A nova versão persistida da matrícula
 
-### Saída
+## Condição de sucesso
+A atualização só pode ser concluída quando:
+- O registro com o `id` informado existe no banco
+- A `version` persistida atual é igual à `version` de origem do aggregate
 
-Nova versão persistida.
+## Efeitos em caso de sucesso
+- Persiste o novo snapshot da matrícula
+- Incrementa a versão automaticamente em 1
+- Retorna a nova versão persistida
 
-### Casos de sucesso
-
-Registro existe e versão bate.
-- registro existe
-- a versão bate
-- atualiza os campos
-- incrementa a versão/retorna a nova versão
-
-### Casos de falha
-
-1. registro ausente para atualização
-
-Nome conceitual: `EnrollmentPersistenceNotFoundError`
-
-ou equivalente
-
-2. conflito de concorrência
-
-Nome conceitual:`ConcurrencyConflictError`
-
-3. erro de integridade de dados
-
-Nome conceitual:`DataIntegrityError`
-
-
-4. falha técnica inesperada
-
-Nome conceitual: `PersistenceError`
-
-ou similar como fallback
-
-### Regras técnicas
-
-incremento automático de versão
-
-sem sobrescrita
-
-sem mescla
-
-sem create implícito
-
-
+### Campos atualizados
 Quando a gravação for aceita, o repository deve persistir corretamente:
+- `state`
+- `concluded_at`
+- `cancelled_at`
+- `suspended_at`
+- `version` nova
 
-state
+### Campos preservados
+O repository deve manter corretamente os dados estruturais já existentes da matrícula, incluindo:
+- `id`
+- `student_id`
+- `class_group_id`
+- `academic_period_id`
+- `created_at`
 
-concluded_at
+## Casos de falha
 
-cancelled_at
+1. **Registro ausente para atualização**
+   - O `id` informado não existe no momento do `save`
+   - Nome conceitual sugerido: `EnrollmentPersistenceNotFoundError`
 
-suspended_at
+2. **Conflito de concorrência**
+   - O registro existe, mas a `version` persistida atual não coincide com a `version` de origem do aggregate
+   - Nome conceitual sugerido: `ConcurrencyConflictError`
 
-version nova
+3. **Erro de integridade de dados**
+   - A persistência falha por violação de constraint, referência ou outra inconsistência estrutural de dados
+   - Nome conceitual sugerido: `DataIntegrityError`
 
-e preservar:
+4. **Falha técnica inesperada**
+   - A persistência falha por motivo técnico não classificado nas categorias anteriores
+   - Nome conceitual sugerido: `PersistenceError`
 
-id
+## Regras técnicas
+- Incremento automático de versão
+- Sem sobrescrita
+- Sem mescla
+- Sem create implícito
 
-student_id
+### Estratégia de diagnóstico quando nenhuma atualização ocorrer
+Se a tentativa de atualização condicional não afetar nenhum registro:
+1. Verificar se o `id` existe
+2. Se não existir, lançar erro de registro ausente para atualização (`EnrollmentPersistenceNotFoundError`)
+3. Se existir, lançar erro de conflito de concorrência (`ConcurrencyConflictError`)
 
-class_group_id
-
-academic_period_id
-
-created_at
+## Não responsabilidades
+- Não criar matrícula nova
+- Não aplicar regras de negócio do domínio
+- Não publicar eventos externos
+- Não limpar domain events
+- Não resolver conflitos por merge
