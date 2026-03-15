@@ -28,6 +28,7 @@ DJANGO_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.postgres",
 ]
 
 THIRD_PARTY_APPS = [
@@ -71,8 +72,9 @@ TEMPLATES = [
     },
 ]
 
-DATABASES = {
-    "default": {
+
+def postgres_database_config() -> dict[str, str]:
+    return {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": env("POSTGRES_DB", required=True),
         "USER": env("POSTGRES_USER", required=True),
@@ -80,7 +82,10 @@ DATABASES = {
         "HOST": env("POSTGRES_HOST", "localhost"),
         "PORT": env("POSTGRES_PORT", "5432"),
     }
-}
+
+
+DATABASES: dict[str, dict[str, str]] = {}
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},

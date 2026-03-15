@@ -2,6 +2,10 @@ from .base import *
 
 DEBUG = True
 
+DATABASES = {
+    "default": postgres_database_config()
+}
+
 
 INSTALLED_APPS += [
     # "debug_toolbar",

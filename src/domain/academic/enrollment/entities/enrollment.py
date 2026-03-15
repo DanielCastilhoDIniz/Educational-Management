@@ -98,7 +98,7 @@ class Enrollment:
 
     def _validate_state_integrity(self) -> None:
         # 4) State Consistency Matrix (Solution Implementation)
-        # Define: {State: (Required Fields, Forbidden Fields)}
+        # Def  : {State: (Required Fields, Forbidden Fields)}
         state_integrity_matrix = {
             EnrollmentState.ACTIVE: (
                 [],

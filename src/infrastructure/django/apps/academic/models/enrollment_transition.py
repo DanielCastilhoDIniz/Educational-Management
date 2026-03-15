@@ -12,6 +12,8 @@ class EnrollmentTransitionModel(CreatedAtModel):
     - state: estado atual (valores controlados)
     - timestamps de ciclo de vida: concluded_at/cancelled_at/suspended_at
     """
+    objects: models.Manager["EnrollmentTransitionModel"]  # type: ignore[override]
+
     class StateChoices(models.TextChoices):
         ACTIVE = "ACTIVE", "Active"
         SUSPENDED = "SUSPENDED", "Suspended"

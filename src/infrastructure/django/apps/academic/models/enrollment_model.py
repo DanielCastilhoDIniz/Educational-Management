@@ -14,6 +14,7 @@ class EnrollmentModel(CreatedAtModel, MutableSnapshotModel):
         - from_state/to_state: estados da transição
         - actor_id: quem executou (obrigatório; pode ser 'system' em jobs via convenção na aplicação)
     """
+    objects: models.Manager["EnrollmentModel"]  # type: ignore[override]
 
     class StateChoices(models.TextChoices):
         ACTIVE = "ACTIVE", "Active"

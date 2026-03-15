@@ -1,5 +1,5 @@
-from infrastructure.django.apps.academic.models.enrollment_model import EnrollmentModel
-from infrastructure.django.apps.academic.models.enrollment_transition import EnrollmentTransitionModel
+from apps.academic.models.enrollment_model import EnrollmentModel
+from apps.academic.models.enrollment_transition import EnrollmentTransitionModel
 
 from domain.academic.enrollment.entities.enrollment import Enrollment
 from domain.academic.enrollment.value_objects.enrollment_status import EnrollmentState

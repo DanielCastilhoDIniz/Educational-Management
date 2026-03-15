@@ -126,7 +126,7 @@ Uma matrícula **sempre** se encontra em exatamente um dos estados abaixo:
    * no mesmo período letivo.
 
 2. Matrículas em estado CANCELADA (CANCELLED) ou CONCLUÍDA (CONCLUDED) são estados finais e não podem retornar ao estado ATIVA (ACTIVE).
-
+  
 3. Toda transição de estado deve:
 
    * registrar data e hora;
