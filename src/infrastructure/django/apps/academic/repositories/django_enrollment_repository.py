@@ -6,6 +6,10 @@ from apps.academic.mappers.enrollment_mapper import EnrollmentMapper
 from apps.academic.models.enrollment_model import EnrollmentModel
 from apps.academic.models.enrollment_transition import EnrollmentTransitionModel
 
+from django.db import transaction
+from django.db import IntegrityError, DatabaseError
+from infrastructure.errors.persistence_errors import InfrastructureError
+
 
 class DjangoEnrollmentRepository:
     """
@@ -36,37 +40,60 @@ class DjangoEnrollmentRepository:
             If not found — raises EnrollmentPersistenceNotFoundError
             Checks if the snapshot version matches the aggregate version
             If they don't match — raises ConcurrencyConflictError
-            Calls apply_to_snapshot to update the snapshot with the aggregate state
             Increments the version
             Persists in the database
             Returns the new version
         """
 
-        snapshot = EnrollmentModel.objects.filter(id=enrollment.id).first()
+        origin_id = enrollment.id
+        origin_version = enrollment.version
 
-        if snapshot is None:
-            raise EnrollmentPersistenceNotFoundError(
-                code="enrollment_not_found",
-                message="The enrollment provided does not exist or has not found",
-                details={"enrollment_id": enrollment.id}
+        new_version = origin_version + 1
+
+        state = enrollment.state.value
+        concluded_at = enrollment.concluded_at
+        cancelled_at = enrollment.cancelled_at
+        suspended_at = enrollment.suspended_at
+        version = new_version
+        try:
+            with transaction.atomic():
+                lines_updated = EnrollmentModel.objects.filter(id=origin_id, version=origin_version).update(
+                    state=state,
+                    concluded_at=concluded_at,
+                    cancelled_at=cancelled_at,
+                    suspended_at=suspended_at,
+                    version=version,
+                )
+                if lines_updated == 0:
+                    if EnrollmentModel.objects.filter(id=origin_id).exists():
+                        raise ConcurrencyConflictError(
+                            code="version_mismatch",
+                            message="The record exists, but the current persisted" \
+                                    "`version` does not match the source `version` of the aggregate.",
+                            details={
+                                "aggregate_id": enrollment.id,
+                                "expected_version": enrollment.version
+                                }
+                        )
+                    else:
+                        raise EnrollmentPersistenceNotFoundError(
+                            code="enrollment_not_found",
+                            message="The enrollment provided does not exist or has not found",
+                            details={"enrollment_id": enrollment.id}
+                        )
+                else:
+                    return new_version
+        except IntegrityError as e:
+            raise InfrastructureError(
+                code="integrity_error",
+                message="A constraint violation occurred in the database.",
+                details={"error": str(e)}
+            )
+        except DatabaseError as e:
+            raise InfrastructureError(
+                code="database_error",
+                message="A critical error occurred on the database server.",
+                details={"error": str(e)}
             )
 
-        if enrollment.version != snapshot.version:
-            raise ConcurrencyConflictError(
-                code="version_mismatch",
-                message="The record exists, but the current persisted \
-                    `version` does not match the source `version` of the aggregate.",
-                details={
-                    "aggregate_id": enrollment.id,
-                    "occurred_at": enrollment.created_at,
-                    "current_version": snapshot.version,
-                    "expected_version": enrollment.version
-                    }
-            )
-        
-        EnrollmentMapper.apply_to_snapshot(enrollment=enrollment, snapshot=snapshot)
-        snapshot.version += 1
-        snapshot.save()
-        enrollment.version += 1
 
-        return enrollment.version

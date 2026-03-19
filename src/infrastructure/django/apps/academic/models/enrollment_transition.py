@@ -24,6 +24,7 @@ class EnrollmentTransitionModel(CreatedAtModel):
         CONCLUDE = "CONCLUDE", "Conclude"
         CANCEL = "CANCEL", "Cancel"
         SUSPEND = "SUSPEND", "Suspend"
+        REACTIVATE = "REACTIVATE", "Reactivate"
 
     transition_id = models.UUIDField(
         default=uuid.uuid4,

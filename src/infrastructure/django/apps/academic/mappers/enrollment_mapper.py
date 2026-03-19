@@ -5,6 +5,11 @@ from domain.academic.enrollment.entities.enrollment import Enrollment
 from domain.academic.enrollment.value_objects.enrollment_status import EnrollmentState
 from domain.academic.enrollment.value_objects.state_transition import StateTransition
 
+from datetime import datetime, timezone
+
+
+
+
 
 class EnrollmentMapper:
     """
@@ -96,3 +101,27 @@ class EnrollmentMapper:
         snapshot.suspended_at = enrollment.suspended_at
 
         return snapshot
+
+    def to_transition(
+            *,
+            state_transition: StateTransition,
+            enrollment: EnrollmentModel,
+
+    ) -> EnrollmentTransitionModel:
+
+        action_map = {
+            EnrollmentState.CONCLUDED: EnrollmentTransitionModel.ActionChoices.CONCLUDE,
+            EnrollmentState.CANCELLED: EnrollmentTransitionModel.ActionChoices.CANCEL,
+            EnrollmentState.SUSPENDED: EnrollmentTransitionModel.ActionChoices.SUSPEND,
+            EnrollmentState.ACTIVE: EnrollmentTransitionModel.ActionChoices.REACTIVATE,
+        }
+
+        return EnrollmentTransitionModel(
+            enrollment=enrollment.id,
+            occurred_at=state_transition.occurred_at,
+            action=action_map[state_transition.to_state],
+            from_state=state_transition.from_state.value,
+            to_state=state_transition.to_state.value,
+            justification=state_transition.justification,
+            actor_id=state_transition.actor_id,
+        )

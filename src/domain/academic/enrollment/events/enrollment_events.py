@@ -106,8 +106,6 @@ class EnrollmentSuspended(DomainEvent):
                 }
             )
 
-# verificar se aqui é o melhor local para reativação de matricula. <------
-
 
 @dataclass(frozen=True, kw_only=True)
 class EnrollmentReactivated(DomainEvent):
