@@ -1,27 +1,39 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from typing import Optional, Type
+from datetime import UTC, datetime
+from typing import Protocol
 
-from ..value_objects.enrollment_status import EnrollmentState
-from ..value_objects.state_transition import StateTransition
-from ..value_objects.conclusion_verdict import ConclusionVerdict
-
-from ..events.enrollment_events import (
-    DomainEvent,
-    EnrollmentConcluded,
-    EnrollmentCancelled,
-    EnrollmentSuspended,
-    EnrollmentReactivated,
-)
 from ..errors.enrollment_errors import (
     ConclusionNotAllowedError,
-    JustificationRequiredError,
-    EnrollmentNotActiveError,
     DomainError,
+    EnrollmentNotActiveError,
     InvalidStateTransitionError,
+    JustificationRequiredError,
 )
+from ..events.enrollment_events import (
+    DomainEvent,
+    EnrollmentCancelled,
+    EnrollmentConcluded,
+    EnrollmentReactivated,
+    EnrollmentSuspended,
+)
+from ..value_objects.conclusion_verdict import ConclusionVerdict
+from ..value_objects.enrollment_status import EnrollmentState
+from ..value_objects.state_transition import StateTransition
+
+
+class EnrollmentEventClass(Protocol):
+    def __call__(
+        self,
+        *,
+        aggregate_id: str,
+        actor_id: str,
+        from_state: EnrollmentState,
+        to_state: EnrollmentState,
+        occurred_at: datetime,
+        justification: str | None,
+    ) -> DomainEvent: ...
 
 
 @dataclass
@@ -167,17 +179,17 @@ class Enrollment:
                 details={"field": field_name, "type": type(dt).__name__},
             )
         if dt.tzinfo is None:
-            return dt.replace(tzinfo=timezone.utc)
-        return dt.astimezone(timezone.utc)
+            return dt.replace(tzinfo=UTC)
+        return dt.astimezone(UTC)
 
     @staticmethod
-    def _occurred_at_or_now(occurred_at: Optional[datetime]) -> datetime:
+    def _occurred_at_or_now(occurred_at: datetime | None) -> datetime:
         """
         For commands only: if occurred_at is None, default to now (UTC).
         Otherwise, normalize strictly to UTC-aware.
         """
         if occurred_at is None:
-            return datetime.now(timezone.utc)
+            return datetime.now(UTC)
         return Enrollment._normalize_datetime_strict(occurred_at, field_name="occurred_at")
 
     def peek_domain_events(self) -> list[DomainEvent]:
@@ -191,9 +203,9 @@ class Enrollment:
         *,
         to_state: EnrollmentState,
         actor_id: str,
-        event_cls: Type[DomainEvent],
-        occurred_at: Optional[datetime] = None,
-        justification: Optional[str] = None,
+        event_cls: EnrollmentEventClass,
+        occurred_at: datetime | None = None,
+        justification: str | None = None,
     ) -> None:
         """
         Atomic transition: logic first, mutation last.
@@ -220,7 +232,7 @@ class Enrollment:
             from_state=from_state,
             to_state=to_state,
             occurred_at=utc_now,
-            justification=justification,  # type: ignore
+            justification=justification,
         )
 
         # 2. Final Mutation (Happy Path: nothing here should throw exceptions)
@@ -262,8 +274,8 @@ class Enrollment:
         *,
         actor_id: str,
         verdict: ConclusionVerdict,
-        occurred_at: Optional[datetime] = None,
-        justification: Optional[str] = None,
+        occurred_at: datetime | None = None,
+        justification: str | None = None,
     ) -> None:
         if self.state == EnrollmentState.CONCLUDED:
             return
@@ -312,7 +324,7 @@ class Enrollment:
         *,
         actor_id: str,
         justification: str,
-        occurred_at: Optional[datetime] = None,
+        occurred_at: datetime | None = None,
     ) -> None:
         if self.state == EnrollmentState.CANCELLED:
             return
@@ -354,7 +366,7 @@ class Enrollment:
         *,
         actor_id: str,
         justification: str,
-        occurred_at: Optional[datetime] = None,
+        occurred_at: datetime | None = None,
     ) -> None:
         if self.state == EnrollmentState.SUSPENDED:
             return
@@ -393,7 +405,7 @@ class Enrollment:
             *,
             actor_id: str,
             justification: str,
-            occurred_at: Optional[datetime] = None
+            occurred_at: datetime | None = None
             ) -> None:
         """
             Transitions the enrollment back to ACTIVE state.

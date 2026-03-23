@@ -1,10 +1,8 @@
-from .enrollment_status import EnrollmentState
-
-from datetime import datetime, timezone
+from dataclasses import dataclass, field
+from datetime import UTC, datetime, timezone
 
 from ..errors.enrollment_errors import DomainError
-
-from dataclasses import dataclass, field
+from .enrollment_status import EnrollmentState
 
 
 @dataclass(frozen=True)
@@ -19,7 +17,7 @@ class StateTransition:
     from_state: EnrollmentState
     actor_id: str
     to_state: EnrollmentState
-    occurred_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    occurred_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     justification: str | None = None
 
     def __post_init__(self):
@@ -37,9 +35,9 @@ class StateTransition:
             )
 
         if self.occurred_at.tzinfo is None:
-            object.__setattr__(self, 'occurred_at', self.occurred_at.replace(tzinfo=timezone.utc))
+            object.__setattr__(self, 'occurred_at', self.occurred_at.replace(tzinfo=UTC))
         else:
-            object.__setattr__(self, 'occurred_at', self.occurred_at.astimezone(timezone.utc))
+            object.__setattr__(self, 'occurred_at', self.occurred_at.astimezone(UTC))
 
         if self.from_state == self.to_state:
             raise DomainError(

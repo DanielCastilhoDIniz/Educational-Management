@@ -1,11 +1,9 @@
-from datetime import datetime, timezone
-
-from ..value_objects.enrollment_status import EnrollmentState
+from dataclasses import dataclass, field
+from datetime import UTC, datetime
+from uuid import uuid4
 
 from ..errors.enrollment_errors import InvalidStateTransitionError
-
-from dataclasses import dataclass, field
-from uuid import uuid4
+from ..value_objects.enrollment_status import EnrollmentState
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -23,7 +21,7 @@ class DomainEvent:
         event_id: Globally unique identifier of the event (UUID v4)
     """
     aggregate_id: str
-    occurred_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    occurred_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     event_id: str = field(default_factory=lambda: str(uuid4()))
 
 

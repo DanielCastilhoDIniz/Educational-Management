@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 from collections.abc import Sequence
+from dataclasses import dataclass
+
 from domain.academic.enrollment.errors.enrollment_errors import DomainError
 
 
@@ -45,7 +46,7 @@ class ConclusionVerdict:
                 )
 
     @classmethod
-    def allowed(cls, requires_justification: bool = False) -> 'ConclusionVerdict':
+    def allowed(cls, requires_justification: bool = False) -> ConclusionVerdict:
         """Create success verdict with justification requirement."""
         return cls(
             is_allowed=True,
@@ -54,7 +55,7 @@ class ConclusionVerdict:
         )
 
     @classmethod
-    def denied(cls, reasons: Sequence[str]) -> 'ConclusionVerdict':
+    def denied(cls, reasons: Sequence[str]) -> ConclusionVerdict:
         """Create a denied verdict with defensive-copied reasons."""
         return cls(
             is_allowed=False,

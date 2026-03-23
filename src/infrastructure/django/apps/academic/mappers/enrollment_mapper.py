@@ -1,14 +1,11 @@
+import uuid
+
+from apps.academic.enrollments.transition_id import make_transition_id
 from apps.academic.models.enrollment_model import EnrollmentModel
 from apps.academic.models.enrollment_transition import EnrollmentTransitionModel
-
 from domain.academic.enrollment.entities.enrollment import Enrollment
 from domain.academic.enrollment.value_objects.enrollment_status import EnrollmentState
 from domain.academic.enrollment.value_objects.state_transition import StateTransition
-
-from datetime import datetime, timezone
-
-
-
 
 
 class EnrollmentMapper:
@@ -102,10 +99,11 @@ class EnrollmentMapper:
 
         return snapshot
 
+    @staticmethod
     def to_transition(
             *,
             state_transition: StateTransition,
-            enrollment: EnrollmentModel,
+            enrollment_id: str,
 
     ) -> EnrollmentTransitionModel:
 
@@ -116,8 +114,19 @@ class EnrollmentMapper:
             EnrollmentState.ACTIVE: EnrollmentTransitionModel.ActionChoices.REACTIVATE,
         }
 
+        transition_id = make_transition_id(
+            enrollment_id=uuid.UUID(enrollment_id),
+            occurred_at=state_transition.occurred_at,
+            action=action_map[state_transition.to_state].value,
+            from_state=state_transition.from_state.value,
+            to_state=state_transition.to_state.value,
+            justification=state_transition.justification,
+            actor_id=state_transition.actor_id,
+        )
+
         return EnrollmentTransitionModel(
-            enrollment=enrollment.id,
+            enrollment_id=enrollment_id,
+            transition_id=transition_id,
             occurred_at=state_transition.occurred_at,
             action=action_map[state_transition.to_state],
             from_state=state_transition.from_state.value,
