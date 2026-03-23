@@ -62,7 +62,7 @@ A validacao dessas politicas ocorre na Application Layer ou nos contextos especi
 - [ ] Resolucao e centralizada (nao duplicada em varios services)
 - [ ] Cache nao retorna valor antigo apos alteracao
 - [ ] Mudancas geram trilha de auditoria completa
-- [x] Politicas nao sao validadas dentro do aggregate Matricula (ADR 004)
+- [x] Politicas nao sao validadas dentro do aggregate Matricula (ADR 002)
 
 ## Checklist de Testes
 - [ ] Resolucao por escopo retorna o valor correto em todos os cenarios

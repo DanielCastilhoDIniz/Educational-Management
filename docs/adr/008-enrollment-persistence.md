@@ -1,4 +1,4 @@
-# ADR 001 - Persistencia do Aggregate Enrollment (Snapshot + Transition Log)
+# ADR 008 - Persistencia do Aggregate Enrollment (Snapshot + Transition Log)
 
 ## Status
 Aprovado
@@ -15,7 +15,7 @@ Adotar a estrategia `Snapshot + Log Append-Only`:
 - `EnrollmentTransition` (log) armazena transicoes como fatos imutaveis
 - persistencia deve ser transacional: `1 caso de uso = 1 transacao`
 - concorrencia por versionamento otimista no snapshot
-- deduplicacao de transicoes por `transition_id` deterministico, conforme ADR 002
+- deduplicacao de transicoes por `transition_id` deterministico, conforme ADR 010
 
 ## Consequencias
 
@@ -48,11 +48,11 @@ Adotar a estrategia `Snapshot + Log Append-Only`:
 - [ ] Criar constraints de coerência por estado (timestamps obrigatórios/proibidos)
 - [ ] Criar indices: `state`, `student_id`, e compostos conforme consulta
 - [x] Modelar `EnrollmentTransition` (append-only)
-- [x] Garantir `transition_id` unique (ADR 002)
+- [x] Garantir `transition_id` unique (ADR 010)
 - [x] Garantir `actor_id` obrigatorio
 - [x] Definir FK `enrollment_id` com `ON DELETE PROTECT`
 - [ ] Implementar `get_by_id` (snapshot + transitions) com reidratacao segura
-- [ ] Implementar `save` transacional (snapshot + novas transitions)
+- [x] Implementar `save` transacional (snapshot + novas transitions)
 - [ ] Aplicar controle otimista por `version`
 - [ ] Implementar traducao de erros de DB (unique, FK, concorrencia)
 
@@ -65,7 +65,7 @@ Adotar a estrategia `Snapshot + Log Append-Only`:
 - [ ] Concorrencia otimista esta coberta por testes
 
 ## Checklist de Testes
-- [ ] Persistir -> reidratar -> objetos equivalentes (round-trip)
+- [x] Persistir -> reidratar -> objetos equivalentes (round-trip)
 - [ ] No-op nao cria transition
 - [ ] Retry nao duplica transition (unique `transition_id`)
 - [ ] Conflito de versao falha corretamente

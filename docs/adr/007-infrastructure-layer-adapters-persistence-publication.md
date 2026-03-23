@@ -1,4 +1,4 @@
-# ADR 009 - Camada de Infrastructure como Implementadora de Ports e Efeitos Externos
+# ADR 007 - Camada de Infrastructure como Implementadora de Ports e Efeitos Externos
 
 ## Status
 Aprovado
@@ -16,9 +16,9 @@ No projeto atual, essa camada aparece em `src/infrastructure/django/` e concentr
 
 Ja existem decisoes importantes relacionadas a infraestrutura:
 
-- persistencia do aggregate `Enrollment` por snapshot + transition log (ADR 001)
-- eventos de dominio acumulados no aggregate e extraidos pela application (ADR 005)
-- application como guardia do fluxo do caso de uso (ADR 008)
+- persistencia do aggregate `Enrollment` por snapshot + transition log (ADR 008)
+- eventos de dominio acumulados no aggregate e extraidos pela application (ADR 003)
+- application como guardia do fluxo do caso de uso (ADR 005)
 
 Sem uma decisao explicita para esta camada, surgem riscos recorrentes:
 
@@ -70,8 +70,8 @@ Isso significa que:
 ## Regras e Invariantes
 - Infrastructure nao reimplementa regra nuclear do aggregate.
 - Repository nao decide se uma transicao e valida; ele apenas persiste o estado resultante.
-- Persistencia de `Enrollment` deve respeitar ADR 001.
-- Publicacao de eventos deve respeitar ADR 005.
+- Persistencia de `Enrollment` deve respeitar ADR 008.
+- Publicacao de eventos deve respeitar ADR 003.
 - Erros tecnicos devem ser traduzidos para um contrato compreensivel pela Application.
 - Nenhum adapter concreto deve ser importado pelo dominio.
 - A camada pode depender de framework; as camadas internas nao.

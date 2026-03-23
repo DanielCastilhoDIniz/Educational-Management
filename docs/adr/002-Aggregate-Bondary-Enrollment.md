@@ -1,4 +1,4 @@
-# ADR 004 - Fronteira do Aggregate Matricula e Regras Dependentes de Contexto Externo
+# ADR 002 - Fronteira do Aggregate Matricula e Regras Dependentes de Contexto Externo
 
 ## Status
 Aprovado

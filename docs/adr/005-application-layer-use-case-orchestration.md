@@ -1,4 +1,4 @@
-# ADR 008 - Camada de Application como Orquestradora de Casos de Uso
+# ADR 005 - Camada de Application como Orquestradora de Casos de Uso
 
 ## Status
 Aprovado
@@ -46,9 +46,9 @@ Isso significa que:
 
 5. A traducao de erros de dominio para erros de application acontece nesta camada.
 
-6. Pre-condicoes dependentes de contexto externo pertencem a esta camada ou a ports/policies por ela consultados, conforme ADR 004.
+6. Pre-condicoes dependentes de contexto externo pertencem a esta camada ou a ports/policies por ela consultados, conforme ADR 002.
 
-7. A Application deve preservar o contrato de eventos definido no ADR 005:
+7. A Application deve preservar o contrato de eventos definido no ADR 003:
 - nao drenar eventos antes de persistir
 - manter eventos disponiveis no aggregate se a persistencia falhar
 - limpar o buffer apenas apos persistencia bem-sucedida

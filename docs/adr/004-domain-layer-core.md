@@ -1,4 +1,4 @@
-# ADR 007 - Camada de Dominio como Nucleo Puro do Sistema
+# ADR 004 - Camada de Dominio como Nucleo Puro do Sistema
 
 ## Status
 Aprovado
@@ -49,9 +49,9 @@ Isso significa que:
 
 4. O dominio pode criar eventos internamente, mas nao publica eventos externamente.
 
-5. Regras dependentes de contexto externo permanecem fora do dominio, conforme ADR 004.
+5. Regras dependentes de contexto externo permanecem fora do dominio, conforme ADR 002.
 
-6. Persistencia, publicacao e traducao de erro ficam fora do dominio, conforme ADR 001 e ADR 005.
+6. Persistencia, publicacao e traducao de erro ficam fora do dominio, conforme ADR 008 e ADR 003.
 
 ## Consequencias
 
