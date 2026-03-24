@@ -68,5 +68,5 @@ Adotar a estrategia `Snapshot + Log Append-Only`:
 - [x] Persistir -> reidratar -> objetos equivalentes (round-trip)
 - [ ] No-op nao cria transition
 - [ ] Retry nao duplica transition (unique `transition_id`)
-- [ ] Conflito de versao falha corretamente
+- [x] Conflito de versao falha corretamente
 - [ ] Rollback mantem snapshot/log consistentes
