@@ -66,7 +66,7 @@ Adotar a estrategia `Snapshot + Log Append-Only`:
 
 ## Checklist de Testes
 - [x] Persistir -> reidratar -> objetos equivalentes (round-trip)
-- [ ] No-op nao cria transition
-- [ ] Retry nao duplica transition (unique `transition_id`)
+- [x] No-op nao cria transition
+- [x] Retry nao duplica transition (unique `transition_id`)
 - [x] Conflito de versao falha corretamente
-- [ ] Rollback mantem snapshot/log consistentes
+- [x] Rollback mantem snapshot/log consistentes
