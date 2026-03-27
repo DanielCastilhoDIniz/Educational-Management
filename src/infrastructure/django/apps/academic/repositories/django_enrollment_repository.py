@@ -1,6 +1,6 @@
 from datetime import UTC, datetime
 
-from django.db import DatabaseError, IntegrityError, transaction
+from django.db import DatabaseError, transaction
 
 from application.academic.enrollment.ports.enrollment_repository import EnrollmentRepository
 from apps.academic.mappers.enrollment_mapper import EnrollmentMapper
@@ -47,6 +47,24 @@ class DjangoEnrollmentRepository(EnrollmentRepository):
         )
 
         return EnrollmentMapper.to_domain(snapshot=snapshot, transitions=transitions_list)
+
+    @staticmethod
+    def _is_same_persisted_snapshot(
+        *,
+        snapshot: EnrollmentModel,
+        state: str,
+        concluded_at: datetime | None,
+        cancelled_at: datetime | None,
+        suspended_at: datetime | None,
+        version: int,
+    ) -> bool:
+        return (
+            snapshot.state == state
+            and snapshot.concluded_at == concluded_at
+            and snapshot.cancelled_at == cancelled_at
+            and snapshot.suspended_at == suspended_at
+            and snapshot.version == version
+        )
 
     def save(self, enrollment: Enrollment) -> int:
         """
@@ -103,7 +121,29 @@ class DjangoEnrollmentRepository(EnrollmentRepository):
                 )
 
                 if updated_rows == 0:
-                    if EnrollmentModel.objects.filter(id=origin_id).exists():
+                    persisted_snapshot = EnrollmentModel.objects.filter(id=origin_id).first()
+
+                    if persisted_snapshot is not None:
+                        persisted_transition = EnrollmentMapper.to_transition(
+                            state_transition=enrollment.transitions[-1],
+                            enrollment_id=origin_id,
+                        )
+
+                        if (
+                            EnrollmentTransitionModel.objects.filter(
+                                transition_id=persisted_transition.transition_id
+                            ).exists()
+                            and self._is_same_persisted_snapshot(
+                                snapshot=persisted_snapshot,
+                                state=state,
+                                concluded_at=concluded_at,
+                                cancelled_at=cancelled_at,
+                                suspended_at=suspended_at,
+                                version=new_version,
+                            )
+                        ):
+                            return new_version
+
                         raise ConcurrencyConflictError(
                             code="version_mismatch",
                             message="The enrollment exists, but its persisted version \
@@ -133,12 +173,6 @@ class DjangoEnrollmentRepository(EnrollmentRepository):
         except(EnrollmentPersistenceNotFoundError, ConcurrencyConflictError):
             raise
 
-        except IntegrityError as e:
-            raise InfrastructureError(
-                code="integrity_error",
-                message="A constraint violation occurred in the database.",
-                details={"error": str(e)}
-            ) from e
         except DatabaseError as e:
             raise InfrastructureError(
                 code="database_error",
