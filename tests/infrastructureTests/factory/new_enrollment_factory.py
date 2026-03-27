@@ -4,12 +4,15 @@ from datetime import UTC, datetime
 from apps.academic.models.enrollment_model import EnrollmentModel
 
 
-def factory_create_new_enrrolment_for_tests(
+def factory_create_new_enrollment_for_tests(
         enrollment_id: uuid.UUID | None = None,
         student_id: uuid.UUID | None = None,
         class_group_id: uuid.UUID | None = None,
         academic_period_id: uuid.UUID | None = None ,
         created_at: datetime | None = None,
+        cancelled_at: datetime | None = None,
+        concluded_at: datetime | None = None,
+        suspended_at: datetime | None = None,
         state: str = "active",
         ):
 
@@ -30,6 +33,9 @@ def factory_create_new_enrrolment_for_tests(
             "class_group_id": class_group_id,
             "academic_period_id": academic_period_id,
             "created_at": created_at,
+            "cancelled_at": cancelled_at,
+            "concluded_at": concluded_at,
+            "suspended_at": suspended_at,
             "state": state,
         }
         
