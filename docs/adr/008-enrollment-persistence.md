@@ -58,10 +58,10 @@ Adotar a estrategia `Snapshot + Log Append-Only`:
 
 ## Checklist de Code Review
 - [x] O dominio nao depende de ORM/DB
-- [ ] O log e realmente append-only (sem update/delete)
+- [x] O log e realmente append-only (sem update/delete)
 - [x] `save` insere apenas transitions novas
 - [x] `save` e atomico (ou tudo persiste, ou nada)
-- [ ] Eventos so sao publicados apos commit (via pull na Application)
+- [x] Eventos so sao publicados apos commit (via pull na Application)
 - [x] Concorrencia otimista esta coberta por testes
 
 ## Checklist de Testes
