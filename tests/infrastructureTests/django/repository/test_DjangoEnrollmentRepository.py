@@ -231,9 +231,62 @@ def test_bd_remains_consistent_when_transition_fails_to_save():
     query2 = EnrollmentTransitionModel.objects.filter(enrollment_id=str(origin_id)).count()
     assert query2 == 1
 
+@pytest.mark.django_db(transaction=True)
+def test_snapshot_and_transition_ensure_safe_rehydratation():
+    # Arrange 1:
+    enrollment = factory_create_new_enrollment_for_tests()
+    repository = DjangoEnrollmentRepository()
 
+    result = repository.get_by_id(enrollment_id=str(enrollment.id))
+    assert result is not None
 
+    # retrive snapshot
+    origin_id = enrollment.id
+     
+    # Prepare the data for the reactivate transition
+    actor_id = str(uuid.uuid4())
+    justification = "justification"
+    occurred_at_fake = datetime(2026, 1, 2, tzinfo=UTC) 
+    
+    #Act 1:
+    result.suspend(actor_id=actor_id, justification=justification, occurred_at=occurred_at_fake)
+    repository.save(result)
 
+    # Arrange 2:
+    state_suspended = (EnrollmentModel.objects.get(id=str(enrollment.id))).state
+     
+    transition_id_before = make_transition_id(
+         enrollment_id=origin_id,
+         action="Reactivate",
+         from_state=state_suspended,
+         to_state="active",
+         occurred_at=datetime(2026, 1, 1, tzinfo=UTC),
+         actor_id=actor_id,
+         justification=justification,         
+    )
+
+    new_transition =EnrollmentTransitionModel.objects.create(
+        transition_id=transition_id_before,
+        enrollment_id=origin_id,
+        action="Reactivate",
+        from_state=state_suspended,
+        to_state="active",
+        actor_id=actor_id,
+        occurred_at=datetime(2026, 1, 1, tzinfo=UTC),
+        justification=justification,
+    )
+
+    result_reactivated = repository.get_by_id(enrollment_id=str(enrollment.id))
+    assert result_reactivated is not None
+
+    # Asserts:
+    assert result_reactivated.transitions[0].occurred_at == new_transition.occurred_at
+    assert result_reactivated.transitions[1].occurred_at == occurred_at_fake
+    count_transitions = EnrollmentTransitionModel.objects.filter(enrollment_id=str(enrollment.id)).count()
+    assert count_transitions == 2
+    
+
+  
 
 
 
