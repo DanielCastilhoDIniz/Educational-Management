@@ -51,7 +51,7 @@ Adotar a estrategia `Snapshot + Log Append-Only`:
 - [x] Garantir `transition_id` unique (ADR 010)
 - [x] Garantir `actor_id` obrigatorio
 - [x] Definir FK `enrollment_id` com `ON DELETE PROTECT`
-- [ ] Implementar `get_by_id` (snapshot + transitions) com reidratacao segura
+- [x] Implementar `get_by_id` (snapshot + transitions) com reidratacao segura
 - [x] Implementar `save` transacional (snapshot + novas transitions)
 - [x] Aplicar controle otimista por `version`
 - [x] Implementar traducao de erros de DB (unique, FK, concorrencia)
@@ -70,4 +70,4 @@ Adotar a estrategia `Snapshot + Log Append-Only`:
 - [x] Retry nao duplica transition (unique `transition_id`)
 - [x] Conflito de versao falha corretamente
 - [x] Rollback mantem snapshot/log consistentes
-- [ ] `get_by_id` (snapshot + transitions) com reidratacao segura
+- [x] `get_by_id` (snapshot + transitions) com reidratacao segura
