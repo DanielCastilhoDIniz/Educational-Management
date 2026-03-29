@@ -81,6 +81,7 @@ def test_save_success() -> None:
     assert enrollment_before.concluded_at is None
     assert enrollment_before.cancelled_at is None
     assert enrollment_before.suspended_at is None
+    assert enrollment_before.reactivated_at is None
     assert enrollment_before.updated_at is not None
 
     assert new_version == enrollment_before.version + 1
@@ -89,6 +90,7 @@ def test_save_success() -> None:
     assert enrollment_after.suspended_at is not None
     assert enrollment_after.concluded_at is None
     assert enrollment_after.cancelled_at is None
+    assert enrollment_after.reactivated_at is None
     assert enrollment_after.updated_at is not None
     assert enrollment_after.created_at == enrollment_before.created_at
     assert enrollment_after.student_id == enrollment_before.student_id

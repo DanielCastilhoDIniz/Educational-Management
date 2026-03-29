@@ -9,4 +9,4 @@ def test_application_error_str_returns_code_and_message():
         details={"aggregate_id": "enr-1"},
     )
 
-    assert str(error) == "ErrorCodes.UNEXPECTED_ERROR: db down"
+    assert str(error) == "UNEXPECTED_ERROR: db down"
