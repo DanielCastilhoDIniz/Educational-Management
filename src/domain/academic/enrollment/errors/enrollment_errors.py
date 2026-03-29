@@ -59,3 +59,7 @@ class ConclusionNotAllowedError(DomainError):
 class JustificationRequiredError(DomainError):
     """Raised when an action (like cancellation or suspension) lacks a mandatory justification."""
     ...
+
+class ReactivationNotAllowedError(DomainError):
+    """Raised when reactivation is attempted from an invalid state (e.g. CANCELLED or CONCLUDED)."""
+    ...

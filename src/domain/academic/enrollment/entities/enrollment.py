@@ -10,6 +10,7 @@ from ..errors.enrollment_errors import (
     EnrollmentNotActiveError,
     InvalidStateTransitionError,
     JustificationRequiredError,
+    ReactivationNotAllowedError,
 )
 from ..events.enrollment_events import (
     DomainEvent,
@@ -56,6 +57,8 @@ class Enrollment:
     concluded_at: datetime | None = None
     cancelled_at: datetime | None = None
     suspended_at: datetime | None = None
+    reactivated_at: datetime | None = None
+
 
     version: int = 1
 
@@ -107,6 +110,9 @@ class Enrollment:
             self.cancelled_at = self._normalize_datetime_strict(self.cancelled_at, field_name="cancelled_at")
         if self.suspended_at is not None:
             self.suspended_at = self._normalize_datetime_strict(self.suspended_at, field_name="suspended_at")
+        if self.reactivated_at is not None:
+            self.reactivated_at = self._normalize_datetime_strict(self.reactivated_at, field_name="reactivated_at")
+
 
     def _validate_state_integrity(self) -> None:
         # 4) State Consistency Matrix (Solution Implementation)
@@ -122,11 +128,11 @@ class Enrollment:
             ),
             EnrollmentState.CONCLUDED: (
                 ["concluded_at"],
-                ["cancelled_at", "suspended_at"]
+                ["cancelled_at", "suspended_at", "reactivated_at"]
             ),
             EnrollmentState.CANCELLED: (
                 ["cancelled_at"],
-                ["concluded_at", "suspended_at"]
+                ["concluded_at", "suspended_at","reactivated_at"]
             ),
         }
 
@@ -240,6 +246,8 @@ class Enrollment:
         self.concluded_at = None
         self.cancelled_at = None
         self.suspended_at = None
+        self.reactivated_at = None
+
 
         self.state = to_state
         if to_state == EnrollmentState.CONCLUDED:
@@ -248,6 +256,9 @@ class Enrollment:
             self.cancelled_at = utc_now
         elif to_state == EnrollmentState.SUSPENDED:
             self.suspended_at = utc_now
+        elif to_state == EnrollmentState.ACTIVE:
+            self.reactivated_at = utc_now
+
 
         # Record in internal records
         self.transitions.append(new_transition)
