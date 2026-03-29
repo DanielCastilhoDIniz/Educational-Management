@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class ErrorCodes(str, Enum):
+class ErrorCodes(StrEnum):
     ENROLLMENT_NOT_FOUND = "ENROLLMENT_NOT_FOUND"
     JUSTIFICATION_REQUIRED = "JUSTIFICATION_REQUIRED"
     UNEXPECTED_ERROR = "UNEXPECTED_ERROR"
