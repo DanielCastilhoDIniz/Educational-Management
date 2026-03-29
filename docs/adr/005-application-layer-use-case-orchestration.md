@@ -92,7 +92,7 @@ Isso significa que:
 - [x] Inconsistencias de estado/evento retornam `STATE_INTEGRITY_VIOLATION`
 - [ ] Falhas de persistencia tipadas (`CONCURRENCY_CONFLICT`, `DATA_INTEGRITY_ERROR`)
 - [ ] Ports de autorizacao e politica externa
-- [ ] Service de `reactivate` na Application
+- [x] Service de `reactivate` na Application
 
 ## Checklist de Code Review
 - [x] Services nao reimplementam invariantes do aggregate

@@ -10,6 +10,7 @@ Persistir a atualização de uma matrícula existente usando concorrência otimi
 - O aggregate representa uma matrícula já existente
 - A `version` do aggregate é a versão de origem usada como condição de concorrência
 - O método não realiza criação implícita
+- Garantir que haja pelo menos uma transição persistente (requisito rastreabilidade para auditoria).
 
 ## Saída
 - A nova versão persistida da matrícula
@@ -30,6 +31,7 @@ Quando a gravação for aceita, o repository deve persistir corretamente:
 - `concluded_at`
 - `cancelled_at`
 - `suspended_at`
+- `reactivated_at`
 - `version` nova
 
 ### Campos preservados
@@ -52,11 +54,16 @@ O repository deve manter corretamente os dados estruturais já existentes da mat
 
 3. **Erro de integridade de dados**
    - A persistência falha por violação de constraint, referência ou outra inconsistência estrutural de dados
-   - Nome conceitual sugerido: `DataIntegrityError`
+   - Nome conceitual sugerido: `InfrastructureError`
 
 4. **Falha técnica inesperada**
    - A persistência falha por motivo técnico não classificado nas categorias anteriores
-   - Nome conceitual sugerido: `PersistenceError`
+   - Nome conceitual sugerido: `InfrastructureError`
+
+5. **Erro de infraestrutura**
+   - O aggregate foi enviado para persistência sem nenhuma transition persistível.
+   - Nome conceitual sugerido: `InfrastructureError`
+
 
 ## Regras técnicas
 - Incremento automático de versão
