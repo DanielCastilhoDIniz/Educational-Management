@@ -73,6 +73,12 @@ class EnrollmentModel(CreatedAtModel, MutableSnapshotModel):
         help_text="When the enrollment was suspended (UTC).",
     )
 
+    reactivated_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name="Reactivated At",
+        help_text="When the enrollment was reactivated (UTC).",
+
     class Meta:  # type: ignore[reportIncompatibleVariableOverride]
         db_table = "enrollments"
         verbose_name = "Enrollment"

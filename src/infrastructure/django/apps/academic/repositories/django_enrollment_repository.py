@@ -91,7 +91,7 @@ class DjangoEnrollmentRepository(EnrollmentRepository):
             InfrastructureError:
                 For integrity, database-level technical failures or missing  transitions list.
         """
-
+        # Extracting aggregate metadata for persistence logic
         origin_id = enrollment.id
         origin_version = enrollment.version
 
@@ -102,6 +102,7 @@ class DjangoEnrollmentRepository(EnrollmentRepository):
         new_version = origin_version + 1
         now = datetime.now(UTC)
 
+        # Ensure there is at least one transition to persist (Audit Trail requirement)
         if not enrollment.transitions:
             raise InfrastructureError(
                 code="missing_transition",
@@ -110,6 +111,7 @@ class DjangoEnrollmentRepository(EnrollmentRepository):
             )
 
         try:
+            # Atomic block to ensure Snapshot and Transition are persisted together
             with transaction.atomic():
                 updated_rows = EnrollmentModel.objects.filter(id=origin_id, version=origin_version).update(
                     state=state,
@@ -120,6 +122,7 @@ class DjangoEnrollmentRepository(EnrollmentRepository):
                     updated_at=now
                 )
 
+                # Handle cases where no rows were updated (Conflict or Not Found)
                 if updated_rows == 0:
                     persisted_snapshot = EnrollmentModel.objects.filter(id=origin_id).first()
 
@@ -144,6 +147,7 @@ class DjangoEnrollmentRepository(EnrollmentRepository):
                         ):
                             return new_version
 
+                        # Raise conflict error if the version in the DB is different
                         raise ConcurrencyConflictError(
                             code="version_mismatch",
                             message="The enrollment exists, but its persisted version \
@@ -164,12 +168,15 @@ class DjangoEnrollmentRepository(EnrollmentRepository):
                                     }
                         )
                 else:
-
+                    
+                    # Successful update: Persist the latest transition
                     EnrollmentMapper.to_transition(
                         state_transition=enrollment.transitions[-1],
                         enrollment_id=origin_id
                     ).save()
                     return new_version
+        
+        # Raise conflict error if the version in the DB is different
         except(EnrollmentPersistenceNotFoundError, ConcurrencyConflictError):
             raise
 
@@ -179,4 +186,3 @@ class DjangoEnrollmentRepository(EnrollmentRepository):
                 message="A critical error occurred on the database server.",
                 details={"error": str(e)}
             ) from e
-
