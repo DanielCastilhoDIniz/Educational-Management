@@ -8,6 +8,7 @@ from domain.academic.enrollment.events.enrollment_events import (
     DomainEvent,
     EnrollmentCancelled,
     EnrollmentConcluded,
+    EnrollmentReactivated,
     EnrollmentSuspended,
 )
 from domain.academic.enrollment.value_objects.enrollment_status import EnrollmentState
@@ -23,6 +24,8 @@ def make_enrollment(*, state: EnrollmentState) -> Enrollment:
     concluded_at = now if state == EnrollmentState.CONCLUDED else None
     suspended_at = now if state == EnrollmentState.SUSPENDED else None
     cancelled_at = now if state == EnrollmentState.CANCELLED else None
+    reactivated_at = now if state == EnrollmentState.ACTIVE else None
+
 
     return Enrollment(
         id="enr-1",
@@ -33,7 +36,9 @@ def make_enrollment(*, state: EnrollmentState) -> Enrollment:
         created_at=now,
         concluded_at=concluded_at,
         suspended_at=suspended_at,
-        cancelled_at=cancelled_at
+        cancelled_at=cancelled_at,
+        reactivated_at=reactivated_at,
+
     )
 
 
@@ -85,6 +90,9 @@ class ScriptedEnrollment:
         self._apply_script()
 
     def conclude(self, **_: object) -> None:
+        self._apply_script()
+    
+    def reactivate(self, **_: object) -> None:
         self._apply_script()
 
     def peek_domain_events(self) -> list[DomainEvent]:
@@ -143,3 +151,18 @@ def make_concluded_event(
         to_state=EnrollmentState.CONCLUDED,
         justification="test",
     )
+
+def make_reactivated_event(
+        *,
+        aggregate_id: str = "enr-1",
+        from_state: EnrollmentState = EnrollmentState.SUSPENDED,
+) -> EnrollmentReactivated:
+    return EnrollmentReactivated(
+        aggregate_id=aggregate_id,
+        actor_id="user-1",
+        justification="test",
+        occurred_at=datetime.now(timezone.utc),
+        from_state=from_state,
+        to_state=EnrollmentState.ACTIVE,
+    )
+
