@@ -17,10 +17,10 @@ class EnrollmentModel(CreatedAtModel, MutableSnapshotModel):
     objects: models.Manager["EnrollmentModel"]  # type: ignore[override]
 
     class StateChoices(models.TextChoices):
-        ACTIVE = "ACTIVE", "Active"
-        SUSPENDED = "SUSPENDED", "Suspended"
-        CANCELLED = "CANCELLED", "Cancelled"
-        CONCLUDED = "CONCLUDED", "Concluded"
+        ACTIVE = "Active"
+        SUSPENDED = "Suspended"
+        CANCELLED = "Cancelled"
+        CONCLUDED = "Concluded"
 
     id = models.UUIDField(
         primary_key=True,
