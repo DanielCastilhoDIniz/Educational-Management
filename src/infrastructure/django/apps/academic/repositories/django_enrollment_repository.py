@@ -2,14 +2,16 @@ from datetime import UTC, datetime
 
 from django.db import DatabaseError, transaction
 
+from application.academic.enrollment.errors.persistence_errors import (
+    ConcurrencyConflictError,
+    EnrollmentPersistenceNotFoundError,
+)
 from application.academic.enrollment.ports.enrollment_repository import EnrollmentRepository
 from apps.academic.mappers.enrollment_mapper import EnrollmentMapper
 from apps.academic.models.enrollment_model import EnrollmentModel
 from apps.academic.models.enrollment_transition import EnrollmentTransitionModel
 from domain.academic.enrollment.entities.enrollment import Enrollment
 from infrastructure.errors.persistence_errors import (
-    ConcurrencyConflictError,
-    EnrollmentPersistenceNotFoundError,
     InfrastructureError,
 )
 
@@ -56,6 +58,7 @@ class DjangoEnrollmentRepository(EnrollmentRepository):
         concluded_at: datetime | None,
         cancelled_at: datetime | None,
         suspended_at: datetime | None,
+        reactivated_at: datetime | None,
         version: int,
     ) -> bool:
         return (
@@ -63,6 +66,7 @@ class DjangoEnrollmentRepository(EnrollmentRepository):
             and snapshot.concluded_at == concluded_at
             and snapshot.cancelled_at == cancelled_at
             and snapshot.suspended_at == suspended_at
+            and snapshot.reactivated_at == reactivated_at
             and snapshot.version == version
         )
 
@@ -99,6 +103,8 @@ class DjangoEnrollmentRepository(EnrollmentRepository):
         concluded_at = enrollment.concluded_at
         cancelled_at = enrollment.cancelled_at
         suspended_at = enrollment.suspended_at
+        reactivated_at = enrollment.reactivated_at
+
         new_version = origin_version + 1
         now = datetime.now(UTC)
 
@@ -118,6 +124,7 @@ class DjangoEnrollmentRepository(EnrollmentRepository):
                     concluded_at=concluded_at,
                     cancelled_at=cancelled_at,
                     suspended_at=suspended_at,
+                    reactivated_at=reactivated_at,
                     version=new_version,
                     updated_at=now
                 )
@@ -142,6 +149,7 @@ class DjangoEnrollmentRepository(EnrollmentRepository):
                                 concluded_at=concluded_at,
                                 cancelled_at=cancelled_at,
                                 suspended_at=suspended_at,
+                                reactivated_at=reactivated_at,
                                 version=new_version,
                             )
                         ):
@@ -154,7 +162,8 @@ class DjangoEnrollmentRepository(EnrollmentRepository):
                                   does not match the aggregate origin version.",
                             details={
                                 "aggregate_id": enrollment.id,
-                                "expected_version": enrollment.version
+                                "expected_version": enrollment.version,
+
                                 }
                         )
                     else:

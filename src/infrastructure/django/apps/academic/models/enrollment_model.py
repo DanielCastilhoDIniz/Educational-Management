@@ -78,6 +78,7 @@ class EnrollmentModel(CreatedAtModel, MutableSnapshotModel):
         blank=True,
         verbose_name="Reactivated At",
         help_text="When the enrollment was reactivated (UTC).",
+    )
 
     class Meta:  # type: ignore[reportIncompatibleVariableOverride]
         db_table = "enrollments"

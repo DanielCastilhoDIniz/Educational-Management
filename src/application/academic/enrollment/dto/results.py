@@ -1,8 +1,8 @@
 from __future__ import annotations
+
 from dataclasses import dataclass
 
 from application.academic.enrollment.dto.errors.application_error import ApplicationError
-
 from domain.academic.enrollment.events.enrollment_events import DomainEvent
 from domain.academic.enrollment.value_objects.enrollment_status import EnrollmentState
 

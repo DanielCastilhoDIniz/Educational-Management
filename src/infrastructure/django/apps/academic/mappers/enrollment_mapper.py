@@ -40,6 +40,8 @@ class EnrollmentMapper:
         concluded_at = snapshot.concluded_at
         cancelled_at = snapshot.cancelled_at
         suspended_at = snapshot.suspended_at
+        reactivated_at = snapshot.reactivated_at
+
 
         version = snapshot.version
 
@@ -71,6 +73,7 @@ class EnrollmentMapper:
                 concluded_at=concluded_at,
                 cancelled_at=cancelled_at,
                 suspended_at=suspended_at,
+                reactivated_at=reactivated_at,
                 version=version,
                 transitions=domain_transitions,
             )
@@ -96,6 +99,10 @@ class EnrollmentMapper:
         snapshot.concluded_at = enrollment.concluded_at
         snapshot.cancelled_at = enrollment.cancelled_at
         snapshot.suspended_at = enrollment.suspended_at
+       
+
+        snapshot.version = enrollment.version
+
 
         return snapshot
 

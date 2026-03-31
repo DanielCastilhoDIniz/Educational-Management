@@ -1,5 +1,5 @@
-class InfrastructureError(Exception):
-    """Base class for infrastructure layer errors."""
+class ApplicationPersistenceError(Exception):
+    """Base exception for persistence-related errors in the enrollment application."""
     code: str
     message: str
 
@@ -21,3 +21,16 @@ class InfrastructureError(Exception):
         return f"{self.__class__.__name__}(code={self.code!r}"\
                f", message={self.message!r}, details={self.details!r}"
 
+
+class EnrollmentPersistenceNotFoundError(ApplicationPersistenceError):
+    """
+        Raised when an enrollment_id cannot be found
+        during persistence execution.
+    """
+
+
+class ConcurrencyConflictError(ApplicationPersistenceError):
+    """
+    Raised when a version mismatch occurs during persistence,
+    indicating that the aggregate was modified by another process.
+    """

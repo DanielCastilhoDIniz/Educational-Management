@@ -16,6 +16,10 @@ from application.academic.enrollment.dto.errors.application_error import Applica
 from application.academic.enrollment.dto.errors.error_codes import ErrorCodes
 from application.academic.enrollment.dto.results import ApplicationResult
 from application.academic.enrollment.errors.domain_error_mapper import to_application_error
+from application.academic.enrollment.errors.persistence_errors import (
+    ApplicationPersistenceError,
+    ConcurrencyConflictError,
+)
 from application.academic.enrollment.ports.enrollment_repository import EnrollmentRepository
 from domain.academic.enrollment.errors.enrollment_errors import DomainError
 from domain.academic.enrollment.value_objects.enrollment_status import EnrollmentState
@@ -86,6 +90,36 @@ def build_persistence_failure_result(
                 "aggregate_id": enrollment_id,
                 "action": action,
                 "current_state": current_state,
+                "exception_type": err.__class__.__name__,
+                "exception_message": str(err),
+            }
+        )
+    )
+
+def build_concurrency_conflict_result(
+        *,
+        enrollment_id: str,
+        action: str,
+        current_state: str,
+        message: str,
+        err: ApplicationPersistenceError,
+) -> ApplicationResult:
+    """Return a concurrency conflict failure without leaking an exception."""
+    return ApplicationResult(
+        aggregate_id=enrollment_id,
+        success=False,
+        changed=False,
+        domain_events=(),
+        new_state=None,
+        error=ApplicationError(
+            code=ErrorCodes.CONCURRENCY_CONFLICT,
+            message=message,
+            details={
+                "aggregate_id": enrollment_id,
+                "action": action,
+                "current_state": current_state,
+                "expected_version": (err.details or {}).get("expected_version"),
+                "persisted_version": (err.details or {}).get("persisted_version"),
                 "exception_type": err.__class__.__name__,
                 "exception_message": str(err),
             }
@@ -182,6 +216,15 @@ def finalize_state_change(
 
     try:
         repo.save(enrollment)
+    except ConcurrencyConflictError as e:
+        return build_concurrency_conflict_result(
+            enrollment_id=enrollment_id,
+            action=action,
+            current_state=enrollment.state.value,
+            message=persistence_failure_message,
+            err=e,
+        )
+    
     except Exception as err:
         return build_persistence_failure_result(
             enrollment_id=enrollment_id,
