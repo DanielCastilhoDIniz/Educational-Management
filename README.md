@@ -21,6 +21,7 @@ Implemented in the domain layer:
 - `Enrollment` aggregate root
 - enrollment states: `active`, `suspended`, `cancelled`, `concluded`
 - command methods: `cancel`, `suspend`, `conclude`, `reactivate`
+- lifecycle timestamps including `concluded_at`, `cancelled_at`, `suspended_at`, and `reactivated_at`
 - immutable domain events
 - transition history via `StateTransition`
 - immutable `ConclusionVerdict` with invariant validation
@@ -28,20 +29,29 @@ Implemented in the domain layer:
 
 Implemented in the application layer:
 
-- use cases for `cancel`, `suspend`, and `conclude`
+- use cases for `cancel`, `suspend`, `conclude`, and `reactivate`
 - stable `ApplicationResult` output contract
 - `ApplicationError` + `ErrorCodes`
 - domain-to-application error mapping
 - common state change flow helper to keep orchestration consistent
+- typed mapping for optimistic concurrency conflicts
 - dedicated tests for application contracts and error translation
+
+Implemented in the infrastructure layer:
+
+- Django models and migrations for enrollment snapshot + append-only transition log
+- deterministic `transition_id` generation for retry-safe transition deduplication
+- ORM/domain mapper for rehydration and transition persistence
+- `DjangoEnrollmentRepository` with transactional save and optimistic concurrency
+- integration tests for repository success, retry, conflict, rollback consistency, and rehydration
 
 Not implemented yet:
 
-- real persistence adapter with optimistic concurrency
-- typed persistence failures mapped to `CONCURRENCY_CONFLICT` / `DATA_INTEGRITY_ERROR`
+- creation use case / persistence contract for new enrollments
+- typed data integrity failures mapped to `DATA_INTEGRITY_ERROR`
 - authorization and policy ports for actor roles and institutional rules
 - API layer
-- application service for `reactivate`
+- external event publisher / outbox strategy
 
 ## Architecture
 
@@ -58,16 +68,17 @@ The domain is framework-independent.
 
 The project now has an ADR trail that documents the main architectural decisions of the enrollment module:
 
-- `001`: enrollment persistence strategy
-- `002`: deterministic transition identity
-- `003`: ubiquitous language and naming rules
-- `004`: aggregate boundary for enrollment
-- `005`: domain events
-- `006`: domain/application policy split
-- `007`: domain layer core
-- `008`: application layer use-case orchestration
-- `009`: infrastructure layer adapters, persistence, and event publication
-- `010`: interface/API boundary and HTTP mapping
+- `001`: ubiquitous language
+- `002`: aggregate boundary for enrollment
+- `003`: domain events
+- `004`: domain layer core
+- `005`: application layer use-case orchestration
+- `006`: policy boundary and external rules
+- `007`: infrastructure adapters, persistence, and event publication
+- `008`: enrollment persistence strategy
+- `009`: `save()` contract
+- `010`: deterministic transition identity
+- `011`: interface/API boundary and HTTP mapping
 
 ## Enrollment Contracts
 
@@ -111,7 +122,8 @@ The current automated test suite is centered on contract protection:
 - domain event guards
 - application result and application error DTO contracts
 - domain-to-application error mapping
-- application services for `cancel`, `suspend`, and `conclude`
+- application services for `cancel`, `suspend`, `conclude`, and `reactivate`
+- repository integration for optimistic concurrency, retry, rollback, and rehydration
 
 ## Project Structure
 
@@ -144,14 +156,16 @@ docs/
 
 - domain rules: `DOMIAIN_ROLES.md`
 - ADR index: `docs/adr/`
-- persistence decisions: `docs/adr/001-enrollment-persistence.md`
-- aggregate boundary: `docs/adr/004- Aggregate-Bondary-Enrollment.md`
-- domain events: `docs/adr/005-Domain-eventes.md`
+- aggregate boundary: `docs/adr/002-Aggregate-Bondary-Enrollment.md`
+- domain events: `docs/adr/003-Domain-eventes.md`
 - domain/application policies: `docs/adr/006-Politicas.md`
-- domain layer decision: `docs/adr/007-domain-layer-core.md`
-- application layer decision: `docs/adr/008-application-layer-use-case-orchestration.md`
-- infrastructure layer decision: `docs/adr/009-infrastructure-layer-adapters-persistence-publication.md`
-- interface layer decision: `docs/adr/010-interface-http-boundary.md`
+- domain layer decision: `docs/adr/004-domain-layer-core.md`
+- application layer decision: `docs/adr/005-application-layer-use-case-orchestration.md`
+- infrastructure layer decision: `docs/adr/007-infrastructure-layer-adapters-persistence-publication.md`
+- enrollment persistence: `docs/adr/008-enrollment-persistence.md`
+- `save()` contract: `docs/adr/009-contrato-save.md`
+- deterministic transition id: `docs/adr/010-deterministic-transition-id.md`
+- interface layer decision: `docs/adr/011-interface-http-boundary.md`
 
 ## Development Setup
 
@@ -198,18 +212,20 @@ Current state of the enrollment module:
 
 - domain model implemented and covered by focused unit tests
 - application services aligned to a stable result contract
-- error payloads standardized between domain and application
+- domain and application errors standardized around stable payloads
 - common state-change orchestration extracted to reduce duplication
-- ADRs `001` to `010` created and reviewed against the current codebase
+- Django persistence adapter implemented for update flows
+- optimistic concurrency and retry-safe transition persistence covered by integration tests
+- ADRs `001` to `011` created and reviewed against the current codebase
 
-The code is ready for the next phase: persistence adapters, authorization/policy ports, and API exposure.
+The code is ready for the next phase: enrollment creation, richer persistence error mapping, authorization/policy ports, and API exposure.
 
 ## Next Steps
 
-- implement repository adapter with optimistic concurrency
-- map infrastructure failures to typed application errors
+- design and implement enrollment creation as a separate contract from `save()`
+- map data integrity failures to typed application errors
 - introduce actor context and authorization/policy ports
-- add application service for enrollment reactivation
+- document and implement external event publication / outbox when needed
 - add HTTP presenter/controller mapping from `ApplicationResult`
 - expose use cases through Django/DRF
 

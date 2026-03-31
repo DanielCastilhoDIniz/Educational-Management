@@ -123,7 +123,7 @@ class Enrollment:
             ),
             EnrollmentState.SUSPENDED: (
                 ["suspended_at"],
-                ["concluded_at", "cancelled_at"]
+                ["concluded_at", "cancelled_at", "reactivated_at"]
             ),
             EnrollmentState.CONCLUDED: (
                 ["concluded_at"],
