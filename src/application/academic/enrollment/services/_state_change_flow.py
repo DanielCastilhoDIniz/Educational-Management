@@ -10,20 +10,31 @@ result contract:
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Protocol, cast
 
 from application.academic.enrollment.dto.errors.application_error import ApplicationError
 from application.academic.enrollment.dto.errors.error_codes import ErrorCodes
 from application.academic.enrollment.dto.results import ApplicationResult
 from application.academic.enrollment.errors.domain_error_mapper import to_application_error
 from application.academic.enrollment.errors.persistence_errors import (
-    ApplicationPersistenceError,
     ConcurrencyConflictError,
+    EnrollmentPersistenceNotFoundError,
 )
 from application.academic.enrollment.ports.enrollment_repository import EnrollmentRepository
+from domain.academic.enrollment.entities.enrollment import Enrollment
 from domain.academic.enrollment.errors.enrollment_errors import DomainError
+from domain.academic.enrollment.events.enrollment_events import DomainEvent
 from domain.academic.enrollment.value_objects.enrollment_status import EnrollmentState
 
+
+class EnrollmentLike(Protocol):
+    """Subset of the Enrollment aggregate interface required by the state change flow.
+     This allows the service to work with both the full aggregate and a simpler
+     stateful wrapper used for validation in scripetd cases.
+    """
+    state: EnrollmentState
+    def pull_domain_events(self) -> list[DomainEvent]: ...
+    def peek_domain_events(self) -> list[DomainEvent]: ...
 
 def build_not_found_result(*, enrollment_id: str, action: str) -> ApplicationResult:
     """Build the standard failure payload for a missing enrollment aggregate."""
@@ -73,6 +84,7 @@ def build_persistence_failure_result(
         enrollment_id: str,
         action: str,
         current_state: str,
+        code: ErrorCodes = ErrorCodes.UNEXPECTED_ERROR,    
         message: str,
         err: Exception,
 ) -> ApplicationResult:
@@ -84,7 +96,7 @@ def build_persistence_failure_result(
         domain_events=(),
         new_state=None,
         error=ApplicationError(
-            code=ErrorCodes.UNEXPECTED_ERROR,
+            code=code,
             message=message,
             details={
                 "aggregate_id": enrollment_id,
@@ -102,7 +114,7 @@ def build_concurrency_conflict_result(
         action: str,
         current_state: str,
         message: str,
-        err: ApplicationPersistenceError,
+        err: ConcurrencyConflictError,
 ) -> ApplicationResult:
     """Return a concurrency conflict failure without leaking an exception."""
     return ApplicationResult(
@@ -172,7 +184,7 @@ def build_no_change_result(*, enrollment_id: str) -> ApplicationResult:
 def finalize_state_change(
         *,
         repo: EnrollmentRepository,
-        enrollment: Any,
+        enrollment: EnrollmentLike,
         enrollment_id: str,
         action: str,
         previous_state: EnrollmentState,
@@ -215,13 +227,22 @@ def finalize_state_change(
         )
 
     try:
-        repo.save(enrollment)
+        repo.save(cast(Enrollment, enrollment))
     except ConcurrencyConflictError as e:
         return build_concurrency_conflict_result(
             enrollment_id=enrollment_id,
             action=action,
             current_state=enrollment.state.value,
             message=persistence_failure_message,
+            err=e,
+        )
+    except EnrollmentPersistenceNotFoundError as e:
+        return build_persistence_failure_result(
+            enrollment_id=enrollment_id,
+            action=action,
+            current_state=enrollment.state.value,
+            message=persistence_failure_message,
+            code=ErrorCodes.DATA_INTEGRITY_ERROR,
             err=e,
         )
     
