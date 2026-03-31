@@ -87,9 +87,9 @@ Isso significa que:
 - [x] Estrutura base de infrastructure em Django criada
 - [x] Modelos ORM do contexto academico criados
 - [x] Mappers do contexto academico criados
-- [ ] `django_enrollment_repository` implementado por completo
-- [ ] Concorrencia otimista aplicada no save do aggregate
-- [ ] Traducao de falhas tecnicas para erros tipados
+- [x] `django_enrollment_repository` implementado por completo
+- [x] Concorrencia otimista aplicada no save do aggregate
+- [x] Traducao de falhas tecnicas para erros tipados
 - [ ] Publicador de eventos externos implementado
 - [ ] Estrategia de retry/outbox documentada quando aplicavel
 
@@ -102,9 +102,9 @@ Isso significa que:
 - [x] Dependencias de framework nao vazam para `src/domain/` ou `src/application/`
 
 ## Checklist de Testes
-- [ ] Testes de round-trip ORM -> dominio -> ORM
-- [ ] Testes de save transacional com snapshot + log
-- [ ] Testes de conflito de versao
-- [ ] Testes de traducao de erro tecnico
-- [ ] Testes garantindo que falha de persistencia nao publica eventos
-- [ ] Testes de publicacao apos commit ou fluxo equivalente
+- [x] Testes de round-trip ORM -> dominio -> ORM
+- [x] Testes de save transacional com snapshot + log
+- [x] Testes de conflito de versao
+- [x] Testes de traducao de erro tecnico
+- [x] Testes garantindo que falha de persistencia nao publica eventos
+- [x] Testes de publicacao apos commit ou fluxo equivalente

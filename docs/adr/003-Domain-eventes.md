@@ -54,7 +54,7 @@ Eventos sao fatos imutaveis e nao carregam logica de negocio.
 
 ## Checklist de Code Review
 - [x] Dominio nao conhece fila/webhook/ORM/HTTP
-- [ ] Nao existe publicacao de evento antes do commit
+- [x] Nao existe publicacao de evento antes do commit
 - [x] Eventos sao imutaveis (sem setters/mutacoes)
 - [x] O buffer nao vaza entre casos de uso (sempre limpo apos pull)
 - [x] Application nao cria eventos "na mao"
@@ -62,5 +62,5 @@ Eventos sao fatos imutaveis e nao carregam logica de negocio.
 ## Checklist de Testes
 - [x] Transicao valida gera evento esperado (dominio)
 - [x] `pull` retorna eventos e limpa buffer (dominio)
-- [ ] Application persiste antes de publicar (teste de fluxo)
+- [x] Application persiste antes de publicar (teste de fluxo)
 - [x] Falha de persistencia nao publica evento
