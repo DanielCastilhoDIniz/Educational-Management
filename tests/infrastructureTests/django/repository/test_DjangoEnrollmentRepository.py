@@ -6,10 +6,13 @@ from apps.academic.models.enrollment_model import EnrollmentModel
 from apps.academic.models.enrollment_transition import EnrollmentTransitionModel
 from apps.academic.repositories.django_enrollment_repository import DjangoEnrollmentRepository
 
+from application.academic.enrollment.errors.persistence_errors import (
+    ConcurrencyConflictError,
+)
 from infrastructure.django.apps.academic.enrollments.transition_id import (
     make_transition_id,
 )
-from infrastructure.errors.persistence_errors import ConcurrencyConflictError, InfrastructureError
+from infrastructure.errors.persistence_errors import InfrastructureError
 from infrastructureTests.factory.new_enrollment_factory import (
     factory_create_new_enrollment_for_tests,
 )
