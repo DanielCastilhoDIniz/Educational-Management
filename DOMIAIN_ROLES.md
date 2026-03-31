@@ -199,9 +199,10 @@ A reativação é permitida quando:
 Efeitos:
 
 - estado retorna para `ATIVA` (`ACTIVE`);
+- `reactivated_at` torna-se obrigatório;
 - `suspended_at` deve ser limpo;
 - `concluded_at` e `cancelled_at` devem estar vazios;
-- pode gerar evento `EnrollmentReactivated` (quando adotado como evento oficial do domínio).
+- pode gerar evento `EnrollmentReactivated` 
 
 ---
 
@@ -475,6 +476,7 @@ Eventos oficiais emitidos pelo Aggregate Matrícula:
 - `EnrollmentReactivated` (TRANCADA/SUSPENDED → ATIVA)
 - `EnrollmentCancelled` (ATIVA/TRANCADA → CANCELADA/CANCELLED)
 - `EnrollmentConcluded` (ATIVA → CONCLUÍDA/CONCLUDED)
+  
 
 > **Nota sobre `EnrollmentCreated`**
 >

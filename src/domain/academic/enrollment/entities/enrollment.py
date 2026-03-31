@@ -10,7 +10,6 @@ from ..errors.enrollment_errors import (
     EnrollmentNotActiveError,
     InvalidStateTransitionError,
     JustificationRequiredError,
-    ReactivationNotAllowedError,
 )
 from ..events.enrollment_events import (
     DomainEvent,
@@ -132,7 +131,7 @@ class Enrollment:
             ),
             EnrollmentState.CANCELLED: (
                 ["cancelled_at"],
-                ["concluded_at", "suspended_at","reactivated_at"]
+                ["concluded_at", "suspended_at", "reactivated_at"]
             ),
         }
 
