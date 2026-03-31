@@ -1,7 +1,8 @@
+import uuid
+
 from django.db import models
 
 from .base_models import CreatedAtModel, MutableSnapshotModel
-import uuid
 
 
 class EnrollmentModel(CreatedAtModel, MutableSnapshotModel):
@@ -17,10 +18,10 @@ class EnrollmentModel(CreatedAtModel, MutableSnapshotModel):
     objects: models.Manager["EnrollmentModel"]  # type: ignore[override]
 
     class StateChoices(models.TextChoices):
-        ACTIVE = "Active"
-        SUSPENDED = "Suspended"
-        CANCELLED = "Cancelled"
-        CONCLUDED = "Concluded"
+        ACTIVE = "active", "active"
+        SUSPENDED = "suspended", "suspended"
+        CANCELLED = "cancelled", "cancelled"
+        CONCLUDED = "concluded", "concluded"
 
     id = models.UUIDField(
         primary_key=True,
