@@ -24,8 +24,7 @@ def make_enrollment(*, state: EnrollmentState) -> Enrollment:
     concluded_at = now if state == EnrollmentState.CONCLUDED else None
     suspended_at = now if state == EnrollmentState.SUSPENDED else None
     cancelled_at = now if state == EnrollmentState.CANCELLED else None
-    reactivated_at = now if state == EnrollmentState.ACTIVE else None
-
+    reactivated_at = None
 
     return Enrollment(
         id="enr-1",
@@ -50,9 +49,10 @@ class InMemoryEnrollmentRepository:
     def get_by_id(self, enrollment_id: str) -> Enrollment | None:
         return cast(Enrollment | None, self.items.get(enrollment_id))
 
-    def save(self, enrollment: Enrollment) -> None:
+    def save(self, enrollment: Enrollment) -> int:
         self.items[enrollment.id] = enrollment
         self.save_calls += 1
+        return enrollment.version +1
 
     def seed(self, enrollment: HasAggregateId) -> None:
         self.items[enrollment.id] = enrollment
@@ -63,10 +63,10 @@ class FailingEnrollmentRepository(InMemoryEnrollmentRepository):
         super().__init__()
         self.message = message
 
-    def save(self, enrollment: Enrollment) -> None:
+    def save(self, enrollment: Enrollment) -> int:
         self.save_calls += 1
         raise RuntimeError(self.message)
-
+    
 
 class ScriptedEnrollment:
     def __init__(

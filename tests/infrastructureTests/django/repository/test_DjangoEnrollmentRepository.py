@@ -105,7 +105,7 @@ def test_save_success() -> None:
 
     assert transition is not None
     assert transition.count() == 1
-    assert transition[0].action == "SUSPEND"
+    assert transition[0].action == "suspend"
     assert transition[0].from_state == "active"
     assert transition[0].to_state == "suspended"
     assert transition[0].actor_id is not None
@@ -203,7 +203,7 @@ def test_bd_remains_consistent_when_transition_fails_to_save():
 
     transition_expected = make_transition_id(
          enrollment_id=origin_id,
-         action="SUSPEND",
+         action="suspend",
          from_state=origin_state,
          to_state="suspended",
          occurred_at=occurred_at,
@@ -214,7 +214,7 @@ def test_bd_remains_consistent_when_transition_fails_to_save():
     new_transition =EnrollmentTransitionModel.objects.create(
         transition_id=transition_expected,
         enrollment_id=origin_id,
-        action="SUSPEND",
+        action="supend",
         from_state=origin_state,
         to_state="suspended",
         actor_id=actor_id,
@@ -262,7 +262,7 @@ def test_snapshot_and_transition_ensure_safe_rehydratation():
      
     transition_id_before = make_transition_id(
          enrollment_id=origin_id,
-         action="Reactivate",
+         action="reactivate",
          from_state=state_suspended,
          to_state="active",
          occurred_at=datetime(2026, 1, 1, tzinfo=UTC),
@@ -273,7 +273,7 @@ def test_snapshot_and_transition_ensure_safe_rehydratation():
     new_transition =EnrollmentTransitionModel.objects.create(
         transition_id=transition_id_before,
         enrollment_id=origin_id,
-        action="Reactivate",
+        action="reactivate",
         from_state=state_suspended,
         to_state="active",
         actor_id=actor_id,

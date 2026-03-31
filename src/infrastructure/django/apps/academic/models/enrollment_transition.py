@@ -1,9 +1,9 @@
+import uuid
+
 from django.db import models
 from django.utils import timezone
 
 from .base_models import CreatedAtModel
-
-import uuid
 
 
 class EnrollmentTransitionModel(CreatedAtModel):
@@ -15,16 +15,16 @@ class EnrollmentTransitionModel(CreatedAtModel):
     objects: models.Manager["EnrollmentTransitionModel"]  # type: ignore[override]
 
     class StateChoices(models.TextChoices):
-        ACTIVE = "ACTIVE", "Active"
-        SUSPENDED = "SUSPENDED", "Suspended"
-        CANCELLED = "CANCELLED", "Cancelled"
-        CONCLUDED = "CONCLUDED", "Concluded"
+        ACTIVE = "active", "active"
+        SUSPENDED = "suspended", "suspended"
+        CANCELLED = "cancelled", "cancelled"
+        CONCLUDED = "concluded", "concluded"
 
     class ActionChoices(models.TextChoices):
-        CONCLUDE = "CONCLUDE", "Conclude"
-        CANCEL = "CANCEL", "Cancel"
-        SUSPEND = "SUSPEND", "Suspend"
-        REACTIVATE = "REACTIVATE", "Reactivate"
+        CONCLUDE = "conclude", "conclude"
+        CANCEL = "cancel", "cancel"
+        SUSPEND = "suspend", "suspend"
+        REACTIVATE = "reactivate", "reactivate"
 
     transition_id = models.UUIDField(
         default=uuid.uuid4,
