@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from typing import Protocol, cast
 
 from domain.academic.enrollment.entities.enrollment import Enrollment
@@ -19,7 +19,7 @@ class HasAggregateId(Protocol):
 
 
 def make_enrollment(*, state: EnrollmentState) -> Enrollment:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     concluded_at = now if state == EnrollmentState.CONCLUDED else None
     suspended_at = now if state == EnrollmentState.SUSPENDED else None
@@ -28,6 +28,7 @@ def make_enrollment(*, state: EnrollmentState) -> Enrollment:
 
     return Enrollment(
         id="enr-1",
+        institution_id="inst-1",
         student_id="stu-1",
         class_group_id="cls-1",
         academic_period_id="per-1",
@@ -46,8 +47,8 @@ class InMemoryEnrollmentRepository:
         self.items: dict[str, HasAggregateId] = {}
         self.save_calls: int = 0
 
-    def get_by_id(self, enrollment_id: str) -> Enrollment | None:
-        return cast(Enrollment | None, self.items.get(enrollment_id))
+    def get_by_id(self, enrollment_id: str) -> Enrollment:
+        return cast(Enrollment, self.items.get(enrollment_id))
 
     def save(self, enrollment: Enrollment) -> int:
         self.items[enrollment.id] = enrollment
@@ -116,7 +117,7 @@ def make_cancelled_event(
     return EnrollmentCancelled(
         aggregate_id=aggregate_id,
         actor_id="user-1",
-        occurred_at=datetime.now(timezone.utc),
+        occurred_at=datetime.now(UTC),
         from_state=from_state,
         to_state=EnrollmentState.CANCELLED,
         justification="test",
@@ -131,7 +132,7 @@ def make_suspended_event(
     return EnrollmentSuspended(
         aggregate_id=aggregate_id,
         actor_id="user-1",
-        occurred_at=datetime.now(timezone.utc),
+        occurred_at=datetime.now(UTC),
         from_state=from_state,
         to_state=EnrollmentState.SUSPENDED,
         justification="test",
@@ -146,7 +147,7 @@ def make_concluded_event(
     return EnrollmentConcluded(
         aggregate_id=aggregate_id,
         actor_id="user-1",
-        occurred_at=datetime.now(timezone.utc),
+        occurred_at=datetime.now(UTC),
         from_state=from_state,
         to_state=EnrollmentState.CONCLUDED,
         justification="test",
@@ -161,7 +162,7 @@ def make_reactivated_event(
         aggregate_id=aggregate_id,
         actor_id="user-1",
         justification="test",
-        occurred_at=datetime.now(timezone.utc),
+        occurred_at=datetime.now(UTC),
         from_state=from_state,
         to_state=EnrollmentState.ACTIVE,
     )

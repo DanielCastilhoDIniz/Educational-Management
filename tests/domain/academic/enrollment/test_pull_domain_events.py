@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 
 from domain.academic.enrollment.entities.enrollment import Enrollment
 from domain.academic.enrollment.events.enrollment_events import EnrollmentCancelled
@@ -8,13 +8,14 @@ from domain.academic.enrollment.value_objects.enrollment_status import Enrollmen
 def make_enrollment(*, state: EnrollmentState) -> Enrollment:
     """Factory mínima para criar um Enrollment válido
       para testes de domínio."""
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     cancelled_at = now if state == EnrollmentState.CANCELLED else None
     concluded_at = now if state == EnrollmentState.CONCLUDED else None
     suspended_at = now if state == EnrollmentState.SUSPENDED else None
 
     return Enrollment(
         id="enr-1",
+        institution_id="inst-1",
         student_id="stu-1",
         class_group_id="cls-1",
         academic_period_id="per-1",

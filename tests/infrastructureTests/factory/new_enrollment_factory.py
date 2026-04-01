@@ -6,6 +6,7 @@ from apps.academic.models.enrollment_model import EnrollmentModel
 
 def factory_create_new_enrollment_for_tests(
         enrollment_id: uuid.UUID | None = None,
+        institution_id: uuid.UUID | None = None,
         student_id: uuid.UUID | None = None,
         class_group_id: uuid.UUID | None = None,
         academic_period_id: uuid.UUID | None = None ,
@@ -18,6 +19,8 @@ def factory_create_new_enrollment_for_tests(
 
         if enrollment_id is None:
             enrollment_id = uuid.uuid4()
+        if institution_id is None:
+            institution_id = uuid.uuid4()
         if student_id is None:
             student_id = uuid.uuid4()
         if class_group_id is None:
@@ -29,6 +32,7 @@ def factory_create_new_enrollment_for_tests(
         
         enrollment = {
             "id": enrollment_id,
+            "institution_id": institution_id,
             "student_id": student_id,
             "class_group_id": class_group_id,
             "academic_period_id": academic_period_id,

@@ -19,6 +19,7 @@ def make_enrollment(*, state: EnrollmentState) -> Enrollment:
 
     return Enrollment(
         id="enr-1",
+        institution_id="inst-1",
         student_id="stu-1",
         class_group_id="cls-1",
         academic_period_id="per-1",

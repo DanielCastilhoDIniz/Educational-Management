@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from application.academic.enrollment.dto.errors.error_codes import ErrorCodes
 from application.academic.enrollment.services.cancel_enrollment import CancelEnrollmentService
@@ -25,7 +25,7 @@ def test_cancel_enrollment_success():
         enrollment_id=enrollment.id,
         actor_id="user-1",
         justification="valid justification",
-        occurred_at=datetime.now(timezone.utc)
+        occurred_at=datetime.now(UTC)
     )
     assert result.success is True
     assert len(result.domain_events) == 1
@@ -56,7 +56,7 @@ def test_cancel_enrollment_not_found():
         enrollment_id="enr-missing",
         actor_id="user-1",
         justification="valid justification",
-        occurred_at=datetime.now(timezone.utc)
+        occurred_at=datetime.now(UTC)
     )
 
     assert result.success is False
@@ -83,7 +83,7 @@ def test_cancel_enrollment_idempotent_when_already_cancelled():
         enrollment_id=enrollment.id,
         actor_id="user-1",
         justification="valid Justification",
-        occurred_at=datetime.now(timezone.utc)
+        occurred_at=datetime.now(UTC)
     )
 
     assert result.success is True
@@ -111,7 +111,7 @@ def test_cancel_enrollment_requires_justification():
         enrollment_id=enrollment.id,
         actor_id="user-1",
         justification="",
-        occurred_at=datetime.now(timezone.utc),
+        occurred_at=datetime.now(UTC),
     )
 
     assert result.success is False
@@ -139,7 +139,7 @@ def test_cancel_enrollment_returns_unexpected_error_when_save_fails():
         enrollment_id=enrollment.id,
         actor_id="user-1",
         justification="valid justification",
-        occurred_at=datetime.now(timezone.utc),
+        occurred_at=datetime.now(UTC),
     )
 
     assert result.success is False
@@ -169,7 +169,7 @@ def test_cancel_enrollment_returns_integrity_violation_when_event_exists_without
         enrollment_id="enr-1",
         actor_id="user-1",
         justification="valid justification",
-        occurred_at=datetime.now(timezone.utc),
+        occurred_at=datetime.now(UTC),
     )
 
     assert result.success is False
@@ -198,7 +198,7 @@ def test_cancel_enrollment_returns_integrity_violation_when_state_changes_withou
         enrollment_id="enr-1",
         actor_id="user-1",
         justification="valid justification",
-        occurred_at=datetime.now(timezone.utc),
+        occurred_at=datetime.now(UTC),
     )
 
     assert result.success is False

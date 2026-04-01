@@ -5,15 +5,13 @@ from datetime import datetime, timezone
 import pytest
 
 from domain.academic.enrollment.entities.enrollment import Enrollment
-from domain.academic.enrollment.events.enrollment_events import (
-    EnrollmentCancelled)
-from domain.academic.enrollment.value_objects.enrollment_status import (
-    EnrollmentState)
 from domain.academic.enrollment.errors.enrollment_errors import (
-    JustificationRequiredError,
+    DomainError,
     InvalidStateTransitionError,
-    DomainError
+    JustificationRequiredError,
 )
+from domain.academic.enrollment.events.enrollment_events import EnrollmentCancelled
+from domain.academic.enrollment.value_objects.enrollment_status import EnrollmentState
 
 
 def make_enrollment(*, state: EnrollmentState) -> Enrollment:
@@ -26,6 +24,7 @@ def make_enrollment(*, state: EnrollmentState) -> Enrollment:
 
     return Enrollment(
         id="enr-1",
+        institution_id="inst-1",
         student_id="stu-1",
         class_group_id="cls-1",
         academic_period_id="per-1",
@@ -238,6 +237,7 @@ def test_enrollment_cancelled_requires_cancelled_att() -> None:
     with pytest.raises(DomainError) as exc_info:
         Enrollment(
             id="enr-1",
+            institution_id="inst-1",
             student_id="stu-1",
             class_group_id="cls-1",
             academic_period_id="per-1",

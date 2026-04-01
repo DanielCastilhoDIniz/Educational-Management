@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 
 import pytest
 
@@ -8,13 +8,14 @@ from domain.academic.enrollment.value_objects.enrollment_status import Enrollmen
 
 
 def make_enrollment(*, state: EnrollmentState = EnrollmentState.ACTIVE) -> Enrollment:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     concluded_at = now if state == EnrollmentState.CONCLUDED else None
     suspended_at = now if state == EnrollmentState.SUSPENDED else None
     cancelled_at = now if state == EnrollmentState.CANCELLED else None
 
     return Enrollment(
         id="enr-1",
+        institution_id="inst-1",
         student_id="stu-1",
         class_group_id="cls-1",
         academic_period_id="per-1",
@@ -27,14 +28,15 @@ def make_enrollment(*, state: EnrollmentState = EnrollmentState.ACTIVE) -> Enrol
 
 
 def test_enrollment_normalizes_valid_string_state() -> None:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     enrollment = Enrollment(
         id="enr-1",
+        institution_id="inst-1",
         student_id="stu-1",
         class_group_id="cls-1",
         academic_period_id="per-1",
-        state=EnrollmentState.ACTIVE.value,
+        state=EnrollmentState.ACTIVE,
         created_at=now,
     )
 
@@ -42,11 +44,12 @@ def test_enrollment_normalizes_valid_string_state() -> None:
 
 
 def test_enrollment_rejects_invalid_string_state() -> None:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     with pytest.raises(DomainError) as exc_info:
         Enrollment(
             id="enr-1",
+            institution_id="inst-1",
             student_id="stu-1",
             class_group_id="cls-1",
             academic_period_id="per-1",
@@ -60,11 +63,12 @@ def test_enrollment_rejects_invalid_string_state() -> None:
 
 
 def test_enrollment_rejects_invalid_state_type() -> None:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     with pytest.raises(DomainError) as exc_info:
         Enrollment(
             id="enr-1",
+            institution_id="inst-1",
             student_id="stu-1",
             class_group_id="cls-1",
             academic_period_id="per-1",
@@ -78,11 +82,12 @@ def test_enrollment_rejects_invalid_state_type() -> None:
 
 
 def test_enrollment_rejects_invalid_version() -> None:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     with pytest.raises(DomainError) as exc_info:
         Enrollment(
             id="enr-1",
+            institution_id="inst-1",
             student_id="stu-1",
             class_group_id="cls-1",
             academic_period_id="per-1",
@@ -97,11 +102,12 @@ def test_enrollment_rejects_invalid_version() -> None:
 
 
 def test_enrollment_rejects_forbidden_timestamp_for_state() -> None:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     with pytest.raises(DomainError) as exc_info:
         Enrollment(
             id="enr-1",
+            institution_id="inst-1",
             student_id="stu-1",
             class_group_id="cls-1",
             academic_period_id="per-1",
@@ -122,6 +128,7 @@ def test_enrollment_rejects_none_created_at() -> None:
     with pytest.raises(DomainError) as exc_info:
         Enrollment(
             id="enr-1",
+            institution_id="inst-1",
             student_id="stu-1",
             class_group_id="cls-1",
             academic_period_id="per-1",
@@ -138,6 +145,7 @@ def test_enrollment_rejects_invalid_created_at_type() -> None:
     with pytest.raises(DomainError) as exc_info:
         Enrollment(
             id="enr-1",
+            institution_id="inst-1",
             student_id="stu-1",
             class_group_id="cls-1",
             academic_period_id="per-1",
@@ -155,6 +163,7 @@ def test_enrollment_normalizes_naive_created_at_to_utc() -> None:
 
     enrollment = Enrollment(
         id="enr-1",
+        institution_id="inst-1",
         student_id="stu-1",
         class_group_id="cls-1",
         academic_period_id="per-1",
@@ -162,7 +171,7 @@ def test_enrollment_normalizes_naive_created_at_to_utc() -> None:
         created_at=naive_created_at,
     )
 
-    assert enrollment.created_at.tzinfo == timezone.utc
+    assert enrollment.created_at.tzinfo == UTC
     assert enrollment.created_at.hour == 12
     assert enrollment.created_at.minute == 0
 

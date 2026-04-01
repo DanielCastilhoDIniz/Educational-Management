@@ -1,19 +1,19 @@
-import pytest
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 
-from application.academic.enrollment.dto.results import ApplicationResult
+import pytest
+
 from application.academic.enrollment.dto.errors.application_error import ApplicationError
 from application.academic.enrollment.dto.errors.error_codes import ErrorCodes
+from application.academic.enrollment.dto.results import ApplicationResult
 from domain.academic.enrollment.events.enrollment_events import EnrollmentConcluded
 from domain.academic.enrollment.value_objects.enrollment_status import EnrollmentState
-
 
 
 def test_application_result_raises_when_changed_false_and_events_not_empty():
     event = EnrollmentConcluded(
         aggregate_id="enr-1",
         actor_id="user-1",
-        occurred_at=datetime.now(timezone.utc),
+        occurred_at=datetime.now(UTC),
         from_state=EnrollmentState.ACTIVE,
         to_state=EnrollmentState.CONCLUDED,
     )
@@ -60,7 +60,7 @@ def test_changed_success_requires_new_state():
     event = EnrollmentConcluded(
         aggregate_id="enr-1",
         actor_id="user-1",
-        occurred_at=datetime.now(timezone.utc),
+        occurred_at=datetime.now(UTC),
         from_state=EnrollmentState.ACTIVE,
         to_state=EnrollmentState.CONCLUDED,
     )
@@ -94,7 +94,7 @@ def test_success_cannot_include_error():
     event = EnrollmentConcluded(
         aggregate_id="enr-1",
         actor_id="user-1",
-        occurred_at=datetime.now(timezone.utc),
+        occurred_at=datetime.now(UTC),
         from_state=EnrollmentState.ACTIVE,
         to_state=EnrollmentState.CONCLUDED,
     )
@@ -110,7 +110,9 @@ def test_success_cannot_include_error():
             error=ApplicationError(
                 code=ErrorCodes.ENROLLMENT_NOT_FOUND,
                 message="enrollment not found",
-                details=None,
+                details={
+                    "aggregate_id": "enr-1",
+                },
             )
         )
 
@@ -127,7 +129,9 @@ def test_failure_cannot_include_change():
             error=ApplicationError(
                 code=ErrorCodes.ENROLLMENT_NOT_FOUND,
                 message="enrollment not found",
-                details=None,
+                details={
+                    "aggregate_id": "enr-1",
+                },
             )
         )
 
@@ -155,7 +159,8 @@ def test_failure_cannot_include_new_state():
             error=ApplicationError(
                 code=ErrorCodes.STATE_INTEGRITY_VIOLATION,
                 message="state integrity violation",
-                details=None,
+                details={
+                    "aggregate_id": "enr-1",},
             )
         )
 
@@ -164,7 +169,7 @@ def test_failure_cannot_include_domain_events():
     event = EnrollmentConcluded(
             aggregate_id="enr-1",
             actor_id="user-1",
-            occurred_at=datetime.now(timezone.utc),
+            occurred_at=datetime.now(UTC),
             from_state=EnrollmentState.ACTIVE,
             to_state=EnrollmentState.CONCLUDED,
         )
@@ -180,6 +185,9 @@ def test_failure_cannot_include_domain_events():
             error=ApplicationError(
                 code=ErrorCodes.STATE_INTEGRITY_VIOLATION,
                 message="state integrity violation.",
-                details=None,
+                details={
+                    "aggregate_id": "enr-1",
+                
+                },
             ),
         )

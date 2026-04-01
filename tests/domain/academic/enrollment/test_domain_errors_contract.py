@@ -1,5 +1,5 @@
 from domain.academic.enrollment.errors.enrollment_errors import (
-    DomainError
+    DomainError,
 )
 
 
