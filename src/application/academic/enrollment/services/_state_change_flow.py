@@ -31,6 +31,7 @@ class EnrollmentLike(Protocol):
     """Subset of the Enrollment aggregate interface required by the state change flow.
      This allows the service to work with both the full aggregate and a simpler
      stateful wrapper used for validation in scripetd cases.
+
     """
     state: EnrollmentState
     def pull_domain_events(self) -> list[DomainEvent]: ...

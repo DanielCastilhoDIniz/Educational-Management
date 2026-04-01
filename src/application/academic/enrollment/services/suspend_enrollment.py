@@ -1,7 +1,5 @@
 from datetime import datetime
 
-from domain.academic.enrollment.errors.enrollment_errors import DomainError
-
 from application.academic.enrollment.dto.results import ApplicationResult
 from application.academic.enrollment.ports.enrollment_repository import EnrollmentRepository
 from application.academic.enrollment.services._state_change_flow import (
@@ -9,6 +7,7 @@ from application.academic.enrollment.services._state_change_flow import (
     build_not_found_result,
     finalize_state_change,
 )
+from domain.academic.enrollment.errors.enrollment_errors import DomainError
 
 
 class SuspendEnrollmentService:

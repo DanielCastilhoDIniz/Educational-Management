@@ -36,7 +36,7 @@ class ApplicationError:
 
     code: ErrorCodes
     message: str
-    details: dict[str, Any] | None = None
+    details: dict[str, Any]
 
     def __str__(self) -> str:
         return f"{self.code}: {self.message}"

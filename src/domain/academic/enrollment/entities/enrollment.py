@@ -47,6 +47,7 @@ class Enrollment:
       - DomainEvent (for integration after persistence)
     """
     id: str
+    institution_id: str
     student_id: str
     class_group_id: str
     academic_period_id: str
@@ -66,6 +67,7 @@ class Enrollment:
 
     def __post_init__(self) -> None:
         self._validate_identity()
+        self._validate_institution_id()
         self._normalize_and_validate_state()
         self._validate_version()
         self._normalize_datetimes()
@@ -74,6 +76,10 @@ class Enrollment:
     def _validate_identity(self) -> None:
         if not self.id or not self.id.strip():
             raise DomainError(code="invalid_id", message="Enrollment must have a valid ID")
+    
+    def _validate_institution_id(self) -> None:
+        if not self.institution_id or not self.institution_id.strip():
+            raise DomainError(code="invalid_institution_id", message="Enrollment must have a valid institution ID")
 
     def _normalize_and_validate_state(self) -> None:
         if isinstance(self.state, str):

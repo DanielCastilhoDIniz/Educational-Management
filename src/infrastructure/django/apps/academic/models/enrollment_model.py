@@ -30,6 +30,10 @@ class EnrollmentModel(CreatedAtModel, MutableSnapshotModel):
         default=uuid.uuid4,
         verbose_name="ID",
     )
+    institution_id = models.UUIDField(
+        verbose_name="Institution ID",
+        help_text="The unique identifier of the institution.",
+    )
 
     student_id = models.UUIDField(
         verbose_name="Student ID",

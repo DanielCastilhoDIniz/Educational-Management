@@ -30,6 +30,7 @@ class EnrollmentMapper:
         """
         # ---- Snapshot fields (local variables; do NOT mutate ORM)  (ORM -> Domain)----
         enrollment_id = str(snapshot.id)
+        institution_id = str(snapshot.institution_id)
         student_id = str(snapshot.student_id)
         class_group_id = str(snapshot.class_group_id)
         academic_period_id = str(snapshot.academic_period_id)
@@ -65,6 +66,7 @@ class EnrollmentMapper:
         # Build aggregate once - domain validates invariants + normalizes datetimes
         return Enrollment(
                 id=enrollment_id,
+                institution_id=institution_id,
                 student_id=student_id,
                 class_group_id=class_group_id,
                 academic_period_id=academic_period_id,
@@ -91,6 +93,7 @@ class EnrollmentMapper:
             The method updates all relevant fields in the snapshot based on the domain entity's attributes.
         """
         snapshot.id = enrollment.id
+        snapshot.institution_id = enrollment.institution_id
         snapshot.student_id = enrollment.student_id
         snapshot.class_group_id = enrollment.class_group_id
         snapshot.academic_period_id = enrollment.academic_period_id
