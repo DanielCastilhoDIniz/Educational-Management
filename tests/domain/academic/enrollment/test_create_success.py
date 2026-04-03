@@ -40,7 +40,7 @@ def test_create_enrollment_has_initial_state_active() -> None:
 
         assert enrolment.state == EnrollmentState.ACTIVE
 
-def test_create_enrollmet_is_buufer() -> None:
+def test_create_enrollmet_has_bufered_event() -> None:
         # Arrange:
         enrollment = Enrollment.create(
         institution_id="inst-1",

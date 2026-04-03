@@ -4,7 +4,7 @@ from application.academic.enrollment.dto.errors.error_codes import ErrorCodes
 from application.academic.enrollment.dto.results import ApplicationResult
 from application.academic.enrollment.errors.persistence_errors import (
     EnrollmentCreationError,
-    EnrolmentDuplicationError,
+    EnrollmentDuplicationError,
 )
 from application.academic.enrollment.ports.enrollment_repository import EnrollmentRepository
 from application.academic.enrollment.services._state_change_flow import (
@@ -54,7 +54,7 @@ class CreateEnrollment:
 
         try:
             self.repo.create(enrollment)
-        except EnrolmentDuplicationError as e:
+        except EnrollmentDuplicationError as e:
             return build_persistence_failure_result(
                 enrollment_id=enrollment.id,
                 action="create",

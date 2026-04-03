@@ -35,7 +35,7 @@ class ConcurrencyConflictError(ApplicationPersistenceError):
     indicating that the aggregate was modified by another process.
     """
 
-class EnrolmentDuplicationError(ApplicationPersistenceError):
+class EnrollmentDuplicationError(ApplicationPersistenceError):
     """
     Raised when an attempt is made to create an enrollment that already exists,
     violating a uniqueness constraint.

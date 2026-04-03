@@ -55,9 +55,9 @@ class EnrollmentMapper:
 
             domain_transitions.append(
                 StateTransition(
-                    from_state=EnrollmentState(from_state),
+                    from_state=from_state,
                     actor_id=str(t.actor_id),
-                    to_state=EnrollmentState(to_state),
+                    to_state=to_state,
                     occurred_at=t.occurred_at,
                     justification=t.justification,
                 )
@@ -119,6 +119,7 @@ class EnrollmentMapper:
         snapshot.concluded_at = enrollment.concluded_at
         snapshot.cancelled_at = enrollment.cancelled_at
         snapshot.suspended_at = enrollment.suspended_at
+        snapshot.reactivated_at = enrollment.reactivated_at
        
 
         snapshot.version = enrollment.version

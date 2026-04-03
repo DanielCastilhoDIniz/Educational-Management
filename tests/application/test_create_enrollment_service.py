@@ -1,13 +1,13 @@
 from datetime import UTC, datetime
 
 from application.academic.enrollment.dto.errors.error_codes import ErrorCodes
-from application.academic.enrollment.errors.persistence_errors import EnrolmentDuplicationError
+from application.academic.enrollment.errors.persistence_errors import EnrollmentDuplicationError
 from application.academic.enrollment.services.create_enrollment import CreateEnrollment
 from domain.academic.enrollment.events.enrollment_events import EnrollmentCreated
 from domain.academic.enrollment.value_objects.enrollment_status import EnrollmentState
 from tests.application.fakes import (
     FailingEnrollmentRepository,
-    FaillngCreateInRepository,
+    FaillingCreateInRepository,
     InMemoryEnrollmentRepository,
 )
 
@@ -33,7 +33,7 @@ def test_create_enrollment_success():
 
 
 def test_create_enrollment_duplicate():
-    repo = FaillngCreateInRepository(message="Enrollment with the same identifiers already exists.")
+    repo = FaillingCreateInRepository(message="Enrollment with the same identifiers already exists.")
     service = CreateEnrollment(repo=repo)
 
     enrollment = service.execute(

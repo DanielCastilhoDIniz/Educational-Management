@@ -6,8 +6,8 @@ from application.academic.enrollment.dto.errors.error_codes import ErrorCodes
 from application.academic.enrollment.errors.persistence_errors import (
     ConcurrencyConflictError,
     EnrollmentCreationError,
+    EnrollmentDuplicationError,
     EnrollmentPersistenceNotFoundError,
-    EnrolmentDuplicationError,
 )
 from application.academic.enrollment.ports.enrollment_repository import EnrollmentRepository
 from apps.academic.mappers.enrollment_mapper import EnrollmentMapper
@@ -189,7 +189,7 @@ class DjangoEnrollmentRepository(EnrollmentRepository):
                     return new_version
         
         # Raise conflict error if the version in the DB is different
-        except(EnrollmentPersistenceNotFoundError, ConcurrencyConflictError):
+        except (EnrollmentPersistenceNotFoundError, ConcurrencyConflictError):
             raise
 
         except DatabaseError as e:
@@ -211,7 +211,7 @@ class DjangoEnrollmentRepository(EnrollmentRepository):
                 return snapshot.version
             
         except IntegrityError as e:
-            raise EnrolmentDuplicationError(
+            raise EnrollmentDuplicationError(
                 code=ErrorCodes.DUPLICATE_ENROLLMENT,
                 message="An enrollment with the same identifiers already exists.",
                 details={"enrollment_id": enrollment.id},
