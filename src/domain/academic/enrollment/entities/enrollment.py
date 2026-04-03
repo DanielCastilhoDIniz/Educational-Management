@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Protocol
+from uuid import uuid4
 
 from ..errors.enrollment_errors import (
     ConclusionNotAllowedError,
@@ -15,6 +16,7 @@ from ..events.enrollment_events import (
     DomainEvent,
     EnrollmentCancelled,
     EnrollmentConcluded,
+    EnrollmentCreated,
     EnrollmentReactivated,
     EnrollmentSuspended,
 )
@@ -459,3 +461,39 @@ class Enrollment:
             occurred_at=occurred_at,
             justification=justification
         )
+
+    @classmethod
+    def create(
+        cls,
+            *,
+            institution_id: str,
+            student_id: str,
+            class_group_id: str,
+            academic_period_id: str,
+            actor_id: str,
+            occurred_at: datetime | None = None,
+    ) -> Enrollment:
+        created_at = cls._occurred_at_or_now(occurred_at)
+
+        enrollment = cls(
+            id=str(uuid4()),
+            institution_id=institution_id,
+            student_id=student_id,
+            class_group_id=class_group_id,
+            academic_period_id=academic_period_id,
+            state=EnrollmentState.ACTIVE,
+            created_at=created_at,  
+        )
+        # Record the creation event
+        creation_event = EnrollmentCreated(
+            aggregate_id=enrollment.id,
+            occurred_at=created_at,
+            actor_id=actor_id,
+            institution_id=institution_id,
+            student_id=student_id,
+            class_group_id=class_group_id,
+            academic_period_id=academic_period_id,
+        )
+        enrollment._domain_events.append(creation_event)
+
+        return enrollment

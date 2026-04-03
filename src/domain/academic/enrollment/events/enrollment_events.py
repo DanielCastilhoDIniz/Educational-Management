@@ -132,3 +132,16 @@ class EnrollmentReactivated(DomainEvent):
                 code="invalid_origin_state",
                 message="Regra 4.2: Reativação só é permitida a partir do estado TRANCADA."
             )
+        
+@dataclass(frozen=True, kw_only=True)
+class EnrollmentCreated(DomainEvent):
+    """
+    Domain event: Enrollment has been created.
+    Emitted when a new enrollment is successfully created in the system.
+    """
+    actor_id: str
+    institution_id: str
+    student_id: str
+    class_group_id: str
+    academic_period_id: str
+
