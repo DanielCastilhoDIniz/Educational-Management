@@ -1,10 +1,13 @@
 from datetime import UTC, datetime
 
-from django.db import DatabaseError, transaction
+from django.db import DatabaseError, IntegrityError, transaction
 
+from application.academic.enrollment.dto.errors.error_codes import ErrorCodes
 from application.academic.enrollment.errors.persistence_errors import (
     ConcurrencyConflictError,
+    EnrollmentCreationError,
     EnrollmentPersistenceNotFoundError,
+    EnrolmentDuplicationError,
 )
 from application.academic.enrollment.ports.enrollment_repository import EnrollmentRepository
 from apps.academic.mappers.enrollment_mapper import EnrollmentMapper
@@ -195,3 +198,29 @@ class DjangoEnrollmentRepository(EnrollmentRepository):
                 message="A critical error occurred on the database server.",
                 details={"error": str(e)}
             ) from e
+
+
+    def create(self, enrollment: Enrollment) ->int:
+
+        try:
+
+            with transaction.atomic():
+                snapshot = EnrollmentMapper.to_snapshot(enrollment=enrollment)
+                snapshot.save()
+
+                return snapshot.version
+            
+        except IntegrityError as e:
+            raise EnrolmentDuplicationError(
+                code=ErrorCodes.DUPLICATE_ENROLLMENT,
+                message="An enrollment with the same identifiers already exists.",
+                details={"enrollment_id": enrollment.id},
+            ) from e
+        except Exception as e:
+            raise EnrollmentCreationError(
+                code=ErrorCodes.ENROLLMENT_CREATION_FAILED,
+                message="Failed to create enrollment due to a integrity error.",
+            ) from e
+
+        
+       

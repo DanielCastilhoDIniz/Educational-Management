@@ -79,6 +79,23 @@ class EnrollmentMapper:
                 version=version,
                 transitions=domain_transitions,
             )
+    @staticmethod
+    def to_snapshot(
+        *,
+        enrollment: Enrollment,
+
+     ) -> EnrollmentModel:
+        
+        return EnrollmentModel(
+            id=enrollment.id,
+            institution_id=enrollment.institution_id,
+            student_id=enrollment.student_id,
+            class_group_id=enrollment.class_group_id,
+            academic_period_id=enrollment.academic_period_id,
+            state=enrollment.state.value,
+            created_at=enrollment.created_at
+        )
+        
 
     @staticmethod
     def apply_to_snapshot(
@@ -116,7 +133,7 @@ class EnrollmentMapper:
             enrollment_id: str,
 
     ) -> EnrollmentTransitionModel:
-
+        
         action_map = {
             EnrollmentState.CONCLUDED: EnrollmentTransitionModel.ActionChoices.CONCLUDE,
             EnrollmentState.CANCELLED: EnrollmentTransitionModel.ActionChoices.CANCEL,
