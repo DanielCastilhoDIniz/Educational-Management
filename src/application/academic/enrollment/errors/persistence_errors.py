@@ -34,3 +34,15 @@ class ConcurrencyConflictError(ApplicationPersistenceError):
     Raised when a version mismatch occurs during persistence,
     indicating that the aggregate was modified by another process.
     """
+
+class EnrolmentDuplicationError(ApplicationPersistenceError):
+    """
+    Raised when an attempt is made to create an enrollment that already exists,
+    violating a uniqueness constraint.
+    """
+
+class EnrollmentCreationError(ApplicationPersistenceError):
+    """
+    Raised when an unexpected error occurs during the creation of an enrollment,
+    such as a database failure or other infrastructure issue.
+    """

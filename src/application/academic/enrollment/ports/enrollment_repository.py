@@ -41,3 +41,14 @@ class EnrollmentRepository(Protocol):
         - unexpected persistence failures
         """
         ...
+
+    def create(self, enrollment: Enrollment) -> int:
+        """
+        Persist a new Enrollment aggregate and return the new persisted version.
+        Implementations must fail explicitly on:
+        - attempts to create with an existing id
+        - data integrity violations
+        - unexpected persistence failures
+        
+        """
+        ...
