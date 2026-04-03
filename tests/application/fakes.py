@@ -58,6 +58,11 @@ class InMemoryEnrollmentRepository:
     def seed(self, enrollment: HasAggregateId) -> None:
         self.items[enrollment.id] = enrollment
 
+    def create(self, enrollment: Enrollment) -> int:
+        self.items[enrollment.id] = enrollment
+        return enrollment.version
+
+
 
 class FailingEnrollmentRepository(InMemoryEnrollmentRepository):
     def __init__(self, message: str = "database unavailable"):
@@ -95,7 +100,10 @@ class ScriptedEnrollment:
     
     def reactivate(self, **_: object) -> None:
         self._apply_script()
-
+        
+    def create(self, **_: object) -> None:
+        self._apply_script()
+        
     def peek_domain_events(self) -> list[DomainEvent]:
         return list(self._pending_events)
 

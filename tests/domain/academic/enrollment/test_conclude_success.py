@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 
 import pytest
 
@@ -17,7 +17,7 @@ from domain.academic.enrollment.value_objects.enrollment_status import Enrollmen
 def make_enrollment(*, state: EnrollmentState) -> Enrollment:
     """Factory mínima para criar um Enrollment válido
       para testes de domínio."""
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     concluded_at = now if state == EnrollmentState.CONCLUDED else None
     suspended_at = now if state == EnrollmentState.SUSPENDED else None
