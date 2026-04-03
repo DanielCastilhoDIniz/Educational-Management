@@ -53,3 +53,28 @@ Campos recomendados:
 - definir metrica minima por adapter
 - mapear consultas de auditoria necessarias para suporte
 - incluir observabilidade no checklist de release
+
+## Checklist de Implementacao
+- [ ] Logs estruturados usam campos minimos por caso de uso
+- [ ] `correlation_id` e propagado entre interface, application e infraestrutura
+- [ ] Metricas minimas por caso de uso foram definidas e expostas
+- [ ] Auditoria operacional distingue comando bem-sucedido, no-op e falha
+- [ ] Existem alertas/runbooks para conflitos, retries e falhas de persistencia
+
+## Checklist de Code Review
+- [ ] Logs nao vazam dados sensiveis ou pessoais sem necessidade
+- [ ] Codigos de erro aparecem de forma consistente em logs e auditoria
+- [ ] Observabilidade nao depende de stack trace como fonte primaria
+- [ ] Auditoria de negocio esta separada de log tecnico de debug
+
+## Checklist de Testes
+- [ ] Existem testes ou smoke checks para campos obrigatorios de log
+- [ ] Existem testes para trilha de auditoria em mudancas de estado
+- [ ] Existem testes para preservacao de `correlation_id` no fluxo
+- [ ] Existem testes garantindo que dados sensiveis nao vazam indevidamente
+
+## Checklist de Documentacao
+- [ ] Runbooks operacionais cobrem incidentes principais do modulo
+- [ ] Catalogo de metricas e logs esta documentado
+- [ ] Requisitos nao funcionais de observabilidade estao alinhados
+

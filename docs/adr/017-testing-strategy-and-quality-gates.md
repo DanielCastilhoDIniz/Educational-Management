@@ -46,3 +46,28 @@ Adotar uma estrategia de testes por camada com gates minimos de qualidade em CI.
 - definir comandos oficiais de CI
 - adotar checklist de PR e release
 - incluir testes obrigatorios para todo novo caso de uso
+
+## Checklist de Implementacao
+- [x] Existem suites de testes por camada para dominio, application e infraestrutura
+- [x] A CI ja executa testes e cobertura minima
+- [ ] Gates de lint e tipagem estao integrados de forma obrigatoria na CI
+- [ ] Estrategia de testes da camada HTTP esta documentada para a proxima fase
+- [ ] Ha estrategia explicita para factories, dados de teste e testes de migracao
+
+## Checklist de Code Review
+- [x] Regras de negocio centrais continuam sendo testadas primeiro no dominio
+- [ ] Testes de application nao dependem desnecessariamente de ORM
+- [ ] Testes de infraestrutura focam adapters reais e nao reexecutam regra do dominio
+- [ ] Gates de qualidade sao aplicados de forma consistente em PR e main
+
+## Checklist de Testes
+- [x] Dominio cobre invariantes e transicoes
+- [x] Application cobre orquestracao, erros e integridade de eventos
+- [x] Infraestrutura cobre repositorio, concorrencia e reidratacao
+- [ ] Interface/API tera testes de contrato quando a camada HTTP surgir
+
+## Checklist de Documentacao
+- [ ] Matriz de rastreabilidade documento x teste esta atualizada
+- [ ] Guia de contribuicao referencia os gates de qualidade oficiais
+- [ ] Cobertura minima e regras de excecao estao documentadas
+

@@ -80,3 +80,28 @@ Campos proibidos:
 - alinhar aggregate, mapper e modelos ORM a esta matriz
 - criar testes especificos para round-trip de cada estado
 - validar coerencia snapshot x ultima transicao
+
+## Checklist de Implementacao
+- [x] O aggregate ja aplica matriz de estado e timestamps no dominio
+- [x] Datetimes do ciclo de vida sao normalizados para UTC
+- [x] A semantica de `reactivated_at` em estado `active` ja esta documentada
+- [ ] Constraints de banco reforcam a mesma matriz de estados
+- [ ] Persistencia e reidratacao cobrem integralmente todos os campos do ciclo de vida
+
+## Checklist de Code Review
+- [x] Transicoes limpam timestamps de estados anteriores antes de mutar o aggregate
+- [x] Cada estado proibe timestamps que pertencem a outros estados
+- [ ] Mapper e repositorio nao reintroduzem combinacoes invalidas
+- [ ] Relatorios e payloads de API usam a mesma semantica de timestamps
+
+## Checklist de Testes
+- [x] Existem testes de invariantes por estado no dominio
+- [ ] Existem testes de reidratacao para combinacoes invalidas
+- [ ] Existe teste de round-trip de `reactivated_at`
+- [ ] Existe teste de persistencia para timestamps obrigatorios/proibidos
+
+## Checklist de Documentacao
+- [ ] Casos de uso mencionam timestamps relevantes do ciclo de vida
+- [ ] API futura expoe a matriz de estados de forma consistente
+- [ ] Reporting e dashboard usam o mesmo significado para estados e timestamps
+

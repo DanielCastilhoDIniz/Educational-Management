@@ -25,3 +25,28 @@ Separar dados cadastrais da pessoa, relacionamentos de responsabilidade e prefer
 - definir modelo de pessoa/contato/responsabilidade
 - documentar regras de unicidade e merge de cadastro
 - definir politicas de acesso a dados sensiveis
+
+## Checklist de Implementacao
+- [ ] Existe modelo separado para estudante, responsavel e contato
+- [ ] Relacao estudante-responsavel suporta multiplos vinculos
+- [ ] Tipo de responsabilidade e prioridade de contato foram definidos
+- [ ] Politicas de consentimento, privacidade e visibilidade foram conectadas ao cadastro
+- [ ] Regras de unicidade/merge de cadastro foram formalizadas
+
+## Checklist de Code Review
+- [ ] O mesmo responsavel nao e duplicado desnecessariamente por vinculo
+- [ ] Dados sensiveis nao vazam para contextos sem necessidade
+- [ ] Alteracoes cadastrais sensiveis deixam trilha de auditoria
+- [ ] Regras de acesso respeitam tenant, papel e vinculo de responsabilidade
+
+## Checklist de Testes
+- [ ] Existem testes para estudante com multiplos responsaveis
+- [ ] Existem testes para responsavel vinculado a multiplos estudantes
+- [ ] Existem testes de restricao de visibilidade/acesso
+- [ ] Existem testes de merge/unicidade de cadastro
+
+## Checklist de Documentacao
+- [ ] Casos de uso de estudante e responsavel foram oficializados
+- [ ] Politicas de privacidade e classificacao de dados estao alinhadas
+- [ ] API futura define claramente o que pode ser exposto nesses cadastros
+

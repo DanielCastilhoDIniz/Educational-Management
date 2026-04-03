@@ -25,3 +25,28 @@ Modelar a estrutura academica como configuravel por instituicao, mas com contrat
 - definir modelo conceitual de ano/periodo/turma/disciplina
 - formalizar chaves de negocio e constraints
 - documentar como matricula se ancora nessa estrutura
+
+## Checklist de Implementacao
+- [ ] Existe modelo conceitual e tecnico de ano letivo, periodo, turma e disciplina
+- [ ] A quantidade de periodos por instituicao e configuravel
+- [ ] Oferta academica explicita relacao entre turma, disciplina e professor
+- [ ] Chaves de negocio e constraints foram definidas por instituicao/ano
+- [ ] Matricula se ancora formalmente nessa estrutura academica
+
+## Checklist de Code Review
+- [ ] Nao ha numero fixo de periodos hardcoded no codigo
+- [ ] Turma nao existe fora do contexto institucional/ano letivo
+- [ ] Dependencias entre matricula, diario e avaliacao usam contratos claros
+- [ ] Politicas variaveis ficam fora dos aggregates estruturais
+
+## Checklist de Testes
+- [ ] Existem testes para instituicoes com quantidades diferentes de periodos
+- [ ] Existem testes de consistencia entre turma, periodo e ano letivo
+- [ ] Existem testes de ancoragem da matricula na estrutura academica
+- [ ] Existem testes para associacao de professor a disciplina/turma
+
+## Checklist de Documentacao
+- [ ] Casos de uso de ano letivo, periodos e turmas foram oficializados
+- [ ] Politicas de estrutura academica estao alinhadas ao ADR
+- [ ] Mapa de contextos explicita dependencias com matricula, diario e avaliacao
+

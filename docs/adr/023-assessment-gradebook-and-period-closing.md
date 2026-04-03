@@ -25,3 +25,28 @@ Adotar regime avaliativo configuravel por instituicao e periodo, consumido pela 
 - definir catalogo de politicas avaliativas
 - modelar avaliacao, nota e consolidado
 - documentar fluxo de fechamento de periodo e retificacao
+
+## Checklist de Implementacao
+- [ ] Existe modelo de avaliacao, nota e consolidado por periodo
+- [ ] Quantidade de avaliacoes por periodo nao e fixa no codigo
+- [ ] Formula de media e configuravel e auditavel
+- [ ] Fechamento de periodo congela politicas aplicadas
+- [ ] Retificacao apos fechamento possui fluxo proprio
+
+## Checklist de Code Review
+- [ ] Regras de media nao ficam escondidas em interface ou planilha improvisada
+- [ ] Politicas congeladas de periodo sao respeitadas pelo consolidado
+- [ ] Alteracoes apos fechamento deixam trilha auditavel
+- [ ] Relatorios oficiais usam apenas resultados consolidados
+
+## Checklist de Testes
+- [ ] Existem testes para diferentes formulas de media
+- [ ] Existem testes para quantidades variaveis de avaliacoes
+- [ ] Existem testes de fechamento de periodo e consolidacao
+- [ ] Existem testes de retificacao apos fechamento
+
+## Checklist de Documentacao
+- [ ] Politica de regime avaliativo foi oficializada
+- [ ] Casos de uso de lancar notas e fechar periodo estao alinhados ao ADR
+- [ ] Boletim e registros oficiais referenciam a mesma base conceitual
+

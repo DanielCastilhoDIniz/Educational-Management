@@ -62,3 +62,28 @@ Adotar uma hierarquia organizacional explicita com tres niveis conceituais:
 - definir quando `Unit` existe de fato
 - revisar membership, autorizacao e reporting com base nessa hierarquia
 - alinhar read models e filtros de relatorio para suportar `network_id`, `institution_id` e `unit_id` quando aplicavel
+
+## Checklist de Implementacao
+- [ ] Existe modelo explicito para rede, instituicao e unidade escolar
+- [ ] `Institution` esta confirmada como tenant operacional primario
+- [ ] Membership e acesso cross-school respeitam a hierarquia organizacional
+- [ ] Relatorios consolidados por rede/instituicao/unidade foram especificados
+- [ ] Politicas de heranca/override por unidade foram definidas
+
+## Checklist de Code Review
+- [ ] O significado de tenant nao fica ambiguo entre rede e escola
+- [ ] Usuarios nao sao duplicados desnecessariamente entre unidades da mesma rede
+- [ ] Acesso cross-school so ocorre por contrato explicito e auditavel
+- [ ] Multi-tenancy e hierarquia organizacional permanecem coerentes entre si
+
+## Checklist de Testes
+- [ ] Existem testes de usuario atuando em mais de uma escola da mesma rede
+- [ ] Existem testes de consolidacao por rede, instituicao e unidade
+- [ ] Existem testes de negacao para acesso fora da hierarquia permitida
+- [ ] Existem testes para override de politicas por unidade quando aplicavel
+
+## Checklist de Documentacao
+- [ ] Caso de uso de cadastrar rede/instituicao/unidade foi oficializado
+- [ ] Politica de hierarquia organizacional esta alinhada ao ADR
+- [ ] ADRs 019 e 020 referenciam a mesma estrutura organizacional
+

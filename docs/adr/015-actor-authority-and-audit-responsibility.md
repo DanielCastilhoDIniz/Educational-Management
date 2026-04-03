@@ -46,3 +46,28 @@ Adotar uma matriz de autoridade e auditoria explicita na Application Layer.
 - criar policy/port de autorizacao
 - propagar metadados de ator para logs e eventos
 - documentar responsabilidades de suporte operacional
+
+## Checklist de Implementacao
+- [x] Mudancas de estado ja recebem `actor_id` no dominio
+- [ ] Existe contrato de contexto de ator com tipo, tenant e escopo
+- [ ] Autorizacao foi extraida para ports/policies fora do aggregate
+- [ ] Auditoria minima registra ator, acao, instante e justificativa
+- [ ] Fluxos automaticos identificam claramente o job/processo responsavel
+
+## Checklist de Code Review
+- [x] O dominio nao decide autorizacao
+- [ ] A Application valida escopo e autoridade antes do comando de dominio
+- [ ] Ator humano, ator de sistema e suporte administrativo sao distinguidos
+- [ ] Justificativa e responsabilidade ficam associadas ao ator correto
+
+## Checklist de Testes
+- [ ] Existem testes de negacao para ator nao autorizado
+- [ ] Existem testes para trilha de auditoria minima por caso de uso
+- [ ] Existem testes para acao automatica com ator de sistema
+- [ ] Existem testes para override administrativo quando aplicavel
+
+## Checklist de Documentacao
+- [ ] A matriz ator x caso de uso x escopo esta oficializada
+- [ ] Politicas de autorizacao referenciam os mesmos papeis e responsabilidades
+- [ ] API futura documenta como o ator e resolvido na borda
+

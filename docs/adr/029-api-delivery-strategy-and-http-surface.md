@@ -61,3 +61,28 @@ Adotar uma entrega incremental da API HTTP com as seguintes regras:
 - definir payload de erro padrao
 - publicar rotas fase 1 de enrollment
 - depois ampliar para queries e reporting
+
+## Checklist de Implementacao
+- [ ] Existe presenter HTTP central para `ApplicationResult`
+- [ ] Existe mapeamento central de `ErrorCodes` para status e payload HTTP
+- [ ] Fase 1 da API de `academic.enrollment` foi exposta
+- [ ] Autenticacao e contexto de tenant sao resolvidos na borda
+- [ ] Rotas de consulta usam queries/read models quando apropriado
+
+## Checklist de Code Review
+- [ ] Controllers continuam finos, sem regra de negocio e sem acesso direto indevido ao ORM
+- [ ] Comandos e consultas nao compartilham contratos improprios
+- [ ] Payloads de erro e sucesso sao consistentes entre endpoints
+- [ ] API incremental nao quebra contratos ja entregues
+
+## Checklist de Testes
+- [ ] Existem testes de endpoint para sucesso, no-op e falhas esperadas
+- [ ] Existem testes de autenticacao/autorizacao/tenant na borda HTTP
+- [ ] Existem testes de presenter e payload de erro padronizado
+- [ ] Existem testes de contratos de consulta para rotas de leitura
+
+## Checklist de Documentacao
+- [ ] Guia da camada API foi promovido para a trilha oficial
+- [ ] Catalogo de rotas e payloads da Fase 1 esta publicado
+- [ ] Estrategia de versionamento da API esta alinhada ao ADR
+

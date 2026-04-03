@@ -25,3 +25,28 @@ Tratar o painel do estudante como surface de leitura propria, sustentada por met
 - definir widgets e consultas do painel
 - definir metrica oficial x metrica parcial
 - documentar cache, freshness e trilha de auditoria quando aplicavel
+
+## Checklist de Implementacao
+- [ ] Widgets e consultas do painel do estudante foram definidos
+- [ ] Existe dicionario de metricas academicas oficial
+- [ ] Filtros por periodo, disciplina e data estao padronizados
+- [ ] Dados parciais e oficiais sao sinalizados no contrato do painel
+- [ ] Regras de visibilidade para estudante e responsavel foram formalizadas
+
+## Checklist de Code Review
+- [ ] O frontend nao recalcula regra de negocio critica do painel
+- [ ] Metricas exibidas usam definicao unica entre painel, boletim e relatorios
+- [ ] Nao ha vazamento de dados entre estudantes/responsaveis
+- [ ] Freshness/cache do painel esta documentado
+
+## Checklist de Testes
+- [ ] Existem testes de agregacao por disciplina, periodo e data
+- [ ] Existem testes de visibilidade para responsavel vinculado
+- [ ] Existem testes para diferenciacao entre dado parcial e oficial
+- [ ] Existem testes de consistencia entre painel e fontes academicas
+
+## Checklist de Documentacao
+- [ ] Especificacao oficial do painel do estudante foi publicada
+- [ ] UX funcional e contratos de API do painel estao alinhados
+- [ ] Dicionario de metricas e read models referenciam a mesma definicao
+

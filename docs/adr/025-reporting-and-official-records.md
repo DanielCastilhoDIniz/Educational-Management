@@ -23,3 +23,28 @@ Tratar relatorios oficiais como derivados de dados consolidados, nunca como font
 - definir quais documentos oficiais o produto suportara
 - documentar dependencias de dados e politicas de emissao
 - incluir trilha de auditoria de geracao e retificacao
+
+## Checklist de Implementacao
+- [ ] O catalogo de documentos oficiais suportados esta definido
+- [ ] Emissao usa dados consolidados como fonte de verdade
+- [ ] Documentos carregam versao, data/hora e rastreabilidade de emissao
+- [ ] Fluxo de retificacao preserva historico auditavel
+- [ ] Permissoes de emissao e reemissao estao formalizadas
+
+## Checklist de Code Review
+- [ ] Boletim/historico nao viram fonte primaria de verdade
+- [ ] Documento oficial e dado parcial sao diferenciados claramente
+- [ ] Emissao so ocorre sobre dados fechados/consolidados quando exigido
+- [ ] Retificacoes nao apagam historico anterior
+
+## Checklist de Testes
+- [ ] Existem testes de emissao de boletim a partir de dados consolidados
+- [ ] Existem testes de historico derivado de matriculas concluidas
+- [ ] Existem testes de versao/data de emissao
+- [ ] Existem testes de retificacao com trilha auditavel
+
+## Checklist de Documentacao
+- [ ] Politica de emissao e versao oficial foi oficializada
+- [ ] Catalogo de relatorios e documentos esta alinhado ao ADR
+- [ ] Casos de uso de boletim e reporting referenciam a mesma base oficial
+

@@ -76,3 +76,28 @@ Exemplos de HTTP:
 - criar mapeamento Application -> ErrorCodes faltantes
 - revisar testes de traducao de erros
 - documentar mapeamento final para interface HTTP
+
+## Checklist de Implementacao
+- [x] Existem erros de dominio, application e persistencia separados no modulo
+- [x] `ErrorCodes` base ja foram definidos na Application
+- [x] Existe mapper de erro de dominio para erro de application
+- [ ] Falhas de persistencia sao mapeadas de ponta a ponta para codigos estaveis
+- [ ] Payload HTTP padronizado consome a mesma taxonomia de erros
+
+## Checklist de Code Review
+- [x] O dominio nao vaza excecao como contrato para camadas superiores
+- [ ] A infraestrutura nao colapsa todas as falhas em erro generico
+- [ ] A interface usa `code` estavel em vez de depender do nome da excecao
+- [ ] Detalhes sensiveis nao vazam para payloads externos
+
+## Checklist de Testes
+- [x] Existem testes de mapeamento de erros de dominio para application
+- [ ] Existem testes para mapeamento de falhas de persistencia
+- [ ] Existe teste garantindo `UNEXPECTED_ERROR` para falha nao classificada
+- [ ] Existe teste de mapeamento `ErrorCodes -> HTTP` quando a API existir
+
+## Checklist de Documentacao
+- [ ] Catalogo oficial de erros esta documentado e atualizado
+- [ ] Casos de uso listam falhas esperadas usando os mesmos codigos
+- [ ] Documentacao de observabilidade referencia a mesma taxonomia
+

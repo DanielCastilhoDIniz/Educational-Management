@@ -25,3 +25,28 @@ Adotar isolamento logico por tenant institucional como regra minima de arquitetu
 - definir `tenant_id` nos contextos relevantes
 - padronizar filtros por tenant na infra
 - incluir isolamento multi-tenant nos checklists e testes
+
+## Checklist de Implementacao
+- [x] `institution_id` ja existe no aggregate `Enrollment`
+- [ ] Comandos e consultas exigem contexto institucional explicito em toda a cadeia
+- [ ] Repositorios e queries filtram por tenant de forma consistente
+- [ ] Indices e constraints relevantes consideram o escopo do tenant
+- [ ] Logs, metricas e auditoria preservam `tenant_id`/escopo institucional
+
+## Checklist de Code Review
+- [ ] Nao existem consultas cross-tenant por padrao
+- [ ] A borda resolve tenant antes de chamar a Application
+- [ ] Politicas configuraveis resolvem por tenant e escopo correto
+- [ ] Acesso cross-tenant so ocorre por contrato explicito e auditavel
+
+## Checklist de Testes
+- [ ] Existem testes de isolamento entre tenants em comandos e consultas
+- [ ] Existem testes garantindo negacao de acesso entre instituicoes
+- [ ] Existem testes para chaves de negocio repetidas em tenants diferentes quando permitido
+- [ ] Existem testes de auditoria com escopo institucional preservado
+
+## Checklist de Documentacao
+- [ ] A API documenta a resolucao de tenant e o contexto institucional
+- [ ] O ADR 030 esta alinhado com este ADR sobre hierarquia organizacional
+- [ ] Casos de uso deixam explicito o escopo institucional quando aplicavel
+
