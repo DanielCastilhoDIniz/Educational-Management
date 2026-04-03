@@ -3,6 +3,11 @@ from __future__ import annotations
 from datetime import UTC, datetime, timezone
 from typing import Protocol, cast
 
+from application.academic.enrollment.dto.errors.error_codes import ErrorCodes
+from application.academic.enrollment.errors.persistence_errors import (
+    EnrollmentCreationError,
+    EnrolmentDuplicationError,
+)
 from domain.academic.enrollment.entities.enrollment import Enrollment
 from domain.academic.enrollment.events.enrollment_events import (
     DomainEvent,
@@ -73,7 +78,26 @@ class FailingEnrollmentRepository(InMemoryEnrollmentRepository):
         self.save_calls += 1
         raise RuntimeError(self.message)
     
+    def create(self, enrollment: Enrollment) -> int:
+        self.save_calls += 1
+        raise EnrollmentCreationError(
+            code=ErrorCodes.ENROLLMENT_CREATION_FAILED,
+            message="Failed to create enrollment due to an infrastructure error."
+        )
 
+class FaillngCreateInRepository(InMemoryEnrollmentRepository):
+        
+    def __init__(self, message: str = "enrollment create duplicity"):
+        super().__init__()
+        self.message = message
+
+    def create(self, enrollment: Enrollment) -> int:
+        self.save_calls += 1
+        raise EnrolmentDuplicationError(
+            code=ErrorCodes.DUPLICATE_ENROLLMENT,
+            message="An enrollmente with the same indetifier already exists."
+        )
+    
 class ScriptedEnrollment:
     def __init__(
             self,
