@@ -1,4 +1,4 @@
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 
 from application.academic.enrollment.dto.errors.error_codes import ErrorCodes
 from application.academic.enrollment.services.reactivate_enrollment import (
@@ -48,6 +48,13 @@ def test_reactivate_enrollment_success():
     assert persisted_enrollment is not None
     assert persisted_enrollment.state == EnrollmentState.ACTIVE
     assert persisted_enrollment.reactivated_at is not None
+
+    assert enrollment.suspended_at is None
+    assert enrollment.concluded_at is None
+    assert enrollment.cancelled_at is None
+    assert enrollment.reactivated_at is not None
+
+
 
 
 def test_reactivate_enrollment_not_found():
@@ -137,7 +144,7 @@ def test_reactivate_enrollment_returns_integrity_violation_when_event_exists_wit
         enrollment_id="enr-1",
         actor_id="user-1",
         justification="reactivate justification",
-        occurred_at=datetime.now(timezone.utc),
+        occurred_at=datetime.now(UTC),
     )
 
     assert result.success is False

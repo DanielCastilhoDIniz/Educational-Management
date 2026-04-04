@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from application.academic.enrollment.dto.errors.error_codes import ErrorCodes
 from application.academic.enrollment.services.conclude_enrollment import ConcludeEnrollmentService
@@ -118,7 +118,7 @@ def test_conclude_enrollment_returns_unexpected_error_when_save_fails():
         enrollment_id=enrollment.id,
         actor_id="user-1",
         verdict=verdict,
-        occurred_at=datetime.now(timezone.utc),
+        occurred_at=datetime.now(UTC),
     )
 
     assert result.success is False
@@ -149,7 +149,7 @@ def test_conclude_enrollment_returns_integrity_violation_when_event_exists_witho
         enrollment_id="enr-1",
         actor_id="user-1",
         verdict=verdict,
-        occurred_at=datetime.now(timezone.utc),
+        occurred_at=datetime.now(UTC),
     )
 
     assert result.success is False
@@ -181,7 +181,7 @@ def test_conclude_enrollment_returns_integrity_violation_when_state_changes_with
         enrollment_id="enr-1",
         actor_id="user-1",
         verdict=verdict,
-        occurred_at=datetime.now(timezone.utc),
+        occurred_at=datetime.now(UTC),
     )
 
     assert result.success is False
@@ -208,7 +208,7 @@ def test_conclude_enrollment_returns_failure_when_verdict_denies_conclusion():
         enrollment_id=enrollment.id,
         actor_id="user-1",
         verdict=verdict,
-        occurred_at=datetime.now(timezone.utc),
+        occurred_at=datetime.now(UTC),
     )
 
     assert result.success is False
@@ -246,7 +246,7 @@ def test_conclude_enrollment_requires_justification_when_verdict_demands_it():
         actor_id="user-1",
         verdict=verdict,
         justification="",
-        occurred_at=datetime.now(timezone.utc),
+        occurred_at=datetime.now(UTC),
     )
 
     assert result.success is False
@@ -283,7 +283,7 @@ def test_conclude_enrollment_returns_failure_when_enrollment_is_not_active():
         enrollment_id=enrollment.id,
         actor_id="user-1",
         verdict=verdict,
-        occurred_at=datetime.now(timezone.utc),
+        occurred_at=datetime.now(UTC),
     )
 
     assert result.success is False

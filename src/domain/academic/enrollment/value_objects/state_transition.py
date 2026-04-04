@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 
 from ..errors.enrollment_errors import DomainError
 from .enrollment_status import EnrollmentState
@@ -25,13 +25,13 @@ class StateTransition:
             raise DomainError(
                 code="invalid_occurred_at",
                 message="occurred_at cannot be None",
-                details={"reasons": self.occurred_at}
+                details={"occurred_at": self.occurred_at}
             )
         if not self.actor_id or not self.actor_id.strip():
             raise DomainError(
                 code="invalid_actor_id",
                 message="actor_id cannot be empty",
-                details={"reasons": self.actor_id}
+                details={"actor_id": self.actor_id}
             )
 
         if self.occurred_at.tzinfo is None:

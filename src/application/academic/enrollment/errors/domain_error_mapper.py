@@ -3,10 +3,8 @@ from application.academic.enrollment.dto.errors.error_codes import ErrorCodes
 from domain.academic.enrollment.errors.enrollment_errors import (
     ConclusionNotAllowedError,
     DomainError,
-    EnrollmentAlreadyFinalError,
     EnrollmentNotActiveError,
     InvalidStateTransitionError,
-    IrreversibleStateError,
     JustificationRequiredError,
 )
 from domain.academic.enrollment.value_objects.enrollment_status import EnrollmentState
@@ -52,11 +50,8 @@ def to_application_error(
         )
     if isinstance(
         err, InvalidStateTransitionError
-        ) or isinstance(
-            err, IrreversibleStateError
-            ) or isinstance(
-                err, EnrollmentAlreadyFinalError
-                ):
+        ): 
+
         details = dict(err.details or {})
         details.update(base_details)
         return ApplicationError(

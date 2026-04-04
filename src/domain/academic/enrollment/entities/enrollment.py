@@ -68,20 +68,25 @@ class Enrollment:
     _domain_events: list[DomainEvent] = field(default_factory=list)
 
     def __post_init__(self) -> None:
-        self._validate_identity()
-        self._validate_institution_id()
+        self._validate_fields_id()
         self._normalize_and_validate_state()
         self._validate_version()
         self._normalize_datetimes()
         self._validate_state_integrity()
 
-    def _validate_identity(self) -> None:
-        if not self.id or not self.id.strip():
-            raise DomainError(code="invalid_id", message="Enrollment must have a valid ID")
-    
-    def _validate_institution_id(self) -> None:
-        if not self.institution_id or not self.institution_id.strip():
-            raise DomainError(code="invalid_institution_id", message="Enrollment must have a valid institution ID")
+    def _validate_fields_id(self) -> None:
+        id_fields = {
+            "id": ("invalid_id", "Enrollment must have a valid ID"),
+            "institution_id": ("invalid_institution_id", "Enrollment must have a valid institution ID"),
+            "student_id": ("invalid_student_id", "Enrollment must have a student ID"),
+            "class_group_id": ("invalid_class_group_id", "Enrollment must have a valid class group ID"),
+            "academic_period_id": ("invalid_academic_period_id", "Enrollment must have a valid academic period ID"),
+        }
+        for field_value, (code, message) in id_fields.items():
+            value = getattr(self, field_value)
+            if value is None or not value.strip():
+                raise DomainError(code=code, message=message)
+
 
     def _normalize_and_validate_state(self) -> None:
         if isinstance(self.state, str):
@@ -169,7 +174,7 @@ class Enrollment:
             if getattr(self, field_name) is not None:
                 raise DomainError(
                     code="inconsistent_timestamps",
-                    message=f"Registration number {self.state.value} cannot have {field_name} field in.",
+                    message=f"Enrollment in state {self.state.value} cannot have {field_name} field in.",
                     details={"state": self.state.value, "forbidden_field": field_name}
                 )
 

@@ -203,24 +203,23 @@ class DjangoEnrollmentRepository(EnrollmentRepository):
     def create(self, enrollment: Enrollment) ->int:
 
         try:
-
             with transaction.atomic():
                 snapshot = EnrollmentMapper.to_snapshot(enrollment=enrollment)
                 snapshot.save()
 
                 return snapshot.version
             
-        except IntegrityError as e:
-            raise EnrollmentDuplicationError(
-                code=ErrorCodes.DUPLICATE_ENROLLMENT,
-                message="An enrollment with the same identifiers already exists.",
-                details={"enrollment_id": enrollment.id},
-            ) from e
         except Exception as e:
             raise EnrollmentCreationError(
                 code=ErrorCodes.ENROLLMENT_CREATION_FAILED,
                 message="Failed to create enrollment due to a integrity error.",
             ) from e
 
-        
-       
+    def exist_by_business_key(self, institution_id: str, student_id: str, class_group_id: str, academic_period_id: str) -> bool:
+        return EnrollmentModel.objects.filter(
+            institution_id=institution_id,
+            student_id=student_id,
+            class_group_id=class_group_id,
+            academic_period_id=academic_period_id
+        ).exists()
+    

@@ -1,6 +1,6 @@
 # tests/domain/academic/enrollment/test_cancel_success.py
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 
@@ -15,9 +15,9 @@ from domain.academic.enrollment.value_objects.enrollment_status import Enrollmen
 
 
 def make_enrollment(*, state: EnrollmentState) -> Enrollment:
-    """Factory mínima para criar um Enrollment válido
+    """Factory minima para criar um Enrollment válido
       para testes de domínio."""
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     cancelled_at = now if state == EnrollmentState.CANCELLED else None
     concluded_at = now if state == EnrollmentState.CONCLUDED else None
     suspended_at = now if state == EnrollmentState.SUSPENDED else None
@@ -123,7 +123,7 @@ def test_cancel_with_explicit_occurred_at_success() -> None:
     enrollment = make_enrollment(state=EnrollmentState.ACTIVE)
     actor_id = "u-1"
     justification = "motivo válido"
-    occurred_at = datetime(2026, 1, 1, 12, 0, tzinfo=timezone.utc)
+    occurred_at = datetime(2026, 1, 1, 12, 0, tzinfo=UTC)
 
     # Act
     enrollment.cancel(
@@ -231,7 +231,7 @@ def test_enrollment_cancelled_requires_cancelled_att() -> None:
     Tests enrollment cancelled requires concluded_at
     """
     # Arrange
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     # Act + Assert
     with pytest.raises(DomainError) as exc_info:

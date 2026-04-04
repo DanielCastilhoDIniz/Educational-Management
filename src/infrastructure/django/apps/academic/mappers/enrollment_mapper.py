@@ -93,7 +93,12 @@ class EnrollmentMapper:
             class_group_id=enrollment.class_group_id,
             academic_period_id=enrollment.academic_period_id,
             state=enrollment.state.value,
-            created_at=enrollment.created_at
+            created_at=enrollment.created_at,
+            concluded_at=enrollment.concluded_at,
+            cancelled_at=enrollment.cancelled_at,
+            suspended_at=enrollment.suspended_at,
+            reactivated_at=enrollment.reactivated_at,
+            version=enrollment.version,
         )
         
 

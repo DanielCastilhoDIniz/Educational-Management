@@ -5,10 +5,8 @@ from application.academic.enrollment.errors.domain_error_mapper import to_applic
 from domain.academic.enrollment.errors.enrollment_errors import (
     ConclusionNotAllowedError,
     DomainError,
-    EnrollmentAlreadyFinalError,
     EnrollmentNotActiveError,
     InvalidStateTransitionError,
-    IrreversibleStateError,
     JustificationRequiredError,
 )
 from domain.academic.enrollment.value_objects.enrollment_status import EnrollmentState
@@ -108,20 +106,7 @@ def test_maps_conclusion_not_allowed_error() -> None:
                 "allowed_from_states": [EnrollmentState.SUSPENDED.value],
             },
         ),
-        (
-            IrreversibleStateError,
-            {
-                "attempted_action": "reactivate",
-                "allowed_from_states": [EnrollmentState.SUSPENDED.value],
-            },
-        ),
-        (
-            EnrollmentAlreadyFinalError,
-            {
-                "attempted_action": "cancel",
-                "allowed_from_states": [EnrollmentState.ACTIVE.value],
-            },
-        ),
+
     ],
 )
 def test_maps_transition_related_errors_to_invalid_state_transition(

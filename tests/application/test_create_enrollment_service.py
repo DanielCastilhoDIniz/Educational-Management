@@ -1,13 +1,11 @@
 from datetime import UTC, datetime
 
 from application.academic.enrollment.dto.errors.error_codes import ErrorCodes
-from application.academic.enrollment.errors.persistence_errors import EnrollmentDuplicationError
 from application.academic.enrollment.services.create_enrollment import CreateEnrollment
 from domain.academic.enrollment.events.enrollment_events import EnrollmentCreated
 from domain.academic.enrollment.value_objects.enrollment_status import EnrollmentState
 from tests.application.fakes import (
     FailingEnrollmentRepository,
-    FaillingCreateInRepository,
     InMemoryEnrollmentRepository,
 )
 
@@ -17,10 +15,10 @@ def test_create_enrollment_success():
     service = CreateEnrollment(repo=repo)
 
     enrollment = service.execute(
-        institution_id="instituion_id",
+        institution_id="institution_id",
         student_id="std-1",
         class_group_id="cls-1",
-        academic_period_id="acpd-1", 
+        academic_period_id="acp-1", 
         actor_id="actor-1",
         occurred_at=datetime.now(UTC)
     )
@@ -33,14 +31,26 @@ def test_create_enrollment_success():
 
 
 def test_create_enrollment_duplicate():
-    repo = FaillingCreateInRepository(message="Enrollment with the same identifiers already exists.")
+    repo = InMemoryEnrollmentRepository()
     service = CreateEnrollment(repo=repo)
 
-    enrollment = service.execute(
-        institution_id="instituion_id",
+    enrollment1 = service.execute(
+        institution_id="institution_id",
         student_id="std-1",
         class_group_id="cls-1",
-        academic_period_id="acpd-1", 
+        academic_period_id="acp-1", 
+        actor_id="actor-1",
+        occurred_at=datetime.now(UTC)
+    )
+    assert enrollment1 is not None
+    assert enrollment1.success is True
+    assert enrollment1.new_state == EnrollmentState.ACTIVE
+
+    enrollment = service.execute(
+        institution_id="institution_id",
+        student_id="std-1",
+        class_group_id="cls-1",
+        academic_period_id="acp-1", 
         actor_id="actor-1",
         occurred_at=datetime.now(UTC)
     )
@@ -56,10 +66,10 @@ def test_create_enrollment_infrastructure_failure():
     service = CreateEnrollment(repo=repo)
 
     enrollment = service.execute(
-        institution_id="instituion_id",
+        institution_id="institution_id",
         student_id="std-1",
         class_group_id="cls-1",
-        academic_period_id="acpd-1", 
+        academic_period_id="acp-1", 
         actor_id="actor-1",
         occurred_at=datetime.now(UTC)
     )

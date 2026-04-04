@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 
@@ -12,7 +12,7 @@ from domain.academic.enrollment.value_objects.enrollment_status import Enrollmen
 
 
 def make_enrollment(*, state: EnrollmentState) -> Enrollment:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     cancelled_at = now if state == EnrollmentState.CANCELLED else None
     concluded_at = now if state == EnrollmentState.CONCLUDED else None
     suspended_at = now if state == EnrollmentState.SUSPENDED else None
@@ -35,7 +35,7 @@ def test_reactivate_from_suspended_success() -> None:
     enrollment = make_enrollment(state=EnrollmentState.SUSPENDED)
     actor_id = "u-1"
     justification = "motivo válido"
-    occurred_at = datetime(2026, 1, 1, 12, 0, tzinfo=timezone.utc)
+    occurred_at = datetime(2026, 1, 1, 12, 0, tzinfo=UTC)
 
     enrollment.reactivate(
         actor_id=actor_id,
@@ -47,6 +47,7 @@ def test_reactivate_from_suspended_success() -> None:
     assert enrollment.suspended_at is None
     assert enrollment.concluded_at is None
     assert enrollment.cancelled_at is None
+    assert enrollment.reactivated_at is not None
 
     assert len(enrollment.transitions) == 1
     transition = enrollment.transitions[0]

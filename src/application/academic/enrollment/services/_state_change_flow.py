@@ -30,7 +30,7 @@ from domain.academic.enrollment.value_objects.enrollment_status import Enrollmen
 class EnrollmentLike(Protocol):
     """Subset of the Enrollment aggregate interface required by the state change flow.
      This allows the service to work with both the full aggregate and a simpler
-     stateful wrapper used for validation in scripetd cases.
+     stateful wrapper used for validation in scripted cases.
 
     """
     state: EnrollmentState
@@ -84,7 +84,7 @@ def build_persistence_failure_result(
         *,
         enrollment_id: str,
         action: str,
-        current_state: str,
+        current_state: EnrollmentState,
         code: ErrorCodes = ErrorCodes.UNEXPECTED_ERROR,    
         message: str,
         err: Exception,
@@ -113,7 +113,7 @@ def build_concurrency_conflict_result(
         *,
         enrollment_id: str,
         action: str,
-        current_state: str,
+        current_state: EnrollmentState,
         message: str,
         err: ConcurrencyConflictError,
 ) -> ApplicationResult:
@@ -130,7 +130,7 @@ def build_concurrency_conflict_result(
             details={
                 "aggregate_id": enrollment_id,
                 "action": action,
-                "current_state": current_state,
+                "current_state": current_state.value,
                 "expected_version": (err.details or {}).get("expected_version"),
                 "persisted_version": (err.details or {}).get("persisted_version"),
                 "exception_type": err.__class__.__name__,
@@ -144,8 +144,8 @@ def build_state_integrity_result(
         *,
         enrollment_id: str,
         action: str,
-        previous_state: str,
-        current_state: str,
+        previous_state: EnrollmentState,
+        current_state: EnrollmentState,
         reason: str,
         message: str,
 ) -> ApplicationResult:
@@ -210,8 +210,8 @@ def finalize_state_change(
             return build_state_integrity_result(
                 enrollment_id=enrollment_id,
                 action=action,
-                previous_state=previous_state.value,
-                current_state=enrollment.state.value,
+                previous_state=previous_state,
+                current_state=enrollment.state,
                 reason="event_without_state_change",
                 message=event_without_state_change_message,
             )
@@ -221,8 +221,8 @@ def finalize_state_change(
         return build_state_integrity_result(
             enrollment_id=enrollment_id,
             action=action,
-            previous_state=previous_state.value,
-            current_state=enrollment.state.value,
+            previous_state=previous_state,
+            current_state=enrollment.state,
             reason="state_changed_without_event",
             message=state_changed_without_event_message,
         )
@@ -233,7 +233,7 @@ def finalize_state_change(
         return build_concurrency_conflict_result(
             enrollment_id=enrollment_id,
             action=action,
-            current_state=enrollment.state.value,
+            current_state=enrollment.state,
             message=persistence_failure_message,
             err=e,
         )
@@ -241,7 +241,7 @@ def finalize_state_change(
         return build_persistence_failure_result(
             enrollment_id=enrollment_id,
             action=action,
-            current_state=enrollment.state.value,
+            current_state=enrollment.state,
             message=persistence_failure_message,
             code=ErrorCodes.DATA_INTEGRITY_ERROR,
             err=e,
@@ -251,7 +251,7 @@ def finalize_state_change(
         return build_persistence_failure_result(
             enrollment_id=enrollment_id,
             action=action,
-            current_state=enrollment.state.value,
+            current_state=enrollment.state,
             message=persistence_failure_message,
             err=err,
         )

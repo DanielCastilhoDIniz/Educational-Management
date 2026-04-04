@@ -33,21 +33,8 @@ class InvalidStateTransitionError(DomainError):
     ...
 
 
-class IrreversibleStateError(DomainError):
-    """
-    Raised when attempting to change a terminal state.
-    Strictly implements DOMAIN_RULES Rule 4.2: 'CANCELADA' or 'CONCLUÍDA' cannot return to 'ATIVA'.
-    """
-    ...
-
-
 class EnrollmentNotActiveError(DomainError):
     """Raised when an operation requires an ACTIVE state but the enrollment is in another state."""
-    ...
-
-
-class EnrollmentAlreadyFinalError(DomainError):
-    """Raised when trying to modify an aggregate that has reached a terminal state."""
     ...
 
 
@@ -58,8 +45,4 @@ class ConclusionNotAllowedError(DomainError):
 
 class JustificationRequiredError(DomainError):
     """Raised when an action (like cancellation or suspension) lacks a mandatory justification."""
-    ...
-
-class ReactivationNotAllowedError(DomainError):
-    """Raised when reactivation is attempted from an invalid state (e.g. CANCELLED or CONCLUDED)."""
     ...

@@ -17,7 +17,7 @@ class ApplicationResult:
         - Success with no-op (no events, no new_state),
         - Failure (error present; no change, no events).
     """
-    aggregate_id: str
+    aggregate_id: str | None
     success: bool
     changed: bool
     domain_events: tuple[DomainEvent, ...] = ()

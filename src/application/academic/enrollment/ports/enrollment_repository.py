@@ -52,3 +52,11 @@ class EnrollmentRepository(Protocol):
         
         """
         ...
+
+    def exist_by_business_key(self, institution_id: str, student_id: str, class_group_id: str, academic_period_id: str) -> bool:
+
+        """Check if an enrollment exists with the same business key (institution_id, student_id, class_group_id, academic_period_id).
+        Implementations must check for existing records with the same business key and return True if found, False otherwise.
+        
+        """
+        ...

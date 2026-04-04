@@ -89,7 +89,9 @@ class EnrollmentModel(CreatedAtModel, MutableSnapshotModel):
         db_table = "enrollments"
         verbose_name = "Enrollment"
         verbose_name_plural = "Enrollments"
-        indexes = [
-            models.Index(fields=["student_id"]),
-            models.Index(fields=["state"]),
+        constraints = [
+            models.UniqueConstraint(
+                fields=["institution_id", "student_id", "class_group_id", "academic_period_id"],
+                name="unique_enrollment"
+            )
         ]

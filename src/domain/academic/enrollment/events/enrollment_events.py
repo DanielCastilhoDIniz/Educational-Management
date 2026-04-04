@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from uuid import uuid4
 
-from ..errors.enrollment_errors import InvalidStateTransitionError
+from ..errors.enrollment_errors import DomainError, InvalidStateTransitionError
 from ..value_objects.enrollment_status import EnrollmentState
 
 
@@ -139,9 +139,23 @@ class EnrollmentCreated(DomainEvent):
     Domain event: Enrollment has been created.
     Emitted when a new enrollment is successfully created in the system.
     """
+
     actor_id: str
     institution_id: str
     student_id: str
     class_group_id: str
     academic_period_id: str
 
+
+    def __post_init__ (self):
+        id_fields = {
+            "actor_id": ("invalid_actor_id", "Enrollment must have a valid actor ID"),
+            "institution_id": ("invalid_institution_id", "Enrollment must have a valid institution ID"),
+            "student_id": ("invalid_student_id", "Enrollment must have a student ID"),
+            "class_group_id": ("invalid_class_group_id", "Enrollment must have a valid class group ID"),
+            "academic_period_id": ("invalid_academic_period_id", "Enrollment must have a valid academic period ID"),
+        }
+        for field_value, (code, message) in id_fields.items():
+            value = getattr(self, field_value)
+            if value is None or not value.strip():
+                raise DomainError(code=code, message=message)

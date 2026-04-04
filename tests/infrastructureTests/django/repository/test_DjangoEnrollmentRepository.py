@@ -41,7 +41,7 @@ def test_get_by_id_success() -> None:
 
 
 @pytest.mark.django_db(transaction=True)
-def test_save_return_cuncurrency_conflict_error() -> None:
+def test_save_return_concurrency_conflict_error() -> None:
     enrollment = factory_create_new_enrollment_for_tests()
     repository = DjangoEnrollmentRepository()
     result_one = repository.get_by_id(enrollment_id=str(enrollment.id))
@@ -50,9 +50,9 @@ def test_save_return_cuncurrency_conflict_error() -> None:
 
     result_one.suspend(actor_id="actor-1", justification="justification", occurred_at=datetime.now(UTC))  
   
-    restult_two = EnrollmentModel.objects.get(id=str(enrollment.id))
-    restult_two.version += 1
-    restult_two.save()
+    result_two = EnrollmentModel.objects.get(id=str(enrollment.id))
+    result_two.version += 1
+    result_two.save()
     
     with pytest.raises(ConcurrencyConflictError) as e:
             repository.save(result_one)
@@ -186,7 +186,7 @@ def test_bd_remains_consistent_when_transition_fails_to_save():
     result = repository.get_by_id(enrollment_id=str(enrollment.id))
     assert result is not None
 
-    # 3. retrive snapshot
+    # 3. retrieve snapshot
 
     origin_id = enrollment.id
     origin_version = enrollment.version
@@ -211,10 +211,10 @@ def test_bd_remains_consistent_when_transition_fails_to_save():
          justification=justification,         
     )
 
-    new_transition =EnrollmentTransitionModel.objects.create(
+    new_transition =EnrollmentTransitionModel.objects.create(  # noqa: F841
         transition_id=transition_expected,
         enrollment_id=origin_id,
-        action="supend",
+        action="suspend",
         from_state=origin_state,
         to_state="suspended",
         actor_id=actor_id,
@@ -237,7 +237,7 @@ def test_bd_remains_consistent_when_transition_fails_to_save():
     assert query2 == 1
 
 @pytest.mark.django_db(transaction=True)
-def test_snapshot_and_transition_ensure_safe_rehydratation():
+def test_snapshot_and_transition_ensure_safe_rehydration():
     # Arrange 1:
     enrollment = factory_create_new_enrollment_for_tests()
     repository = DjangoEnrollmentRepository()
@@ -245,7 +245,7 @@ def test_snapshot_and_transition_ensure_safe_rehydratation():
     result = repository.get_by_id(enrollment_id=str(enrollment.id))
     assert result is not None
 
-    # retrive snapshot
+    # retrieve snapshot
     origin_id = enrollment.id
      
     # Prepare the data for the reactivate transition

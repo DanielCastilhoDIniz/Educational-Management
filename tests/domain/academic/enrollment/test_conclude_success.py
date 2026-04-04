@@ -1,4 +1,4 @@
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 
@@ -81,7 +81,7 @@ def test_conclude_from_active_success() -> None:
     # Arrange
     enrollment = make_enrollment(state=EnrollmentState.ACTIVE)
     actor_id = "u-1"
-    occurred_at = datetime.now(timezone.utc)
+    occurred_at = datetime.now(UTC)
     justification = None
     verdict = ConclusionVerdict()
 
@@ -106,7 +106,7 @@ def test_conclude_is_idempotent_when_already_concluded() -> None:
 
     enrollment = make_enrollment(state=EnrollmentState.CONCLUDED)
     actor_id = "u-1"
-    occurred_at = datetime(2026, 1, 2, 10, 0, tzinfo=timezone.utc)
+    occurred_at = datetime(2026, 1, 2, 10, 0, tzinfo=UTC)
     verdict = ConclusionVerdict()
 
     state_before = enrollment.state
@@ -136,7 +136,7 @@ def test_conclude_is_idempotent_when_already_concluded() -> None:
 def test_conclude_from_not_active_raises_error() -> None:
     enrollment = make_enrollment(state=EnrollmentState.SUSPENDED)
     actor_id = "u-1"
-    occurred_at = datetime.now(timezone.utc)
+    occurred_at = datetime.now(UTC)
     justification = None
     verdict = ConclusionVerdict()
 
@@ -159,7 +159,7 @@ def test_conclude_from_not_active_raises_error() -> None:
 
 def test_enrollment_requires_valid_id() -> None:
     # Arrange
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     # Act + Assert
     with pytest.raises(DomainError) as exc_info:
@@ -183,7 +183,7 @@ def test_enrollment_concluded_requires_concluded_at() -> None:
     Tests enrollment concluded requires concluded_at
     """
     # Arrange
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     # Act + Assert
     with pytest.raises(DomainError) as exc_info:

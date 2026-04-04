@@ -1,23 +1,21 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 
 from domain.academic.enrollment.entities.enrollment import Enrollment
-from domain.academic.enrollment.events.enrollment_events import (
-    EnrollmentSuspended)
-from domain.academic.enrollment.value_objects.enrollment_status import (
-    EnrollmentState)
 from domain.academic.enrollment.errors.enrollment_errors import (
-    JustificationRequiredError,
+    DomainError,
     InvalidStateTransitionError,
-    DomainError
+    JustificationRequiredError,
 )
+from domain.academic.enrollment.events.enrollment_events import EnrollmentSuspended
+from domain.academic.enrollment.value_objects.enrollment_status import EnrollmentState
 
 
 def make_enrollment(*, state: EnrollmentState) -> Enrollment:
     """Factory mínima para criar um Enrollment válido
       para testes de domínio."""
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     cancelled_at = now if state == EnrollmentState.CANCELLED else None
     concluded_at = now if state == EnrollmentState.CONCLUDED else None
     suspended_at = now if state == EnrollmentState.SUSPENDED else None
@@ -44,7 +42,7 @@ def assert_suspend_success(
     justification: str,
     expected_occurred_at: datetime | None = None,
 ) -> None:
-    """Asserts comuns para cenários de suspenção/trancamento com sucesso."""
+    """Asserts comuns para cenários de suspensão/trancamento com sucesso."""
     # Estado final
     assert enrollment.state == EnrollmentState.SUSPENDED
 
@@ -105,7 +103,7 @@ def test_suspend_with_explicit_occurred_at_success() -> None:
     enrollment = make_enrollment(state=EnrollmentState.ACTIVE)
     actor_id = "u-1"
     justification = "motivo válido"
-    occurred_at = datetime(2026, 1, 1, 12, 0, tzinfo=timezone.utc)
+    occurred_at = datetime(2026, 1, 1, 12, 0, tzinfo=UTC)
 
     # Act
     enrollment.suspend(
@@ -249,7 +247,7 @@ def test_enrollment_suspended_requires_suspended_at() -> None:
     Tests enrollment suspended requires concluded_at
     """
     # Arrange
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     # Act + Assert
     with pytest.raises(DomainError) as exc_info:

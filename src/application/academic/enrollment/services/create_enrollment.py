@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from application.academic.enrollment.dto.errors.application_error import ApplicationError
 from application.academic.enrollment.dto.errors.error_codes import ErrorCodes
 from application.academic.enrollment.dto.results import ApplicationResult
 from application.academic.enrollment.errors.persistence_errors import (
@@ -42,6 +43,30 @@ class CreateEnrollment:
         - Create a new enrollment aggregate.
         - Persist the new aggregate state.
         """
+        unique_business_key_exists = self.repo.exist_by_business_key(
+            institution_id=institution_id,
+            student_id=student_id,
+            class_group_id=class_group_id,
+            academic_period_id=academic_period_id
+        )
+        if unique_business_key_exists:
+            return ApplicationResult(
+                aggregate_id=None,
+                changed=False,
+                success=False,
+                domain_events=(),
+                new_state=None,
+                error=ApplicationError(
+                    code=ErrorCodes.DUPLICATE_ENROLLMENT,
+                    message="An enrollment with the same identifiers already exists.",
+                    details={
+                        "institution_id": institution_id,
+                        "student_id": student_id,
+                        "class_group_id": class_group_id,
+                        "academic_period_id": academic_period_id
+                    }       
+                )
+            )
 
         enrollment = Enrollment.create(
             institution_id=institution_id,
@@ -52,13 +77,14 @@ class CreateEnrollment:
             occurred_at=occurred_at
         )
 
+
         try:
             self.repo.create(enrollment)
         except EnrollmentDuplicationError as e:
             return build_persistence_failure_result(
                 enrollment_id=enrollment.id,
                 action="create",
-                current_state=enrollment.state.value,
+                current_state=enrollment.state,
                 code=ErrorCodes.DUPLICATE_ENROLLMENT,
                 message="An enrollment with the same identifiers already exists.",
                 err=e,
@@ -69,14 +95,14 @@ class CreateEnrollment:
                 action="create",
                 code=ErrorCodes.ENROLLMENT_CREATION_FAILED,
                 message="Failed to create enrollment due to an infrastructure error.",
-                current_state=enrollment.state.value,
+                current_state=enrollment.state,
                 err=e,
             )
         except Exception as err:
             return build_persistence_failure_result(
                 enrollment_id=enrollment.id,
                 action="create",
-                current_state=enrollment.state.value,
+                current_state=enrollment.state,
                 code= ErrorCodes.UNEXPECTED_ERROR,
                 message='An unexpected error occurred during enrollment creation.',
                 err=err,

@@ -66,7 +66,19 @@ class InMemoryEnrollmentRepository:
     def create(self, enrollment: Enrollment) -> int:
         self.items[enrollment.id] = enrollment
         return enrollment.version
-
+    
+    def exist_by_business_key(self, institution_id: str, student_id: str, class_group_id: str, academic_period_id: str) -> bool:
+            for item in self.items.values():
+                if not isinstance(item, Enrollment):
+                    continue
+                if (
+                    item.institution_id == institution_id and
+                    item.student_id == student_id and
+                    item.class_group_id == class_group_id and
+                    item.academic_period_id == academic_period_id
+                ):
+                    return True
+            return False
 
 
 class FailingEnrollmentRepository(InMemoryEnrollmentRepository):
@@ -85,7 +97,7 @@ class FailingEnrollmentRepository(InMemoryEnrollmentRepository):
             message="Failed to create enrollment due to an infrastructure error."
         )
 
-class FaillingCreateInRepository(InMemoryEnrollmentRepository):
+class FailingCreateInRepository(InMemoryEnrollmentRepository):
         
     def __init__(self, message: str = "enrollment create duplicity"):
         super().__init__()
@@ -95,7 +107,7 @@ class FaillingCreateInRepository(InMemoryEnrollmentRepository):
         self.save_calls += 1
         raise EnrollmentDuplicationError(
             code=ErrorCodes.DUPLICATE_ENROLLMENT,
-            message="An enrollment with the same indetifier already exists."
+            message="An enrollment with the same identifier already exists."
         )
     
 class ScriptedEnrollment:

@@ -1,4 +1,4 @@
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 
 from application.academic.enrollment.dto.errors.error_codes import ErrorCodes
 from application.academic.enrollment.services.suspend_enrollment import SuspendEnrollmentService
