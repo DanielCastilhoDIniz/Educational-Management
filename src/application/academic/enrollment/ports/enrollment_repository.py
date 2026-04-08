@@ -44,19 +44,20 @@ class EnrollmentRepository(Protocol):
 
     def create(self, enrollment: Enrollment) -> int:
         """
-        Persist a new Enrollment aggregate and return the new persisted version.
-        Implementations must fail explicitly on:
-        - attempts to create with an existing id
-        - data integrity violations
-        - unexpected persistence failures
-        
-        """
-        ...
+        Persist a new Enrollment aggregate and return its initial version.
 
-    def exist_by_business_key(self, institution_id: str, student_id: str, class_group_id: str, academic_period_id: str) -> bool:
+        This method is strictly for new enrollments. Implementation must ensure 
+        atomicity.
 
-        """Check if an enrollment exists with the same business key (institution_id, student_id, class_group_id, academic_period_id).
-        Implementations must check for existing records with the same business key and return True if found, False otherwise.
-        
+        Constraints & Failures:
+        - Must fail with EnrollmentDuplicationError if a collision occurs by 
+          explicit ID or Business Key (institution, student, class, period).
+        - Final uniqueness must be guaranteed by the persistence layer (e.g., DB constraints) 
+          to prevent race conditions.
+        - Any other technical failures or unexpected integrity violations (e.g., 
+          foreign key missing, null constraints) must be raised as InfrastructureError.
+
+        Returns:
+            int: The persisted version of the new enrollment.
         """
         ...

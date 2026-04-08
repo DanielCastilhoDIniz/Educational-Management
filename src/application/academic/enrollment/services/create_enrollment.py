@@ -43,30 +43,6 @@ class CreateEnrollment:
         - Create a new enrollment aggregate.
         - Persist the new aggregate state.
         """
-        unique_business_key_exists = self.repo.exist_by_business_key(
-            institution_id=institution_id,
-            student_id=student_id,
-            class_group_id=class_group_id,
-            academic_period_id=academic_period_id
-        )
-        if unique_business_key_exists:
-            return ApplicationResult(
-                aggregate_id=None,
-                changed=False,
-                success=False,
-                domain_events=(),
-                new_state=None,
-                error=ApplicationError(
-                    code=ErrorCodes.DUPLICATE_ENROLLMENT,
-                    message="An enrollment with the same identifiers already exists.",
-                    details={
-                        "institution_id": institution_id,
-                        "student_id": student_id,
-                        "class_group_id": class_group_id,
-                        "academic_period_id": academic_period_id
-                    }       
-                )
-            )
 
         enrollment = Enrollment.create(
             institution_id=institution_id,
@@ -89,15 +65,7 @@ class CreateEnrollment:
                 message="An enrollment with the same identifiers already exists.",
                 err=e,
             )
-        except EnrollmentCreationError as e:
-            return build_persistence_failure_result(
-                enrollment_id=enrollment.id,
-                action="create",
-                code=ErrorCodes.ENROLLMENT_CREATION_FAILED,
-                message="Failed to create enrollment due to an infrastructure error.",
-                current_state=enrollment.state,
-                err=e,
-            )
+
         except Exception as err:
             return build_persistence_failure_result(
                 enrollment_id=enrollment.id,
