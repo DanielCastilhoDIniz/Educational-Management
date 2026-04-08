@@ -21,3 +21,8 @@ class InfrastructureError(Exception):
         return f"{self.__class__.__name__}(code={self.code!r}"\
                f", message={self.message!r}, details={self.details!r}"
 
+
+class EnrollmentDuplicationInfrastructureError (InfrastructureError):
+    """Raised when an attempt is made to create a duplicate enrollment.
+        helper for EnrollmentDuplicationError in the application layer.    
+    """

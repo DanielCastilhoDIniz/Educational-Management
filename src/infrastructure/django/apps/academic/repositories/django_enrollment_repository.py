@@ -5,7 +5,6 @@ from django.db import DatabaseError, IntegrityError, transaction
 from application.academic.enrollment.dto.errors.error_codes import ErrorCodes
 from application.academic.enrollment.errors.persistence_errors import (
     ConcurrencyConflictError,
-    EnrollmentCreationError,
     EnrollmentDuplicationError,
     EnrollmentPersistenceNotFoundError,
 )
@@ -201,25 +200,38 @@ class DjangoEnrollmentRepository(EnrollmentRepository):
 
 
     def create(self, enrollment: Enrollment) ->int:
+        """
+            Persists a new Enrollment aggregate.
+
+            This method is strictly for creating a new enrollment record. It must 
+            not be used to update an existing aggregate. Final uniqueness is 
+            guaranteed by the persistence layer (e.g., database constraints) at 
+            the moment of insertion to prevent race conditions.
+
+            Returns:
+                int: The initial version of the newly persisted enrollment.
+
+            Raises:
+                EnrollmentDuplicationError: Raised when the persistence layer confirms a
+                duplication, either by an explicit ID or by the business key 
+                    (institution, student, class, and period).
+                InfrastructureError: Raised when technical failures occur during 
+                    communication with the persistence layer or when unexpected 
+                    integrity violations (such as missing foreign keys or null 
+                    constraint violations) are encountered.
+            """
 
         try:
             with transaction.atomic():
                 snapshot = EnrollmentMapper.to_snapshot(enrollment=enrollment)
                 snapshot.save()
-
                 return snapshot.version
+        
+        except IntegrityError as e:
+            if "unique constraint" in str(e):
+                raise EnrollmentDuplicationError(
+                    code="enrollment_duplication",
+                    message="An enrollment with the same identifiers already exists.",
+                    details={"error": str(e)}
+                ) from e
             
-        except Exception as e:
-            raise EnrollmentCreationError(
-                code=ErrorCodes.ENROLLMENT_CREATION_FAILED,
-                message="Failed to create enrollment due to a integrity error.",
-            ) from e
-
-    def exist_by_business_key(self, institution_id: str, student_id: str, class_group_id: str, academic_period_id: str) -> bool:
-        return EnrollmentModel.objects.filter(
-            institution_id=institution_id,
-            student_id=student_id,
-            class_group_id=class_group_id,
-            academic_period_id=academic_period_id
-        ).exists()
-    
