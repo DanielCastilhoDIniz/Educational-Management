@@ -34,8 +34,10 @@ class EnrollmentMapper:
         student_id = str(snapshot.student_id)
         class_group_id = str(snapshot.class_group_id)
         academic_period_id = str(snapshot.academic_period_id)
+        created_by = str(snapshot.created_by)
 
         state: EnrollmentState = EnrollmentState(snapshot.state)
+      
 
         created_at = snapshot.created_at
         concluded_at = snapshot.concluded_at
@@ -71,6 +73,7 @@ class EnrollmentMapper:
                 class_group_id=class_group_id,
                 academic_period_id=academic_period_id,
                 state=state,
+                created_by=snapshot.created_by,
                 created_at=created_at,
                 concluded_at=concluded_at,
                 cancelled_at=cancelled_at,
@@ -93,6 +96,7 @@ class EnrollmentMapper:
             class_group_id=enrollment.class_group_id,
             academic_period_id=enrollment.academic_period_id,
             state=enrollment.state.value,
+            created_by=enrollment.created_by,
             created_at=enrollment.created_at,
             concluded_at=enrollment.concluded_at,
             cancelled_at=enrollment.cancelled_at,

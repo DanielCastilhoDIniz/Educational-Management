@@ -57,6 +57,12 @@ class EnrollmentModel(CreatedAtModel, MutableSnapshotModel):
         help_text="The state of the enrollment.",
     )
 
+    created_by = models.CharField(
+        max_length=255,
+        verbose_name="Created By",
+        help_text="The user who created the enrollment.",
+    )
+
     concluded_at = models.DateTimeField(
         null=True,
         blank=True,
