@@ -30,6 +30,7 @@ def make_enrollment(*, state: EnrollmentState) -> Enrollment:
         class_group_id="cls-1",
         academic_period_id="per-1",
         state=state,
+        created_by="user-1",
         created_at=now,
         concluded_at=concluded_at,
         suspended_at=suspended_at,
@@ -170,6 +171,7 @@ def test_enrollment_requires_valid_id() -> None:
             class_group_id="cls-1",
             academic_period_id="per-1",
             state=EnrollmentState.ACTIVE,
+            created_by="user-1",
             created_at=now,
             concluded_at=None,
         )
@@ -194,6 +196,7 @@ def test_enrollment_concluded_requires_concluded_at() -> None:
             class_group_id="cls-1",
             academic_period_id="per-1",
             state=EnrollmentState.CONCLUDED,
+            created_by="user-1",
             created_at=now,
             concluded_at=None,  # <-
         )

@@ -39,6 +39,7 @@ def make_enrollment(*, state: EnrollmentState) -> Enrollment:
         academic_period_id="per-1",
         state=state,
         created_at=now,
+        created_by="user-1",
         concluded_at=concluded_at,
         suspended_at=suspended_at,
         cancelled_at=cancelled_at,

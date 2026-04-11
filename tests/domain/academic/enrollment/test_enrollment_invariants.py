@@ -20,6 +20,7 @@ def make_enrollment(*, state: EnrollmentState = EnrollmentState.ACTIVE) -> Enrol
         class_group_id="cls-1",
         academic_period_id="per-1",
         state=state,
+        created_by="user-1",
         created_at=now,
         concluded_at=concluded_at,
         suspended_at=suspended_at,
@@ -37,6 +38,7 @@ def test_enrollment_normalizes_valid_string_state() -> None:
         class_group_id="cls-1",
         academic_period_id="per-1",
         state=EnrollmentState.ACTIVE,
+        created_by="user-1",
         created_at=now,
     )
 
@@ -54,6 +56,7 @@ def test_enrollment_rejects_invalid_string_state() -> None:
             class_group_id="cls-1",
             academic_period_id="per-1",
             state="BROKEN_STATE",
+            created_by="user-1",
             created_at=now,
         )
 
@@ -73,6 +76,7 @@ def test_enrollment_rejects_invalid_state_type() -> None:
             class_group_id="cls-1",
             academic_period_id="per-1",
             state=123,
+            created_by="user-1",
             created_at=now,
         )
 
@@ -92,6 +96,7 @@ def test_enrollment_rejects_invalid_version() -> None:
             class_group_id="cls-1",
             academic_period_id="per-1",
             state=EnrollmentState.ACTIVE,
+            created_by="user-1",
             created_at=now,
             version=0,
         )
@@ -112,6 +117,7 @@ def test_enrollment_rejects_forbidden_timestamp_for_state() -> None:
             class_group_id="cls-1",
             academic_period_id="per-1",
             state=EnrollmentState.ACTIVE,
+            created_by="user-1",
             created_at=now,
             cancelled_at=now,
         )
@@ -133,6 +139,7 @@ def test_enrollment_rejects_none_created_at() -> None:
             class_group_id="cls-1",
             academic_period_id="per-1",
             state=EnrollmentState.ACTIVE,
+            created_by="user-1",
             created_at=None,
         )
 
@@ -150,6 +157,7 @@ def test_enrollment_rejects_invalid_created_at_type() -> None:
             class_group_id="cls-1",
             academic_period_id="per-1",
             state=EnrollmentState.ACTIVE,
+            created_by="user-1",
             created_at="2026-01-01",
         )
 
@@ -168,6 +176,7 @@ def test_enrollment_normalizes_naive_created_at_to_utc() -> None:
         class_group_id="cls-1",
         academic_period_id="per-1",
         state=EnrollmentState.ACTIVE,
+        created_by="user-1",
         created_at=naive_created_at,
     )
 
