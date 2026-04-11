@@ -53,6 +53,7 @@ class Enrollment:
     student_id: str
     class_group_id: str
     academic_period_id: str
+    created_by: str
     state: EnrollmentState
     created_at: datetime
 
@@ -285,7 +286,7 @@ class Enrollment:
 
         Intended to be called by the Application Layer once per use case.
         """
-        
+
         domain_events = list(self._domain_events)
         self._domain_events.clear()
         return domain_events
@@ -488,7 +489,8 @@ class Enrollment:
             class_group_id=class_group_id,
             academic_period_id=academic_period_id,
             state=EnrollmentState.ACTIVE,
-            created_at=created_at,  
+            created_at=created_at,
+            created_by=actor_id, 
         )
         # Record the creation event
         creation_event = EnrollmentCreated(
