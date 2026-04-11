@@ -44,20 +44,23 @@ class EnrollmentRepository(Protocol):
 
     def create(self, enrollment: Enrollment) -> int:
         """
-        Persist a new Enrollment aggregate and return its initial version.
+            Persists a new Enrollment aggregate.
 
-        This method is strictly for new enrollments. Implementation must ensure 
-        atomicity.
+            This method is strictly for creating a new enrollment record. It must 
+            not be used to update an existing aggregate. Final uniqueness is 
+            guaranteed by the persistence layer (e.g., database constraints) at 
+            the moment of insertion to prevent race conditions.
 
-        Constraints & Failures:
-        - Must fail with EnrollmentDuplicationError if a collision occurs by 
-          explicit ID or Business Key (institution, student, class, period).
-        - Final uniqueness must be guaranteed by the persistence layer (e.g., DB constraints) 
-          to prevent race conditions.
-        - Any other technical failures or unexpected integrity violations (e.g., 
-          foreign key missing, null constraints) must be raised as InfrastructureError.
+            Returns:
+                int: The initial version of the newly persisted enrollment.
 
-        Returns:
-            int: The persisted version of the new enrollment.
-        """
+            Raises:
+                EnrollmentDuplicationError: Raised when the persistence layer confirms a
+                duplication, either by an explicit ID or by the business key 
+                    (institution, student, class, and period).
+                EnrollmentTechnicalPersistenceError: Raised when technical failures occur during 
+                    communication with the persistence layer or when unexpected 
+                    integrity violations (such as missing foreign keys or null 
+                    constraint violations) are encountered.
+            """
         ...

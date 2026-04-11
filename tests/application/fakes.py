@@ -5,8 +5,8 @@ from typing import Protocol, cast
 
 from application.academic.enrollment.dto.errors.error_codes import ErrorCodes
 from application.academic.enrollment.errors.persistence_errors import (
-    EnrollmentCreationError,
     EnrollmentDuplicationError,
+    EnrollmentTechnicalPersistenceError,
 )
 from domain.academic.enrollment.entities.enrollment import Enrollment
 from domain.academic.enrollment.events.enrollment_events import (
@@ -64,22 +64,34 @@ class InMemoryEnrollmentRepository:
         self.items[enrollment.id] = enrollment
 
     def create(self, enrollment: Enrollment) -> int:
-        self.items[enrollment.id] = enrollment
-        return enrollment.version
-    
-    def exist_by_business_key(self, institution_id: str, student_id: str, class_group_id: str, academic_period_id: str) -> bool:
-            for item in self.items.values():
-                if not isinstance(item, Enrollment):
-                    continue
-                if (
-                    item.institution_id == institution_id and
-                    item.student_id == student_id and
-                    item.class_group_id == class_group_id and
-                    item.academic_period_id == academic_period_id
-                ):
-                    return True
-            return False
+            # 1. Verificação de ID (Colisão primária)
+            if enrollment.id in self.items:
+                raise EnrollmentDuplicationError(
+                    code=ErrorCodes.DUPLICATE_ENROLLMENT,
+                    message=f"Enrollment with ID {enrollment.id} already exists."
+                )
 
+            # 2. Verificação de Business Key (Colisão de negócio)
+            for item in self.items.values():
+                is_same_business_key = (
+                    item.institution_id == enrollment.institution_id and
+                    item.student_id == enrollment.student_id and
+                    item.class_group_id == enrollment.class_group_id and
+                    item.academic_period_id == enrollment.academic_period_id
+                )
+                
+                if is_same_business_key:
+                    raise EnrollmentDuplicationError(
+                        code=ErrorCodes.DUPLICATE_ENROLLMENT,
+                        message="An enrollment with the same business key already exists."
+                    )
+
+            # 3. Persistência (Só chega aqui se não houve exceção)
+            self.items[enrollment.id] = enrollment
+            
+            # Como é uma criação, geralmente iniciamos com a versão do agregado ou 1
+            return enrollment.version
+    
 
 class FailingEnrollmentRepository(InMemoryEnrollmentRepository):
     def __init__(self, message: str = "database unavailable"):
@@ -88,27 +100,20 @@ class FailingEnrollmentRepository(InMemoryEnrollmentRepository):
 
     def save(self, enrollment: Enrollment) -> int:
         self.save_calls += 1
-        raise RuntimeError(self.message)
+        raise EnrollmentTechnicalPersistenceError(
+            code=ErrorCodes.DATABASE_ERROR,
+            message="Failed to persist enrollment due to a database error.",
+            details={"error": self.message},
+        )
     
     def create(self, enrollment: Enrollment) -> int:
         self.save_calls += 1
-        raise EnrollmentCreationError(
+        raise EnrollmentTechnicalPersistenceError(
             code=ErrorCodes.ENROLLMENT_CREATION_FAILED,
-            message="Failed to create enrollment due to an infrastructure error."
+            message="Failed to create enrollment due to a database error.",
+            details={"error": self.message},   
         )
 
-class FailingCreateInRepository(InMemoryEnrollmentRepository):
-        
-    def __init__(self, message: str = "enrollment create duplicity"):
-        super().__init__()
-        self.message = message
-
-    def create(self, enrollment: Enrollment) -> int:
-        self.save_calls += 1
-        raise EnrollmentDuplicationError(
-            code=ErrorCodes.DUPLICATE_ENROLLMENT,
-            message="An enrollment with the same identifier already exists."
-        )
     
 class ScriptedEnrollment:
     def __init__(

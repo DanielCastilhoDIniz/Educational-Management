@@ -19,7 +19,7 @@ class ApplicationPersistenceError(Exception):
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(code={self.code!r}"\
-               f", message={self.message!r}, details={self.details!r}"
+               f", message={self.message!r}, details={self.details!r})"
 
 
 class EnrollmentPersistenceNotFoundError(ApplicationPersistenceError):
@@ -41,8 +41,9 @@ class EnrollmentDuplicationError(ApplicationPersistenceError):
     violating a uniqueness constraint.
     """
 
-class EnrollmentCreationError(ApplicationPersistenceError):
+
+class EnrollmentTechnicalPersistenceError(ApplicationPersistenceError):
     """
-    Raised when an unexpected error occurs during the creation of an enrollment,
-    such as a database failure or other infrastructure issue.
+    Raised for unexpected technical errors during enrollment persistence operations,
+    such as database connectivity issues or other infrastructure failures.
     """

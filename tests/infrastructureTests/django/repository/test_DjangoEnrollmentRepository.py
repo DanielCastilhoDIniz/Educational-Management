@@ -6,13 +6,14 @@ from apps.academic.models.enrollment_model import EnrollmentModel
 from apps.academic.models.enrollment_transition import EnrollmentTransitionModel
 from apps.academic.repositories.django_enrollment_repository import DjangoEnrollmentRepository
 
+from application.academic.enrollment.dto.errors.error_codes import ErrorCodes
 from application.academic.enrollment.errors.persistence_errors import (
     ConcurrencyConflictError,
+    EnrollmentTechnicalPersistenceError,
 )
 from infrastructure.django.apps.academic.enrollments.transition_id import (
     make_transition_id,
 )
-from infrastructure.errors.persistence_errors import InfrastructureError
 from infrastructureTests.factory.new_enrollment_factory import (
     factory_create_new_enrollment_for_tests,
 )
@@ -222,10 +223,10 @@ def test_bd_remains_consistent_when_transition_fails_to_save():
         justification=justification,
     )
        
-    with pytest.raises(InfrastructureError) as e:
+    with pytest.raises(EnrollmentTechnicalPersistenceError) as e:
         repository.save(result)
 
-    assert e.value.code == "database_error"
+    assert e.value.code == ErrorCodes.DATABASE_ERROR
     assert e.value.message == "A critical error occurred on the database server."
     assert e.value.details is not None
 
@@ -289,18 +290,3 @@ def test_snapshot_and_transition_ensure_safe_rehydration():
     assert result_reactivated.transitions[1].occurred_at == occurred_at_fake
     count_transitions = EnrollmentTransitionModel.objects.filter(enrollment_id=str(enrollment.id)).count()
     assert count_transitions == 2
-    
-
-  
-
-
-
-
-   
-
-
-
-
-   
-
-

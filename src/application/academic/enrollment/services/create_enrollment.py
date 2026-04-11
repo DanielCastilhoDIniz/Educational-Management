@@ -1,11 +1,10 @@
 from datetime import datetime
 
-from application.academic.enrollment.dto.errors.application_error import ApplicationError
 from application.academic.enrollment.dto.errors.error_codes import ErrorCodes
 from application.academic.enrollment.dto.results import ApplicationResult
 from application.academic.enrollment.errors.persistence_errors import (
-    EnrollmentCreationError,
     EnrollmentDuplicationError,
+    EnrollmentTechnicalPersistenceError,
 )
 from application.academic.enrollment.ports.enrollment_repository import EnrollmentRepository
 from application.academic.enrollment.services._state_change_flow import (
@@ -66,14 +65,14 @@ class CreateEnrollment:
                 err=e,
             )
 
-        except Exception as err:
+        except EnrollmentTechnicalPersistenceError as e:
             return build_persistence_failure_result(
                 enrollment_id=enrollment.id,
                 action="create",
                 current_state=enrollment.state,
-                code= ErrorCodes.UNEXPECTED_ERROR,
-                message='An unexpected error occurred during enrollment creation.',
-                err=err,
+                code=ErrorCodes.ENROLLMENT_CREATION_FAILED,
+                message="Failed to create enrollment due to a database error.",
+                err=e,
             )
         
         return ApplicationResult(

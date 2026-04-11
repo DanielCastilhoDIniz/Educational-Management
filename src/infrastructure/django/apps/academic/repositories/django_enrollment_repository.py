@@ -7,15 +7,13 @@ from application.academic.enrollment.errors.persistence_errors import (
     ConcurrencyConflictError,
     EnrollmentDuplicationError,
     EnrollmentPersistenceNotFoundError,
+    EnrollmentTechnicalPersistenceError,
 )
 from application.academic.enrollment.ports.enrollment_repository import EnrollmentRepository
 from apps.academic.mappers.enrollment_mapper import EnrollmentMapper
 from apps.academic.models.enrollment_model import EnrollmentModel
 from apps.academic.models.enrollment_transition import EnrollmentTransitionModel
 from domain.academic.enrollment.entities.enrollment import Enrollment
-from infrastructure.errors.persistence_errors import (
-    InfrastructureError,
-)
 
 
 class DjangoEnrollmentRepository(EnrollmentRepository):
@@ -94,7 +92,7 @@ class DjangoEnrollmentRepository(EnrollmentRepository):
             ConcurrencyConflictError:
                 If the snapshot exists but the persisted version differs from
                 the aggregate origin version.
-            InfrastructureError:
+            EnrollmentTechnicalPersistenceError:
                 For integrity, database-level technical failures or missing  transitions list.
         """
         # Extracting aggregate metadata for persistence logic
@@ -110,13 +108,6 @@ class DjangoEnrollmentRepository(EnrollmentRepository):
         new_version = origin_version + 1
         now = datetime.now(UTC)
 
-        # Ensure there is at least one transition to persist (Audit Trail requirement)
-        if not enrollment.transitions:
-            raise InfrastructureError(
-                code="missing_transition",
-                message="Cannot persist enrollment because no transition was provided.",
-                details={"enrollment_id": origin_id},
-            )
 
         try:
             # Atomic block to ensure Snapshot and Transition are persisted together
@@ -192,8 +183,8 @@ class DjangoEnrollmentRepository(EnrollmentRepository):
             raise
 
         except DatabaseError as e:
-            raise InfrastructureError(
-                code="database_error",
+            raise EnrollmentTechnicalPersistenceError (
+                code=ErrorCodes.DATABASE_ERROR,
                 message="A critical error occurred on the database server.",
                 details={"error": str(e)}
             ) from e
@@ -215,7 +206,7 @@ class DjangoEnrollmentRepository(EnrollmentRepository):
                 EnrollmentDuplicationError: Raised when the persistence layer confirms a
                 duplication, either by an explicit ID or by the business key 
                     (institution, student, class, and period).
-                InfrastructureError: Raised when technical failures occur during 
+                EnrollmentTechnicalPersistenceError: Raised when technical failures occur during 
                     communication with the persistence layer or when unexpected 
                     integrity violations (such as missing foreign keys or null 
                     constraint violations) are encountered.
@@ -225,13 +216,36 @@ class DjangoEnrollmentRepository(EnrollmentRepository):
             with transaction.atomic():
                 snapshot = EnrollmentMapper.to_snapshot(enrollment=enrollment)
                 snapshot.save()
+                
                 return snapshot.version
-        
-        except IntegrityError as e:
-            if "unique constraint" in str(e):
-                raise EnrollmentDuplicationError(
-                    code="enrollment_duplication",
-                    message="An enrollment with the same identifiers already exists.",
-                    details={"error": str(e)}
-                ) from e
             
+        except IntegrityError as e:
+            # 1. Tenta extrair informações do Postgres (psycopg2/psycopg)
+            cause = getattr(e, "__cause__", None)
+            pg_code = getattr(cause, "pgcode", None)
+            # O diag.constraint_name depende da versão do driver
+            diag = getattr(cause, "diag", None)
+            constraint = getattr(diag, "constraint_name", None) if diag else None
+
+            if pg_code == "23505"and  constraint == "unique_enrollment":
+                raise EnrollmentDuplicationError(
+                    code=ErrorCodes.DUPLICATE_ENROLLMENT,
+                    message="An enrollment with the same identifiers already exists.",
+                    details={
+                        "constraint": constraint,
+                    }
+                ) from e
+                
+            raise EnrollmentTechnicalPersistenceError(
+                code=ErrorCodes.ENROLLMENT_CREATION_FAILED,
+                message="Failed to create enrollment due to an integrity error.",
+                details={"error": str(e)},
+            ) from e
+            
+        except DatabaseError as e:
+            raise EnrollmentTechnicalPersistenceError(
+                code=ErrorCodes.ENROLLMENT_CREATION_FAILED,
+                message="Failed to create enrollment due to a database error.",
+                details={"error": str(e)},
+            ) from e
+    

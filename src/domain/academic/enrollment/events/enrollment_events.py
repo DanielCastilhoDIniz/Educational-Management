@@ -130,7 +130,7 @@ class EnrollmentReactivated(DomainEvent):
         if self.from_state != EnrollmentState.SUSPENDED:
             raise InvalidStateTransitionError(
                 code="invalid_origin_state",
-                message="Regra 4.2: Reativação só é permitida a partir do estado TRANCADA."
+                message="Rule 4.2: Reactivation is only allowed from the LOCKED state."
             )
         
 @dataclass(frozen=True, kw_only=True)
@@ -147,7 +147,7 @@ class EnrollmentCreated(DomainEvent):
     academic_period_id: str
 
 
-    def __post_init__ (self):
+    def __post_init__(self):
         id_fields = {
             "actor_id": ("invalid_actor_id", "Enrollment must have a valid actor ID"),
             "institution_id": ("invalid_institution_id", "Enrollment must have a valid institution ID"),

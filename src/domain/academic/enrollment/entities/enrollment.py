@@ -174,7 +174,7 @@ class Enrollment:
             if getattr(self, field_name) is not None:
                 raise DomainError(
                     code="inconsistent_timestamps",
-                    message=f"Enrollment in state {self.state.value} cannot have {field_name} field in.",
+                    message=f"Enrollment in state {self.state.value} cannot have {field_name} field.",
                     details={"state": self.state.value, "forbidden_field": field_name}
                 )
 
@@ -284,7 +284,8 @@ class Enrollment:
         - clears the internal buffer (subsequent calls return an empty list).
 
         Intended to be called by the Application Layer once per use case.
-"""
+        """
+        
         domain_events = list(self._domain_events)
         self._domain_events.clear()
         return domain_events

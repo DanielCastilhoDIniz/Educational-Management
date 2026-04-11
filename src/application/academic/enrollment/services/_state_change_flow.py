@@ -19,6 +19,7 @@ from application.academic.enrollment.errors.domain_error_mapper import to_applic
 from application.academic.enrollment.errors.persistence_errors import (
     ConcurrencyConflictError,
     EnrollmentPersistenceNotFoundError,
+    EnrollmentTechnicalPersistenceError,
 )
 from application.academic.enrollment.ports.enrollment_repository import EnrollmentRepository
 from domain.academic.enrollment.entities.enrollment import Enrollment
@@ -102,7 +103,7 @@ def build_persistence_failure_result(
             details={
                 "aggregate_id": enrollment_id,
                 "action": action,
-                "current_state": current_state,
+                "current_state": current_state.value,
                 "exception_type": err.__class__.__name__,
                 "exception_message": str(err),
             }
@@ -162,8 +163,8 @@ def build_state_integrity_result(
             details={
                 "aggregate_id": enrollment_id,
                 "action": action,
-                "previous_state": previous_state,
-                "current_state": current_state,
+                "previous_state": previous_state.value,
+                "current_state": current_state.value,
                 "reason": reason,
             }
         )
@@ -246,14 +247,14 @@ def finalize_state_change(
             code=ErrorCodes.DATA_INTEGRITY_ERROR,
             err=e,
         )
-    
-    except Exception as err:
+    except EnrollmentTechnicalPersistenceError as e:
         return build_persistence_failure_result(
             enrollment_id=enrollment_id,
             action=action,
             current_state=enrollment.state,
             message=persistence_failure_message,
-            err=err,
+            code=ErrorCodes.DATABASE_ERROR,
+            err=e,
         )
 
     enrollment.pull_domain_events()

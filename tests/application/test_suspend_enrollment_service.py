@@ -146,7 +146,7 @@ def test_suspend_enrollment_returns_unexpected_error_when_save_fails():
     assert result.domain_events == ()
     assert result.new_state is None
     assert result.error is not None
-    assert result.error.code == ErrorCodes.UNEXPECTED_ERROR
+    assert result.error.code == ErrorCodes.DATABASE_ERROR
     assert repo.save_calls == 1
     assert enrollment.state == EnrollmentState.SUSPENDED
     assert len(enrollment.peek_domain_events()) == 1

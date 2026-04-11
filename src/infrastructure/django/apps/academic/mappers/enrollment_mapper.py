@@ -100,37 +100,7 @@ class EnrollmentMapper:
             reactivated_at=enrollment.reactivated_at,
             version=enrollment.version,
         )
-        
 
-    @staticmethod
-    def apply_to_snapshot(
-        *,
-        enrollment: Enrollment,
-        snapshot: EnrollmentModel
-    ) -> EnrollmentModel:
-        """
-            Apply the state of a domain Enrollment entity back to an EnrollmentModel snapshot.
-            This is used when saving changes to the database,
-            ensuring that the ORM model reflects the current state of the domain entity.
-            The method updates all relevant fields in the snapshot based on the domain entity's attributes.
-        """
-        snapshot.id = enrollment.id
-        snapshot.institution_id = enrollment.institution_id
-        snapshot.student_id = enrollment.student_id
-        snapshot.class_group_id = enrollment.class_group_id
-        snapshot.academic_period_id = enrollment.academic_period_id
-        snapshot.state = enrollment.state.value
-
-        snapshot.concluded_at = enrollment.concluded_at
-        snapshot.cancelled_at = enrollment.cancelled_at
-        snapshot.suspended_at = enrollment.suspended_at
-        snapshot.reactivated_at = enrollment.reactivated_at
-       
-
-        snapshot.version = enrollment.version
-
-
-        return snapshot
 
     @staticmethod
     def to_transition(
