@@ -1,7 +1,7 @@
 ﻿# Caso de Uso - Criar Matricula
 
 ## Objetivo
-Registrar uma nova matricula valida para um estudante em uma instituicao, turma e periodo academico especificos.
+Registrar uma nova matricula valida para um estudante em uma instituição, turma e período acadêmico específicos.
 
 ## Atores
 - secretaria
@@ -23,12 +23,11 @@ Registrar uma nova matricula valida para um estudante em uma instituicao, turma 
 - estudante, turma e periodo academico devem ser coerentes com o mesmo escopo institucional esperado
 - a criacao e separada do fluxo de `save()` de update
 
-## Pre-condicoes
-- instituicao existe e esta apta no contexto informado
+## Pre-condições
+- instituição existe e esta apta no contexto informado
 - estudante existe e esta apto ao vinculo
 - turma existe e aceita matriculas
 - periodo academico permite criacao
-- nao existe matricula duplicada segundo a politica vigente
 - ator esta autorizado
 
 ## Fluxo Principal
@@ -36,11 +35,10 @@ Registrar uma nova matricula valida para um estudante em uma instituicao, turma 
 2. Resolver o contexto institucional da operacao.
 3. Validar autorizacao do ator.
 4. Resolver politicas de criacao e unicidade.
-5. Verificar existencia de matricula conflitante.
-6. Instanciar o aggregate novo em estado `active`.
-7. Registrar o evento de dominio `EnrollmentCreated`.
-8. Persistir o snapshot inicial com versao `1`.
-9. Retornar resultado estavel para a camada superior.
+5. Instanciar o aggregate novo em estado `active`.
+6. Registrar o evento de dominio `EnrollmentCreated`.
+7. Persistir o snapshot inicial com versao `1`.
+8. Retornar resultado estavel para a camada superior.
 
 ## Estado Atual da Implementacao
 - o aggregate `Enrollment.create(...)` ja existe
@@ -49,20 +47,20 @@ Registrar uma nova matricula valida para um estudante em uma instituicao, turma 
 - o evento `EnrollmentCreated` ja foi adotado e ja e emitido na criacao
 - as validacoes de autorizacao, politicas externas e duplicidade ainda dependem dos contextos de usuarios, membership, politicas e cadastro mestre
 - por isso, essas validacoes permanecem pendentes na implementacao atual e devem ser tratadas como dependencias explicitas da evolucao do caso de uso
-- a persistencia inicial completa ainda depende da implementacao concreta de `repo.create(...)` no adapter principal de infraestrutura
+-  a persistência via repo.create(...) ja esta implementada no adapter Django
 
 ## Fluxos Alternativos
-- duplicidade de negocio: falha esperada
+- duplicidade de negocio: `EnrollmentDuplicationError `
 - janela de matricula encerrada: falha esperada
 - ator nao autorizado: falha esperada
-- erro tecnico de integridade: falha esperada tipada
+- erro tecnico de integridade: `EnrollmentTechnicalPersistenceError`
 
 ## Pos-condicoes
-- matricula existe em persistencia quando o adapter concreto de criacao estiver implementado
-- `state = active`
+- matricula existe em persistência
 - `version = 1`
 - `reactivated_at = null`
 - `EnrollmentCreated` foi registrado no buffer de eventos do aggregate
+-  state = active
 
 ## Politicas Consultadas
 - politica de criacao de matricula
