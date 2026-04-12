@@ -1,7 +1,7 @@
 ﻿# Caso de Uso - Cadastrar Responsavel e Vincular ao Estudante
 
 ## Objetivo
-Registrar um responsavel e associa-lo a um estudante com tipo de relacao e prioridade de contato.
+Registrar um responsavel e associa-lo a um estudante com tipo de relação e prioridade de contato.
 
 ## Atores
 - secretaria
