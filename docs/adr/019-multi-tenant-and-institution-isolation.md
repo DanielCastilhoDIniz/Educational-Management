@@ -9,6 +9,12 @@ O produto e um SaaS escolar, portanto precisa suportar multiplas instituicoes co
 ## Decisao
 Adotar isolamento logico por tenant institucional como regra minima de arquitetura.
 
+## Escopo do Produto e Modelo de Isolamento
+- Fase 1 (atual): escolas de educacao basica e cursos temporarios — isolamento logico (banco compartilhado, schema compartilhado, filtrado por `tenant_id`)
+- Fase 2 (futura): universidades e faculdades — isolamento fisico por schema ou banco dedicado quando compliance exigir
+- O aggregate `User` e uma identidade global no banco — uma instituicao so enxerga um `User` se existe um `Membership` vinculando os dois; sem `Membership`, o `User` e invisivel para aquela instituicao
+- Agrupamento de unidades em redes educacionais e resolvido no contexto Organizacional, nao no aggregate `User`
+
 ## Regras
 - toda entidade de negocio relevante deve pertencer a uma instituicao ou escopo institucional claro
 - consultas e comandos devem carregar contexto institucional explicito

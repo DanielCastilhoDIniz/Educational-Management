@@ -14,6 +14,7 @@ from typing import Protocol, cast
 
 from application.academic.enrollment.dto.errors.application_error import ApplicationError
 from application.academic.enrollment.dto.errors.error_codes import ErrorCodes
+from application.shared.errors.error_codes import SharedErrorCodes
 from application.academic.enrollment.dto.results import ApplicationResult
 from application.academic.enrollment.errors.domain_error_mapper import to_application_error
 from application.academic.enrollment.errors.persistence_errors import (
@@ -86,7 +87,7 @@ def build_persistence_failure_result(
         enrollment_id: str,
         action: str,
         current_state: EnrollmentState,
-        code: ErrorCodes = ErrorCodes.UNEXPECTED_ERROR,    
+        code: ErrorCodes | SharedErrorCodes = SharedErrorCodes.UNEXPECTED_ERROR,
         message: str,
         err: Exception,
 ) -> ApplicationResult:

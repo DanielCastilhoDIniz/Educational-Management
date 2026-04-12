@@ -23,17 +23,31 @@ Exemplos:
 ### Application
 Erros estaveis expostos para camadas superiores.
 
-Codigos minimos sugeridos:
-- `ENROLLMENT_NOT_FOUND`
-- `INVALID_STATE_TRANSITION`
-- `JUSTIFICATION_REQUIRED`
-- `ENROLLMENT_NOT_ACTIVE`
-- `CONCLUSION_NOT_ALLOWED`
-- `CONCURRENCY_CONFLICT`
-- `DATA_INTEGRITY_ERROR`
-- `AUTHORIZATION_DENIED`
-- `POLICY_VIOLATION`
-- `UNEXPECTED_ERROR`
+#### Autorizacao
+- `AUTHZ_USER_LOCKED` — conta suspensa ou inativa globalmente
+- `AUTHZ_INSUFFICIENT_PRIVILEGES` — papel nao possui o escopo necessario para a acao
+- `AUTHZ_TENANT_MISMATCH` — tentativa de acesso a dados de outro tenant
+- `AUTHZ_OUTSIDE_WINDOW` — acao bloqueada por restricao temporal (ex: lancamento fora da janela letiva)
+- `AUTHORIZATION_DENIED` — fallback generico para negacoes nao classificadas
+
+#### Negocio e Dominio
+- `DUPLICATE_ENROLLMENT` — matricula duplicada
+- `DUPLICATE_MEMBERSHIP` — vinculo institucional duplicado
+- `DUPLICATE_USER` — documento legal ja cadastrado no sistema
+- `MEMBERSHIP_INACTIVE_CONFLICT` — vinculo inativo encontrado, requer caso de uso de reativacao
+- `POLICY_VIOLATION` — violacao de politica de negocio
+- `INVALID_STATE_TRANSITION` — transicao de estado invalida
+- `JUSTIFICATION_REQUIRED` — justificativa obrigatoria nao fornecida
+- `CONCURRENCY_CONFLICT` — conflito de escrita concorrente no mesmo aggregate
+
+#### Busca e Recuperacao
+- `ENROLLMENT_NOT_FOUND` — matricula nao encontrada
+- `ENROLLMENT_NOT_ACTIVE` — matricula nao esta ativa
+- `CONCLUSION_NOT_ALLOWED` — conclusao nao permitida para o estado atual
+
+#### Tecnico
+- `DATA_INTEGRITY_ERROR` — violacao de constraint de banco
+- `UNEXPECTED_ERROR` — erro nao classificado
 
 ### Persistencia / Infra
 Erros tecnicos tipados para o adaptador.
