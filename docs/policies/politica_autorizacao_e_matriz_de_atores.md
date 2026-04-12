@@ -77,6 +77,9 @@ A autorização é validada na camada de **Application**, antes da execução de
 | **Cadastrar Usuario** | `sistema` | Alunos | Baseado no contrato do gateway de pagamento | N/A |
 | **Ativar Usuario** | `administrador_plataforma` | Qualquer `User` | Sem restricao | `User.state == PENDING` |
 | **Ativar Usuario** | `gestao_executiva` | Usuarios do proprio tenant | `target.institution_id == actor.institution_id` | `User.state == PENDING` |
+| **Desbloquear Usuario** | `gestao_executiva` | Usuarios do proprio tenant | `target.institution_id == actor.institution_id` | `User.state == SUSPENDED` |
+| **Desbloquear Usuario** | `administrador_plataforma` | Qualquer `User` | Sem restricao | `User.state == SUSPENDED`; intervencao de emergencia; audit trail obrigatorio |
+| **Desbloquear Usuario** | `suporte_adm` | Usuarios do proprio tenant | `target.institution_id == actor.institution_id` | `User.state == SUSPENDED`; requer autorizacao explicita |
 | **Vincular Usuario a Instituicao** | `administrador_plataforma` | Qualquer vinculo | Sem restricao | `User.state == ACTIVE` |
 | **Vincular Usuario a Instituicao** | `gestao_executiva` | Vinculos do proprio tenant | `target.institution_id == actor.institution_id` | `User.state == ACTIVE` |
 | **Ativar Membership** | `administrador_plataforma` | Qualquer `Membership` | Sem restricao | `Membership.state == SUSPENDED` |
