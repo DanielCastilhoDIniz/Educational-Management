@@ -1,10 +1,16 @@
-from pathlib import Path
 import os
+from pathlib import Path
+
 from django.core.exceptions import ImproperlyConfigured
+from dotenv import load_dotenv
 
 # base.py está em: src/infrastructure/django/config/base.py
 # BASE_DIR recomendado: raiz do repo
 BASE_DIR = Path(__file__).resolve().parents[4]
+
+# Carrega .env de src/infrastructure/django/.env
+_ENV_FILE = Path(__file__).resolve().parents[1] / ".env"
+load_dotenv(_ENV_FILE, override=False)
 
 
 def env(name: str, default=None, required: bool = False):
@@ -73,7 +79,7 @@ TEMPLATES = [
 ]
 
 
-def postgres_database_config() -> dict[str, str]:
+def postgres_database_config() -> dict[str, str | None]:
     return {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": env("POSTGRES_DB", required=True),
@@ -84,7 +90,8 @@ def postgres_database_config() -> dict[str, str]:
     }
 
 
-DATABASES: dict[str, dict[str, str]] = {}
+DATABASES: dict[str, dict[str, str | None]] = {}
+
 
 
 AUTH_PASSWORD_VALIDATORS = [
