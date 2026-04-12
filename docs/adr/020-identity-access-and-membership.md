@@ -4,29 +4,29 @@
 Proposto
 
 ## Contexto
-Usuarios poderao atuar como administrador, secretaria, professor, responsavel e outros papeis, possivelmente em mais de uma instituicao.
+Usuários poderão atuar como administrador, secretaria, professor, responsável e outros papeis, possivelmente em mais de uma instituição.
 
-## Decisao
+## Decisão
 Separar identidade global de membership institucional.
 
 ## Regras
 - `Usuario` representa identidade global da pessoa/conta
-- `Membership` representa o vinculo do usuario a uma instituicao
-- papeis e escopos pertencem ao membership, nao ao usuario global
-- o mesmo usuario pode exercer papeis distintos em tenants diferentes
+- `Membership` representa o vinculo do usuário a uma instituição
+- papeis e escopos pertencem ao membership, nao ao usuário global
+- o mesmo usuário pode exercer papeis distintos em tenants diferentes
 - service accounts devem ser modeladas explicitamente
 
-## Consequencias
+## Consequências
 - melhora seguranca e flexibilidade multi-tenant
 - evita duplicacao de usuarios por instituicao
-- exige matriz de autorizacao por caso de uso
+- exige matriz de autorização por caso de uso
 
 ## Plano de Implementacao
 - definir contrato de membership
-- documentar papeis padrao e escopos
-- criar politicas de autorizacao por contexto
+- documentar papeis padrão e escopos
+- criar politicas de autorização por contexto
 
-## Checklist de Implementacao
+## Checklist de Implementação
 - [ ] Existe separacao formal entre identidade global e membership institucional
 - [ ] Papeis e escopos ficam no membership e nao no usuario global
 - [ ] Service accounts sao modeladas explicitamente

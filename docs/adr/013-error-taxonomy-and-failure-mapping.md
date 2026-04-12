@@ -80,7 +80,7 @@ Exemplos de HTTP:
 ## Checklist de Implementacao
 - [x] Existem erros de dominio, application e persistencia separados no modulo
 - [x] `ErrorCodes` base ja foram definidos na Application
-- [x] Existe mapper de erro de dominio para erro de application
+- [x] Existe mapper de erro de domínio para erro de application
 - [ ] Falhas de persistencia sao mapeadas de ponta a ponta para codigos estaveis
 - [ ] Payload HTTP padronizado consome a mesma taxonomia de erros
 

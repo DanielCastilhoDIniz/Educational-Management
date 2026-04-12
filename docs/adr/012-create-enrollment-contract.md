@@ -54,8 +54,8 @@ Adotar um contrato de criacao separado do contrato de update.
 
 ## Contrato operacional de `create(...)`
 - entrada: aggregate novo e valido
-- efeito: persistencia do snapshot inicial
-- retorno: versao inicial persistida
+- efeito: persistência do snapshot inicial
+- retorno: versão inicial persistida
 - falha esperada 1: `EnrollmentDuplicationError`
 - falha esperada 2: `EnrollmentTechnicalPersistenceError`
 
@@ -71,7 +71,7 @@ Adotar um contrato de criacao separado do contrato de update.
 7. Em caso de falha técnica ou integridade inesperada, o adapter levanta
    `EnrollmentTechnicalPersistenceError`.
 8. A Application converte o resultado para o contrato externo do caso de uso.
-9. A Application faz `pull_domain_events()` somente apos persistencia bem-
+9. A Application faz `pull_domain_events()` somente após persistência bem-
    sucedida.
 
 ## O que este ADR nao decide
