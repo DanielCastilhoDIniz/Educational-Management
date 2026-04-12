@@ -11,7 +11,6 @@ from django.db import DatabaseError
 from application.academic.enrollment.dto.errors.error_codes import ErrorCodes
 from application.academic.enrollment.errors.persistence_errors import (
     EnrollmentDuplicationError,
-    EnrollmentPersistenceNotFoundError,
     EnrollmentTechnicalPersistenceError,
 )
 from domain.academic.enrollment.entities.enrollment import Enrollment
