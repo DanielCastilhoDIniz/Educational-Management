@@ -91,6 +91,14 @@ Campos permitidos:
 ## Registro de Transicoes
 Cada transicao de estado e registrada por um `MembershipTransition` (Value Object), aplicando o mesmo padrao do `StateTransition` do aggregate `Enrollment`. O `Membership` mantem uma colecao interna de transicoes persistida separadamente do snapshot.
 
+Campos obrigatorios do `MembershipTransition`:
+- `from_state` — estado anterior
+- `to_state` — estado resultante
+- `occurred_at` — timestamp da transicao (UTC)
+- `actor_id` — quem executou a transicao
+- `role_id` — papel vigente no momento da transicao (captura o historico em caso de troca de papel)
+- `reason` — justificativa, quando aplicavel
+
 ## registration_code
 - Gerado no momento da criacao do vinculo
 - Imutavel apos a criacao
@@ -115,6 +123,12 @@ Cada transicao de estado e registrada por um `MembershipTransition` (Value Objec
 - Verificar se o vinculo `(user_id, institution_id, course_id)` ja existe
 - Gerar o `registration_code` conforme a politica da instituicao
 - Autorizar o ator antes de criar ou alterar o vinculo
+
+## Riscos e Decisoes Pendentes
+
+- **Limbo do SUSPENDED**: vinculos criados e nunca ativados ficam bloqueando o acesso do usuario. O evento `MembershipCreated` deve ser consumido por um contexto de notificacao que alerte o responsavel pela ativacao. Essa responsabilidade esta fora do dominio do `Membership`.
+- **Concorrencia na unicidade**: a verificacao de duplicidade na Application pode sofrer race condition em alta carga. A constraint `(user_id, institution_id, course_id)` no banco e a ultima linha de defesa e deve ser garantida.
+- **Troca de papel**: o caso de uso `TrocarPapel` ainda nao foi documentado. Deve exigir `actor_id`, registrar `MembershipTransition` com o `role_id` anterior, e ser auditavel.
 
 ## Plano de Implementacao
 - Definir `MembershipState` enum com `SUSPENDED`, `ACTIVE`, `INACTIVE`

@@ -49,7 +49,7 @@ Registrar uma nova matricula valida para um estudante em uma instituição, turm
 - por isso, essas validacoes permanecem pendentes na implementacao atual e devem ser tratadas como dependencias explicitas da evolucao do caso de uso
 -  a persistência via repo.create(...) ja esta implementada no adapter Django
 
-## Fluxos Alternativos
+## Estado Atual da Implementacao
 - duplicidade de negocio: `EnrollmentDuplicationError `
 - janela de matricula encerrada: falha esperada
 - ator nao autorizado: falha esperada
