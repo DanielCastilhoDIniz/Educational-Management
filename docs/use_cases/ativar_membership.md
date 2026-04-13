@@ -9,7 +9,8 @@ Ativar um `Membership` que se encontra em estado `SUSPENDED`, transitando para `
 | Ator                      | Contexto de uso                                              |
 | :------------------------ | :----------------------------------------------------------- |
 | `administrador_plataforma` | Reativação irrestrita, qualquer `Membership`                |
-| `gestao_executiva`         | Reativação de `Membership` do próprio tenant                |
+| `direcao_estrategica`         | Ativação de `Membership` do próprio tenant                  |
+| `gestao_financeira`           | Reativação após confirmação de pagamento                    |
 
 ---
 

@@ -8,8 +8,8 @@ Reativar um `User` que se encontra em estado `SUSPENDED`, transitando para `ACTI
 ## Atores
 | Ator                      | Contexto de uso                                                          |
 | :------------------------ | :----------------------------------------------------------------------- |
-| `gestao_executiva`         | Caso normal — desbloqueio de usuários do próprio tenant                 |
-| `administrador_plataforma` | Intervenção de emergência — quando `gestao_executiva` está indisponível |
+| `direcao_estrategica`         | Caso normal — desbloqueio de usuários do próprio tenant                 |
+| `administrador_plataforma` | Intervenção de emergência — quando `direcao_estrategica` está indisponível |
 | `suporte_adm`              | Com autorização explícita — escopo restrito ao próprio tenant           |
 
 ---

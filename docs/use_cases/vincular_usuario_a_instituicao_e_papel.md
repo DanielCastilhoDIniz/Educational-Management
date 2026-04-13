@@ -9,7 +9,7 @@ Associar um `User` existente a uma instituição com um papel definido, criando 
 | Ator                      | Contexto de uso                                              |
 | :------------------------ | :----------------------------------------------------------- |
 | `administrador_plataforma` | Vinculação irrestrita, qualquer instituição                 |
-| `gestao_executiva`         | Vinculação restrita ao próprio tenant                       |
+| `direcao_estrategica`         | Vinculação restrita ao próprio tenant                       |
 
 ---
 

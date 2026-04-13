@@ -9,7 +9,7 @@ Registrar a identidade global mínima de uma pessoa no sistema, criando um `User
 | Ator                      | Contexto de uso                                              |
 | :------------------------ | :----------------------------------------------------------- |
 | `administrador_plataforma` | Cadastro irrestrito, qualquer identidade                    |
-| `gestao_executiva`         | Cadastro de equipe da própria instituição                   |
+| `direcao_estrategica`         | Cadastro de equipe da própria instituição                   |
 | `secretaria`               | Cadastro de alunos e responsáveis legais                    |
 | `sistema`                  | Cadastro automatizado via contrato do gateway de pagamento  |
 

@@ -9,7 +9,7 @@ Confirmar a identidade de um `User` recém-cadastrado, transitando seu estado de
 | Ator                      | Contexto de uso                                              |
 | :------------------------ | :----------------------------------------------------------- |
 | `administrador_plataforma` | Ativação irrestrita, qualquer `User`                        |
-| `gestao_executiva`         | Ativação de usuários do próprio tenant                      |
+| `direcao_estrategica`         | Ativação de usuários do próprio tenant                      |
 
 ---
 

@@ -17,7 +17,8 @@ Estabelecer as diretrizes de controle de acesso para o sistema, garantindo o **P
 * **`administrador_plataforma`** — superusuario do SaaS. Nao possui `Membership`. Identificado pelo sinalizador `is_superuser` no mecanismo de autenticacao. Escopo global, irrestrito entre tenants. Responsavel pela saude do software, criacao de instituicoes e gestao de recursos globais.
 
 ### Nivel 1: Estrategico Institucional
-* **`gestao_executiva`** (Administrador Institucional) — Membership com `course_id = null`. Escopo total dentro do proprio tenant. Unico ator que pode conceder e revogar papeis dentro da instituicao. Inclui: Diretor, Financeiro e cargos equivalentes.
+* **`direcao_estrategica`** (Direcao Estrategica) — Membership com `course_id = null`. Autoridade de governanca institucional: configuracao do tenant, concessao e revogacao de papeis, gestao de identidade e vinculos. Inclui: Diretor Geral e cargos equivalentes.
+* **`gestao_financeira`** (Gestao Financeira) — Membership com `course_id = null`. Autoridade sobre saude financeira da instituicao. Unico papel que pode suspender `Membership` por inadimplencia e reativa-lo apos confirmacao de pagamento. Inclui: Controller Financeiro e cargos equivalentes. *(escopo financeiro completo previsto para Fase 2)*
 
 ### Nivel 2: Operacional Interno
 * **`secretaria`** (Gestao Academico-Administrativa) — guardia do vinculo legal e financeiro. Foco na Pessoa (`User`) e no Contrato (`Membership`/`Enrollment`). Atua na porta de entrada e saida do sistema. Escopo institucional ou por curso.
@@ -72,18 +73,22 @@ A autorização é validada na camada de **Application**, antes da execução de
 | Caso de Uso | Ator | Alvo | Validacao de Escopo | Condicao Adicional |
 | :--- | :--- | :--- | :--- | :--- |
 | **Cadastrar Usuario** | `administrador_plataforma` | Qualquer `User` | Sem restricao (cross-tenant) | N/A |
-| **Cadastrar Usuario** | `gestao_executiva` | Equipe da instituicao | `target.institution_id == actor.institution_id` | N/A |
+| **Cadastrar Usuario** | `direcao_estrategica` | Equipe da instituicao | `target.institution_id == actor.institution_id` | N/A |
 | **Cadastrar Usuario** | `secretaria` | Alunos e responsaveis | `target.role` deve ser inferior ao nivel da secretaria | N/A |
 | **Cadastrar Usuario** | `sistema` | Alunos | Baseado no contrato do gateway de pagamento | N/A |
 | **Ativar Usuario** | `administrador_plataforma` | Qualquer `User` | Sem restricao | `User.state == PENDING` |
-| **Ativar Usuario** | `gestao_executiva` | Usuarios do proprio tenant | `target.institution_id == actor.institution_id` | `User.state == PENDING` |
-| **Desbloquear Usuario** | `gestao_executiva` | Usuarios do proprio tenant | `target.institution_id == actor.institution_id` | `User.state == SUSPENDED` |
+| **Ativar Usuario** | `direcao_estrategica` | Usuarios do proprio tenant | `target.institution_id == actor.institution_id` | `User.state == PENDING` |
+| **Desbloquear Usuario** | `direcao_estrategica` | Usuarios do proprio tenant | `target.institution_id == actor.institution_id` | `User.state == SUSPENDED` |
 | **Desbloquear Usuario** | `administrador_plataforma` | Qualquer `User` | Sem restricao | `User.state == SUSPENDED`; intervencao de emergencia; audit trail obrigatorio |
 | **Desbloquear Usuario** | `suporte_adm` | Usuarios do proprio tenant | `target.institution_id == actor.institution_id` | `User.state == SUSPENDED`; requer autorizacao explicita |
 | **Vincular Usuario a Instituicao** | `administrador_plataforma` | Qualquer vinculo | Sem restricao | `User.state == ACTIVE` |
-| **Vincular Usuario a Instituicao** | `gestao_executiva` | Vinculos do proprio tenant | `target.institution_id == actor.institution_id` | `User.state == ACTIVE` |
+| **Vincular Usuario a Instituicao** | `direcao_estrategica` | Vinculos do proprio tenant | `target.institution_id == actor.institution_id` | `User.state == ACTIVE` |
 | **Ativar Membership** | `administrador_plataforma` | Qualquer `Membership` | Sem restricao | `Membership.state == SUSPENDED` |
-| **Ativar Membership** | `gestao_executiva` | Memberships do proprio tenant | `target.institution_id == actor.institution_id` | `Membership.state == SUSPENDED` |
+| **Ativar Membership** | `direcao_estrategica` | Memberships do proprio tenant | `target.institution_id == actor.institution_id` | `Membership.state == SUSPENDED` |
+| **Ativar Membership** | `gestao_financeira` | Memberships do proprio tenant | `target.institution_id == actor.institution_id` | `Membership.state == SUSPENDED`; reativacao apos confirmacao de pagamento |
+| **Suspender Usuario** | `administrador_plataforma` | Qualquer `User` | Sem restricao | `User.state == ACTIVE`; requer justificativa; audit trail obrigatorio |
+| **Suspender Membership** | `direcao_estrategica` | Memberships do proprio tenant | `target.institution_id == actor.institution_id` | `Membership.state == ACTIVE`; requer justificativa |
+| **Suspender Membership** | `gestao_financeira` | Memberships do proprio tenant | `target.institution_id == actor.institution_id` | `Membership.state == ACTIVE`; inadimplencia; requer justificativa |
 | **Criar Matricula** | `secretaria`, `sistema` | Alunos do proprio tenant | `target.institution_id == actor.institution_id` | `User.state == ACTIVE`, `Membership.state == ACTIVE` |
 | **Consultar Matricula** | `secretaria`, `coordenacao`, `suporte_adm`, `sistema` | Matriculas do proprio tenant | `target.institution_id == actor.institution_id` | N/A |
 | **Suspender/Reativar Matricula** | `secretaria` | Matriculas do proprio tenant | `target.institution_id == actor.institution_id` | Exige justificativa |
