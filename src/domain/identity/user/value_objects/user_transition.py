@@ -1,0 +1,50 @@
+from dataclasses import dataclass, field
+from datetime import UTC, datetime
+
+from domain.identity.user.errors.user_errors import (
+    InvalidStateTransitionError,
+)
+from domain.identity.user.value_objects.user_state import UserState
+from domain.shared.domain_error import DomainError
+
+
+@dataclass(frozen=True, kw_only=True)
+class UserTransition:
+    """
+    Transition between user states
+    from_state -> to_state
+    occurred_at date of transition
+    justification: is optional
+    """
+    
+    from_state: UserState
+    actor_id: str
+    to_state: UserState
+    occurred_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    justification: str | None = None
+
+
+    def __post_init__(self):
+        if self.occurred_at is None:
+            raise DomainError(
+                code="invalid_occurred_at",
+                message="occurred_at cannot be None",
+                details={"occurred_at": self.occurred_at}
+            )
+        if not self.actor_id or not self.actor_id.strip():
+            raise DomainError(
+                code="invalid_actor_id",
+                message="actor_id cannot be empty",
+                details={"actor_id": self.actor_id}
+            )
+
+        if self.occurred_at.tzinfo is None:
+            object.__setattr__(self, 'occurred_at', self.occurred_at.replace(tzinfo=UTC))
+        else:
+            object.__setattr__(self, 'occurred_at', self.occurred_at.astimezone(UTC))
+
+        if self.from_state == self.to_state:
+            raise InvalidStateTransitionError (
+                code="invalid_state_transition",
+                message="from_state and to_state cannot be the same",
+                details={"from_state": self.from_state.value, "to_state": self.to_state.value})

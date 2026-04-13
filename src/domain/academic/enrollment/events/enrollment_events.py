@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 from domain.shared.domain_error import DomainError
 from domain.shared.domain_event import DomainEvent
+
 from ..errors.enrollment_errors import InvalidStateTransitionError
 from ..value_objects.enrollment_status import EnrollmentState
 
