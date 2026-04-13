@@ -2,7 +2,7 @@ from datetime import UTC, datetime
 
 import pytest
 
-from domain.academic.enrollment.errors.enrollment_errors import DomainError
+from domain.shared.domain_error import DomainError
 from domain.academic.enrollment.value_objects.enrollment_status import EnrollmentState
 from domain.academic.enrollment.value_objects.state_transition import StateTransition
 

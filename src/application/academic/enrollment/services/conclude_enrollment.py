@@ -7,7 +7,7 @@ from application.academic.enrollment.services._state_change_flow import (
     build_not_found_result,
     finalize_state_change,
 )
-from domain.academic.enrollment.errors.enrollment_errors import DomainError
+from domain.shared.domain_error import DomainError
 from domain.academic.enrollment.value_objects.conclusion_verdict import ConclusionVerdict
 
 

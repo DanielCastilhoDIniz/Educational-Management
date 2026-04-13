@@ -1,6 +1,6 @@
 import pytest
 
-from domain.academic.enrollment.errors.enrollment_errors import DomainError
+from domain.shared.domain_error import DomainError
 from domain.academic.enrollment.value_objects.conclusion_verdict import ConclusionVerdict
 
 

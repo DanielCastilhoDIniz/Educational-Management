@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 from dataclasses import dataclass
 
-from domain.academic.enrollment.errors.enrollment_errors import DomainError
+from domain.shared.domain_error import DomainError
 
 
 @dataclass(frozen=True)

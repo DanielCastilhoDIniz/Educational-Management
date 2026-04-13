@@ -24,8 +24,8 @@ from application.academic.enrollment.errors.persistence_errors import (
 )
 from application.academic.enrollment.ports.enrollment_repository import EnrollmentRepository
 from domain.academic.enrollment.entities.enrollment import Enrollment
-from domain.academic.enrollment.errors.enrollment_errors import DomainError
-from domain.academic.enrollment.events.enrollment_events import DomainEvent
+from domain.shared.domain_error import DomainError
+from domain.shared.domain_event import DomainEvent
 from domain.academic.enrollment.value_objects.enrollment_status import EnrollmentState
 
 
