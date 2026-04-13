@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from typing import Protocol, cast
 
-from application.academic.enrollment.dto.errors.application_error import ApplicationError
+from application.shared.application_error import ApplicationError
 from application.academic.enrollment.dto.errors.error_codes import ErrorCodes
 from application.shared.errors.error_codes import SharedErrorCodes
 from application.academic.enrollment.dto.results import ApplicationResult

@@ -1,4 +1,4 @@
-from application.academic.enrollment.dto.errors.application_error import ApplicationError
+from application.shared.application_error import ApplicationError
 from application.shared.errors.error_codes import SharedErrorCodes
 
 

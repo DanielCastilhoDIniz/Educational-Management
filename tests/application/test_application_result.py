@@ -2,7 +2,7 @@ from datetime import UTC, datetime
 
 import pytest
 
-from application.academic.enrollment.dto.errors.application_error import ApplicationError
+from application.shared.application_error import ApplicationError
 from application.academic.enrollment.dto.errors.error_codes import ErrorCodes
 from application.academic.enrollment.dto.results import ApplicationResult
 from domain.academic.enrollment.events.enrollment_events import EnrollmentConcluded

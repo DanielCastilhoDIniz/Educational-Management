@@ -1,4 +1,4 @@
-from application.academic.enrollment.dto.errors.application_error import ApplicationError
+from application.shared.application_error import ApplicationError
 from application.academic.enrollment.dto.errors.error_codes import ErrorCodes
 from domain.academic.enrollment.errors.enrollment_errors import (
     ConclusionNotAllowedError,

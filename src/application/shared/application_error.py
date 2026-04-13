@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 from typing import Any
 
-from application.academic.enrollment.dto.errors.error_codes import ErrorCodes
-
 
 @dataclass(frozen=True, kw_only=True)
 class ApplicationError:
@@ -20,6 +18,7 @@ class ApplicationError:
         - client-side handling,
         - analytics and monitoring.
         Examples: "ENROLLMENT_NOT_FOUND", "INVALID_STATE_TRANSITION".
+        Accepts any StrEnum value (all StrEnum subclasses are str).
 
     message:
         Human-readable explanation of the failure, safe to display to operators/users
@@ -34,7 +33,7 @@ class ApplicationError:
     - It must remain immutable and JSON-serializable.
 """
 
-    code: ErrorCodes
+    code: str
     message: str
     details: dict[str, Any]
 

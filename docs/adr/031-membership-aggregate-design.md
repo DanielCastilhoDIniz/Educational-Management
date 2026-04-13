@@ -162,6 +162,6 @@ Campos obrigatorios do `MembershipTransition`:
 - [ ] Existem testes de `Role` com tipos `SYSTEM` e `CUSTOM`
 
 ## Checklist de Documentacao
-- [ ] Use cases `VincularUsuarioAInstituicaoEPapel` e `AtivarMembership` documentados
+- [x] Use cases `VincularUsuarioAInstituicaoEPapel` e `AtivarMembership` documentados
 - [ ] Matriz de estados publicada na documentacao de contexto
-- [ ] ADR 020 atualizado para referenciar este ADR como detalhamento do aggregate
+- [x] ADR 020 atualizado para referenciar este ADR como detalhamento do aggregate
