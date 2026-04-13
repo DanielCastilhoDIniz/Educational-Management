@@ -147,6 +147,6 @@ Campos obrigatorios do `UserTransition`:
 - [ ] Existe teste de negacao: `Membership` nao pode ser criado para `User` em `PENDING`
 
 ## Checklist de Documentacao
-- [ ] Use cases `CadastrarUsuario` e `AtivarUsuario` documentados
-- [ ] Pre-condicao de `VincularUsuarioAInstituicaoEPapel` atualizada para exigir `User ACTIVE`
+- [x] Use cases `CadastrarUsuario`, `AtivarUsuario` e `DesbloquearUsuario` documentados
+- [x] Pre-condicao de `VincularUsuarioAInstituicaoEPapel` atualizada para exigir `User ACTIVE`
 - [ ] ADR 020 atualizado para referenciar este ADR como detalhamento do aggregate `User`

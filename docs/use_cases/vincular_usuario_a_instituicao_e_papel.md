@@ -23,6 +23,7 @@ Associar um usuario existente a uma instituicao com papel e escopos operacionais
 
 ## Pre-condicoes
 - usuario existe
+- `User.state == ACTIVE`
 - instituicao existe
 - `course_id` existe, quando informado
 - ator esta autorizado
