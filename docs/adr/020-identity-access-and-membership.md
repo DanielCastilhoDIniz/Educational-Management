@@ -21,6 +21,11 @@ Separar identidade global de membership institucional.
 - evita duplicacao de usuarios por instituicao
 - exige matriz de autorização por caso de uso
 
+## Detalhamento
+Esta decisao foi desdobrada em ADRs especificos:
+- [ADR 031 - Design do Aggregate Membership](031-membership-aggregate-design.md) — campos, estados, `registration_code`, `MembershipTransition` e chave de negocio do `Membership`.
+- [ADR 032 - Design do Aggregate User](032-user-aggregate-design.md) — campos, estados, `LegalIdentity`, `guardian_id`, `UserTransition` e relacao com Django auth.
+
 ## Plano de Implementacao
 - definir contrato de membership
 - documentar papeis padrão e escopos

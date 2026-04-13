@@ -149,4 +149,4 @@ Campos obrigatorios do `UserTransition`:
 ## Checklist de Documentacao
 - [x] Use cases `CadastrarUsuario`, `AtivarUsuario` e `DesbloquearUsuario` documentados
 - [x] Pre-condicao de `VincularUsuarioAInstituicaoEPapel` atualizada para exigir `User ACTIVE`
-- [ ] ADR 020 atualizado para referenciar este ADR como detalhamento do aggregate `User`
+- [x] ADR 020 atualizado para referenciar este ADR como detalhamento do aggregate `User`
