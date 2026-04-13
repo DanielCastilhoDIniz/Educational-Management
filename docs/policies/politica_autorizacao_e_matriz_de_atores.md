@@ -89,6 +89,9 @@ A autorização é validada na camada de **Application**, antes da execução de
 | **Suspender Usuario** | `administrador_plataforma` | Qualquer `User` | Sem restricao | `User.state == ACTIVE`; requer justificativa; audit trail obrigatorio |
 | **Suspender Membership** | `direcao_estrategica` | Memberships do proprio tenant | `target.institution_id == actor.institution_id` | `Membership.state == ACTIVE`; requer justificativa |
 | **Suspender Membership** | `gestao_financeira` | Memberships do proprio tenant | `target.institution_id == actor.institution_id` | `Membership.state == ACTIVE`; inadimplencia; requer justificativa |
+| **Encerrar Membership** | `administrador_plataforma` | Qualquer `Membership` | Sem restricao | `Membership.state in (ACTIVE, SUSPENDED)`; irreversivel; requer justificativa |
+| **Encerrar Membership** | `direcao_estrategica` | Memberships do proprio tenant | `target.institution_id == actor.institution_id` | `Membership.state in (ACTIVE, SUSPENDED)`; irreversivel; requer justificativa |
+| **Encerrar Usuario** | `administrador_plataforma` | Qualquer `User` | Sem restricao | `User.state in (ACTIVE, SUSPENDED)`; irreversivel; requer justificativa |
 | **Criar Matricula** | `secretaria`, `sistema` | Alunos do proprio tenant | `target.institution_id == actor.institution_id` | `User.state == ACTIVE`, `Membership.state == ACTIVE` |
 | **Consultar Matricula** | `secretaria`, `coordenacao`, `suporte_adm`, `sistema` | Matriculas do proprio tenant | `target.institution_id == actor.institution_id` | N/A |
 | **Suspender/Reativar Matricula** | `secretaria` | Matriculas do proprio tenant | `target.institution_id == actor.institution_id` | Exige justificativa |
