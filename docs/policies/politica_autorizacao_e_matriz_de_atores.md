@@ -92,6 +92,9 @@ A autorização é validada na camada de **Application**, antes da execução de
 | **Encerrar Membership** | `administrador_plataforma` | Qualquer `Membership` | Sem restricao | `Membership.state in (ACTIVE, SUSPENDED)`; irreversivel; requer justificativa |
 | **Encerrar Membership** | `direcao_estrategica` | Memberships do proprio tenant | `target.institution_id == actor.institution_id` | `Membership.state in (ACTIVE, SUSPENDED)`; irreversivel; requer justificativa |
 | **Encerrar Usuario** | `administrador_plataforma` | Qualquer `User` | Sem restricao | `User.state in (ACTIVE, SUSPENDED)`; irreversivel; requer justificativa |
+| **Cadastrar Instituicao** *(organizacional)* | `administrador_plataforma` | Nova `Institution` | Sem restricao (cross-tenant) | Cria o tenant; dados minimos obrigatorios |
+| **Configurar Instituicao** *(organizacional)* | `direcao_estrategica` | Propria `Institution` | `target.institution_id == actor.institution_id` | Perfil, endereco, contato, logo |
+| **Configurar Instituicao** *(organizacional)* | `secretaria`, `suporte_adm` | Propria `Institution` | `target.institution_id == actor.institution_id` | Delegado pela `direcao_estrategica` |
 | **Criar Matricula** | `secretaria`, `sistema` | Alunos do proprio tenant | `target.institution_id == actor.institution_id` | `User.state == ACTIVE`, `Membership.state == ACTIVE` |
 | **Consultar Matricula** | `secretaria`, `coordenacao`, `suporte_adm`, `sistema` | Matriculas do proprio tenant | `target.institution_id == actor.institution_id` | N/A |
 | **Suspender/Reativar Matricula** | `secretaria` | Matriculas do proprio tenant | `target.institution_id == actor.institution_id` | Exige justificativa |
