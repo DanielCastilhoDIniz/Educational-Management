@@ -13,6 +13,14 @@ from domain.shared.domain_event import DomainEvent
 
 
 @dataclass(frozen=True, kw_only=True)
+class UserStateChanged(DomainEvent):
+    from_state: UserState
+    actor_id:str
+    to_state: UserState
+    justification: str | None = None
+
+
+@dataclass(frozen=True, kw_only=True)
 class UserCreated(DomainEvent):
 
     actor_id:str
@@ -30,7 +38,6 @@ class UserCreated(DomainEvent):
             age -= 1
 
         return age >= 18
-
 
     def __post_init__(self):
         required_fields_str = {
@@ -57,16 +64,10 @@ class UserCreated(DomainEvent):
                 code="user_requires_guardian",
                 message="user under 18 years old must have a guardian_id",
                 details={"birth_date": self.birth_date.isoformat()}
-            )           
-  
+            )     
 
 @dataclass(frozen=True, kw_only=True)
-class UserActivated(DomainEvent):
-
-    from_state: UserState
-    actor_id:str
-    to_state: UserState
-    justification: str | None = None
+class UserActivated(UserStateChanged):
 
     def __post_init__(self):
         if self.from_state !=  UserState.PENDING:
@@ -91,12 +92,7 @@ class UserActivated(DomainEvent):
             )
 
 @dataclass(frozen=True, kw_only=True)
-class UserSuspended(DomainEvent):
-
-    from_state: UserState
-    actor_id:str
-    to_state: UserState
-    justification: str | None = None
+class UserSuspended(UserStateChanged):
 
     def __post_init__(self):
         if self.from_state !=  UserState.ACTIVE:
@@ -119,15 +115,9 @@ class UserSuspended(DomainEvent):
                     'expected_state': UserState.SUSPENDED.value
                 }
             )
-
-
+        
 @dataclass(frozen=True, kw_only=True)
-class UserInactivated(DomainEvent):
-
-    from_state: UserState
-    actor_id:str
-    to_state: UserState
-    justification: str | None = None
+class UserInactivated(UserStateChanged):
 
     def __post_init__(self):
         if self.from_state not in (UserState.ACTIVE, UserState.SUSPENDED):
@@ -151,18 +141,10 @@ class UserInactivated(DomainEvent):
                     'expected_state': UserState.INACTIVE.value,
                 }
             )
-
-
 @dataclass(frozen=True, kw_only=True)
-class UserUnlocked(DomainEvent):
-
-    from_state: UserState
-    actor_id:str
-    to_state: UserState
-    justification: str | None = None
+class UserUnlocked(UserStateChanged):
 
     def __post_init__(self):
-
         if self.from_state !=  UserState.SUSPENDED:
             raise InvalidStateTransitionError(
                 code="invalid_event_state",
