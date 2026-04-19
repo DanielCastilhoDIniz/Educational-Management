@@ -2,7 +2,7 @@
 
 ## Status
 
-**Concluido** — TASKs 1 a 7 e 9 implementadas. TASK 8 parcialmente pendente (testes de integracao do adapter).
+**Concluido** — TASKs  implementadas. .
 
 ## Objetivo
 
@@ -99,7 +99,7 @@ Este plano foca principalmente em:
 **Escopo executado**
 
 - `IntegrityError` tratado explicitamente no adapter
-- duplicidade confirmada por `pgcode == "23505"` e `constraint_name == "unique_enrollment"`
+- duplicidade confirmada por `pgcode == "23505"`
 - ausencia de evidencia suficiente cai em `EnrollmentTechnicalPersistenceError`
 
 ### TASK 5 - Separar integridade inesperada de falha de banco [CONCLUIDA]
@@ -107,10 +107,10 @@ Este plano foca principalmente em:
 **Escopo executado**
 
 - ramo proprio para `IntegrityError` nao duplicado com `code=ENROLLMENT_CREATION_FAILED`
-- ramo proprio para `DatabaseError` com `code=ENROLLMENT_CREATION_FAILED`
+- ramo proprio para `DatabaseError` com `code=DATABASE_ERROR`
 - mensagens distintas para diagnostico
 
-### TASK 6 - Remover catch generico do create() [CONCLUIDA]
+### TASK 6 - Remover catch genérico do create() [CONCLUIDA]
 
 **Escopo executado**
 
@@ -127,7 +127,7 @@ Este plano foca principalmente em:
 - logica de pre-check removida
 - `finalize_state_change` alinhado ao mesmo contrato para o fluxo de `save()`
 
-### TASK 8 - Atualizar testes do fluxo de criacao [PARCIALMENTE CONCLUIDA]
+### TASK 8 - Atualizar testes do fluxo de criacao [CONCLUIDA]
 
 **Escopo executado**
 

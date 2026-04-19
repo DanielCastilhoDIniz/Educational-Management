@@ -245,7 +245,7 @@ def finalize_state_change(
             action=action,
             current_state=enrollment.state,
             message=persistence_failure_message,
-            code=ErrorCodes.DATA_INTEGRITY_ERROR,
+            code=cast(ErrorCodes, e.code),
             err=e,
         )
     except EnrollmentTechnicalPersistenceError as e:
@@ -254,7 +254,7 @@ def finalize_state_change(
             action=action,
             current_state=enrollment.state,
             message=persistence_failure_message,
-            code=ErrorCodes.DATABASE_ERROR,
+            code=cast(ErrorCodes, e.code),
             err=e,
         )
 

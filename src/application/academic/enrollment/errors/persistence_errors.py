@@ -1,5 +1,10 @@
 class ApplicationPersistenceError(Exception):
-    """Base exception for persistence-related errors in the enrollment application."""
+    """Base exception for persistence-related errors in the enrollment application.
+       code tipada como str para permitir flexibilidade na definição de códigos de erro 
+       específicos por cenário, sem amarrar a um enum específico. O código deve ser 
+       escolhido de forma consistente para facilitar o tratamento e a análise dos erros em toda a aplicação.
+       use o padrão de tipo estrito: cast(ErrorCodes, e.code) no call site"""
+    
     code: str
     message: str
 

@@ -88,12 +88,12 @@ class DjangoEnrollmentRepository(EnrollmentRepository):
 
         Raises:
             EnrollmentPersistenceNotFoundError:
-                If the enrollment snapshot does not exist.
+            If the enrollment snapshot does not exist.
             ConcurrencyConflictError:
-                If the snapshot exists but the persisted version differs from
-                the aggregate origin version.
+            If the snapshot exists but the persisted version differs from
+            the aggregate origin version.
             EnrollmentTechnicalPersistenceError:
-                For integrity, database-level technical failures or missing  transitions list.
+            For integrity, database-level technical failures or missing  transitions list.
         """
         # Extracting aggregate metadata for persistence logic
         origin_id = enrollment.id
@@ -183,7 +183,6 @@ class DjangoEnrollmentRepository(EnrollmentRepository):
                     ).save()
                     return new_version
         
-        # Raise conflict error if the version in the DB is different
         except (EnrollmentPersistenceNotFoundError, ConcurrencyConflictError):
             raise
 
@@ -233,6 +232,12 @@ class DjangoEnrollmentRepository(EnrollmentRepository):
             # O diag.constraint_name depende da versão do driver
             diag = getattr(cause, "diag", None)
             constraint = getattr(diag, "constraint_name", None) if diag else None
+
+            # No fluxo atual de create(), uma unique violation do PostgreSQL (23505)
+            # corresponde apenas aos cenários de duplicidade que este contrato trata
+            # de forma uniforme: colisão explícita de id ou duplicidade da business key.
+            # Se este model passar a ter outras unique constraints com semântica diferente,
+            # esta regra deve ser endurecida para também inspecionar o constraint_name.
 
             if pg_code == "23505":
                 raise EnrollmentDuplicationError(

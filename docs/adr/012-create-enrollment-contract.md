@@ -105,7 +105,7 @@ Adotar um contrato de criacao separado do contrato de update.
 - `institution_id` ja e obrigatorio no service e no aggregate
 - `EnrollmentCreated` ja foi adotado e ja e emitido no domínio
 - o pre-check saiu do fluxo principal de criação
-- o adapter principal Django ainda esta em consolidação
+- o adapter principal Django esta consolidado
 - a classificação conservadora de duplicidade ainda depende de observação do
   `IntegrityError` real em runtime
 - o contrato textual do port ainda precisa ser lapidado para refletir esse ADR

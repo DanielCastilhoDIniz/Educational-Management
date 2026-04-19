@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import cast
 
 from application.academic.enrollment.dto.errors.error_codes import ErrorCodes
 from application.academic.enrollment.dto.results import ApplicationResult
@@ -52,7 +53,6 @@ class CreateEnrollment:
             occurred_at=occurred_at
         )
 
-
         try:
             self.repo.create(enrollment)
         except EnrollmentDuplicationError as e:
@@ -70,8 +70,8 @@ class CreateEnrollment:
                 enrollment_id=enrollment.id,
                 action="create",
                 current_state=enrollment.state,
-                code=ErrorCodes.ENROLLMENT_CREATION_FAILED,
-                message="Failed to create enrollment due to a database error.",
+                code=cast(ErrorCodes, e.code),
+                message="Failed to create enrollment due to a technical persistence error.",
                 err=e,
             )
         
