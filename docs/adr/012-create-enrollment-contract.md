@@ -155,13 +155,13 @@ Adotar um contrato de criacao separado do contrato de update.
 - [x] O contrato de criação ficou alinhado aos ADRs 005, 006, 008, 009 e 013.
 
 ## Checklist de testes
-- [ ] Existe teste de integração do adapter para criação bem-sucedida.
+- [x] Existe teste de integração do adapter para criação bem-sucedida.
 - [x] Existe teste garantindo `version = 1` na criação.
 - [x] Existe teste garantindo estado inicial correto apos criação no domínio.
-- [ ] Existe teste de investigação para observar o `IntegrityError` real em colisao de `id`.
-- [ ] Existe teste de investigação para observar o `IntegrityError` real em duplicidade por business key.
-- [ ] Existe teste de duplicidade tipada no adapter apos a regra final de classificação.
-- [ ] Existe teste para falha técnica sem persistencia parcial.
+- [x] Existe teste de investigação para observar o `IntegrityError` real em colisao de `id`.
+- [x] Existe teste de investigação para observar o `IntegrityError` real em duplicidade por business key.
+- [x] Existe teste de duplicidade tipada no adapter apos a regra final de classificação.
+- [ x] Existe teste para falha técnica sem persistencia parcial.
 - [x] Existe teste garantindo que criação nao reutiliza indevidamente o fluxo de update.
 - [x] Existe teste para evento `EnrollmentCreated`.
 

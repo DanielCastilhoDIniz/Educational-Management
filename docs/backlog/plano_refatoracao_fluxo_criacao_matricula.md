@@ -42,7 +42,6 @@ Este plano foca principalmente em:
     suficiente.
 14. Evidencia tecnica suficiente significa:
     - `pgcode == "23505"` (unique violation no PostgreSQL)
-    - `constraint_name == "unique_enrollment"`
     - combinacao dos dois, nao apenas suspeita
 15. Se houver `IntegrityError` sem evidencia tecnica suficiente de duplicidade,
     o erro cai em `EnrollmentTechnicalPersistenceError`.
@@ -162,5 +161,5 @@ Este plano foca principalmente em:
 5. ~~TASK 5~~ concluida
 6. ~~TASK 6~~ concluida
 7. ~~TASK 7~~ concluida
-8. TASK 8 — pendente: testes de integracao do adapter
+8. ~~TASK 8~~ concluida
 9. ~~TASK 9~~ concluida
