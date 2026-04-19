@@ -124,12 +124,12 @@ Campos obrigatorios do `UserTransition`:
 - Atualizar pre-condicao de `VincularUsuarioAInstituicaoEPapel`: exigir `User` em `ACTIVE`
 
 ## Checklist de Implementacao
-- [ ] Aggregate `User` com todos os campos definidos neste ADR
+- [x] Aggregate `User` com todos os campos definidos neste ADR
 - [ ] VO `LegalIdentity` com validacao de tipo e emissor
 - [X] `UserState` enum com quatro estados
 - [x] `UserTransition` Value Object implementado
-- [ ] Factory method `User.create()` nasce em `PENDING`
-- [ ] Validacao de `guardian_id` obrigatorio para menores delegada para a Application
+- [x] Factory method `User.create()` nasce em `PENDING`
+- [x] Validacao de `guardian_id` obrigatorio para menores delegada para a Application
 - [ ] Chave de negocio `(identity_type, identity_number)` com constraint no banco
 - [ ] `UserModel` carrega FK para `auth.User` do Django
 

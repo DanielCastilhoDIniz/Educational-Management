@@ -108,7 +108,12 @@ class DjangoEnrollmentRepository(EnrollmentRepository):
         new_version = origin_version + 1
         now = datetime.now(UTC)
 
-
+        if not enrollment.transitions:
+            raise EnrollmentTechnicalPersistenceError(
+                code=ErrorCodes.MISSING_TRANSITIONS,
+                message="No transitions to persist for the enrollment.",
+                details={"enrollment_id": enrollment.id},
+            )
         try:
             # Atomic block to ensure Snapshot and Transition are persisted together
             with transaction.atomic():
@@ -218,16 +223,18 @@ class DjangoEnrollmentRepository(EnrollmentRepository):
                 snapshot.save()
                 
                 return snapshot.version
+
             
         except IntegrityError as e:
             # 1. Tenta extrair informações do Postgres (psycopg2/psycopg)
             cause = getattr(e, "__cause__", None)
             pg_code = getattr(cause, "pgcode", None)
+
             # O diag.constraint_name depende da versão do driver
             diag = getattr(cause, "diag", None)
             constraint = getattr(diag, "constraint_name", None) if diag else None
 
-            if pg_code == "23505"and  constraint == "unique_enrollment":
+            if pg_code == "23505":
                 raise EnrollmentDuplicationError(
                     code=ErrorCodes.DUPLICATE_ENROLLMENT,
                     message="An enrollment with the same identifiers already exists.",
@@ -244,8 +251,10 @@ class DjangoEnrollmentRepository(EnrollmentRepository):
             
         except DatabaseError as e:
             raise EnrollmentTechnicalPersistenceError(
-                code=ErrorCodes.ENROLLMENT_CREATION_FAILED,
+                code=ErrorCodes.DATABASE_ERROR,
                 message="Failed to create enrollment due to a database error.",
                 details={"error": str(e)},
             ) from e
+        
+        
     

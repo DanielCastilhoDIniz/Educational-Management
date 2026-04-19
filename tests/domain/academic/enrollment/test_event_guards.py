@@ -124,4 +124,4 @@ def test_enrollment_reactivated_rejects_wrong_origin_state() -> None:
 
     err = exc_info.value
     assert err.code == "invalid_origin_state"
-    assert err.message == "Rule 4.2: Reactivation is only allowed from the LOCKED state."
+    assert err.message == "Rule 4.2: Reactivation is only allowed from the SUSPENDED state."

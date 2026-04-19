@@ -12,9 +12,7 @@ from __future__ import annotations
 
 from typing import Protocol, cast
 
-from application.shared.application_error import ApplicationError
 from application.academic.enrollment.dto.errors.error_codes import ErrorCodes
-from application.shared.errors.error_codes import SharedErrorCodes
 from application.academic.enrollment.dto.results import ApplicationResult
 from application.academic.enrollment.errors.domain_error_mapper import to_application_error
 from application.academic.enrollment.errors.persistence_errors import (
@@ -23,10 +21,12 @@ from application.academic.enrollment.errors.persistence_errors import (
     EnrollmentTechnicalPersistenceError,
 )
 from application.academic.enrollment.ports.enrollment_repository import EnrollmentRepository
+from application.shared.application_error import ApplicationError
+from application.shared.errors.error_codes import SharedErrorCodes
 from domain.academic.enrollment.entities.enrollment import Enrollment
+from domain.academic.enrollment.value_objects.enrollment_status import EnrollmentState
 from domain.shared.domain_error import DomainError
 from domain.shared.domain_event import DomainEvent
-from domain.academic.enrollment.value_objects.enrollment_status import EnrollmentState
 
 
 class EnrollmentLike(Protocol):
