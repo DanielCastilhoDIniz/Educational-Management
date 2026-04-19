@@ -126,8 +126,8 @@ Campos obrigatorios do `UserTransition`:
 ## Checklist de Implementacao
 - [ ] Aggregate `User` com todos os campos definidos neste ADR
 - [ ] VO `LegalIdentity` com validacao de tipo e emissor
-- [ ] `UserState` enum com quatro estados
-- [ ] `UserTransition` Value Object implementado
+- [X] `UserState` enum com quatro estados
+- [x] `UserTransition` Value Object implementado
 - [ ] Factory method `User.create()` nasce em `PENDING`
 - [ ] Validacao de `guardian_id` obrigatorio para menores delegada para a Application
 - [ ] Chave de negocio `(identity_type, identity_number)` com constraint no banco

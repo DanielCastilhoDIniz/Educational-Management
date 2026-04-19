@@ -48,6 +48,8 @@ class Enrollment:
       - StateTransition (VO)
       - DomainEvent (for integration after persistence)
     """
+    # alguns comentários tem apenas finalidade didática
+
     id: str
     institution_id: str
     student_id: str
@@ -228,9 +230,11 @@ class Enrollment:
     ) -> None:
         """
         Atomic transition: logic first, mutation last.
+        (Implements the 'Logic First, Mutation Last' pattern.)
         Ensures the aggregate never reaches an inconsistent state if an
         exception occurs during object instantiation.
         """
+
         # 1. Preparation and Validation (It can fail here without corrupting the state)
         utc_now = self._occurred_at_or_now(occurred_at)
         from_state = self.state
@@ -480,8 +484,17 @@ class Enrollment:
             actor_id: str,
             occurred_at: datetime | None = None,
     ) -> Enrollment:
+        """
+        Factory Method: The single entry point for creating a new Registration Number.
+        The use of '*' forces the passing of named arguments, avoiding ID swapping errors.
+        """
+                
         created_at = cls._occurred_at_or_now(occurred_at)
 
+
+        #Instanciação do Agregado: transforma a "planta" (classe) em um "objeto real" (memória).
+        # Aqui o objeto nasce com sua identidade única (UUID) e estado inicial obrigatório (ACTIVE).
+        # Ao executar esta linha, o Python dispara o __post_init__ para validar todas as regras.
         enrollment = cls(
             id=str(uuid4()),
             institution_id=institution_id,

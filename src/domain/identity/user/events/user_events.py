@@ -165,4 +165,3 @@ class UserUnlocked(UserStateChanged):
                     'expected_state': UserState.ACTIVE.value
                 }
             )
-

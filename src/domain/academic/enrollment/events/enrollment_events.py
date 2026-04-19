@@ -14,6 +14,7 @@ class EnrollmentConcluded(DomainEvent):
 
         Emitted when an enrollment transitions to the CONCLUDED state after
         validating business rules (attendance, grades, period closure, etc.).
+        "Rule 4.2
     """
 
     actor_id: str
@@ -112,7 +113,7 @@ class EnrollmentReactivated(DomainEvent):
         if self.from_state != EnrollmentState.SUSPENDED:
             raise InvalidStateTransitionError(
                 code="invalid_origin_state",
-                message="Rule 4.2: Reactivation is only allowed from the LOCKED state."
+                message="Rule 4.2: Reactivation is only allowed from the SUSPENDED state."
             )
         
 @dataclass(frozen=True, kw_only=True)
@@ -137,7 +138,7 @@ class EnrollmentCreated(DomainEvent):
             "class_group_id": ("invalid_class_group_id", "Enrollment must have a valid class group ID"),
             "academic_period_id": ("invalid_academic_period_id", "Enrollment must have a valid academic period ID"),
         }
-        for field_value, (code, message) in id_fields.items():
-            value = getattr(self, field_value)
+        for field_name, (code, message) in id_fields.items():
+            value = getattr(self, field_name)
             if value is None or not value.strip():
                 raise DomainError(code=code, message=message)
