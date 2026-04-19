@@ -8,7 +8,9 @@ from uuid import uuid4
 from domain.identity.user.errors.user_errors import (
     InvalidStateTransitionError,
     JustificationRequiredError,
+    UserRequiredGuardianIDError
 )
+    
 from domain.identity.user.events.user_events import (
     UserActivated,
     UserCreated,
@@ -103,6 +105,9 @@ class User:
         if self.legal_identity is None:
             raise DomainError(code="invalid_legal_identity", message="legal_identity is required")
         
+        self._assert_guardian_required(self.guardian_id)
+               
+        
         
     def _normalize_datetimes(self) -> None:
         self.created_at = self._normalize_datetime_strict(self.created_at, field_name="created_at")
@@ -136,6 +141,23 @@ class User:
                     "to": to_state.value,
                     "allowed": [s.value for s in allowed],
                 },
+            )
+
+    def _is_adult(self):
+        today = date.today()
+        age = today.year - self.birth_date.year
+
+        if (today.month, today.day) < (self.birth_date.month, self.birth_date.day):
+            age -= 1
+
+        return age >= 18
+    
+    def _assert_guardian_required(self, guardian_id: str | None) -> None:
+        if not self._is_adult() and guardian_id is None:
+            raise UserRequiredGuardianIDError(
+                code="user_requires_guardian",
+                message="User under 18 years old must have a guardian_id.",
+                details={"birth_date": self.birth_date.isoformat()}
             )
 
     def _validate_state_integrity(self) -> None:

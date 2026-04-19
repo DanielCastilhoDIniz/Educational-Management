@@ -30,14 +30,6 @@ class UserCreated(DomainEvent):
     birth_date: date
     guardian_id: str | None = None
 
-    def _is_adult(self):
-        today = date.today()
-        age = today.year - self.birth_date.year
-
-        if (today.month, today.day) < (self.birth_date.month, self.birth_date.day):
-            age -= 1
-
-        return age >= 18
 
     def __post_init__(self):
         required_fields_str = {
@@ -58,13 +50,7 @@ class UserCreated(DomainEvent):
             value = getattr(self,field_value)
             if value is None or not value:
                 raise DomainError(code=code, message=message)
-            
-        if not self._is_adult() and self.guardian_id is None:
-            raise UserRequiredGuardianIDError(
-                code="user_requires_guardian",
-                message="user under 18 years old must have a guardian_id",
-                details={"birth_date": self.birth_date.isoformat()}
-            )     
+
 
 @dataclass(frozen=True, kw_only=True)
 class UserActivated(UserStateChanged):

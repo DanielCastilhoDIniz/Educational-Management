@@ -28,6 +28,13 @@ Manter `ApplicationPersistenceError` generica e introduzir uma subclasse
 intermediaria especifica para erros de persistencia da matricula que ja sao
 seguros para expor com `ErrorCodes`.
 
+Esta refatoracao deve ser tratada como ajuste local do contexto `Enrollment`,
+nao como primeiro passo de extracao para `application/shared/`. A extracao so
+deve ser reconsiderada quando existir pelo menos um segundo contexto com a
+mesma forma de problema e a mesma mecanica de solucao.
+
+Nesta etapa, nao devem ser criadas abstracoes novas em `application/shared/`.
+
 ### Hierarquia alvo
 
 - `ApplicationPersistenceError`

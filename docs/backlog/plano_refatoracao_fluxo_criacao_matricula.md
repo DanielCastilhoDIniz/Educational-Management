@@ -160,11 +160,13 @@ Este plano foca principalmente em:
 - remover a dependencia de `cast(...)` nos services da matricula
 - manter `ApplicationPersistenceError` generica
 - introduzir uma fronteira contratual tipada apenas no contexto `academic.enrollment`
+- tratar esta refatoracao como ajuste local de contexto, nao como primeiro passo de extracao para `application/shared/`
 
 **Escopo previsto**
 
 - manter `ApplicationPersistenceError` desacoplada de `ErrorCodes`
 - criar uma subclasse intermediaria para erros de persistencia da matricula que ja podem ser expostos com `ErrorCodes`
+- nao criar abstracoes em `application/shared/` nesta etapa
 - migrar `EnrollmentDuplicationError` e `EnrollmentTechnicalPersistenceError` para essa intermediaria
 - avaliar se `ConcurrencyConflictError` e `EnrollmentPersistenceNotFoundError` devem permanecer traduzidos pela Application
 - remover `cast(...)` dos call sites em `create_enrollment.py` e `_state_change_flow.py` onde o erro ja for contratual
