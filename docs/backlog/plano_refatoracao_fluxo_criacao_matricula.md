@@ -2,7 +2,7 @@
 
 ## Status
 
-**Concluido** — TASKs  implementadas. .
+**Concluido** — TASKs 1 a 9 implementadas para o escopo atual do fluxo de criacao.
 
 ## Objetivo
 
@@ -40,19 +40,21 @@ Este plano foca principalmente em:
 12. A classificacao de duplicidade e conservadora.
 13. `EnrollmentDuplicationError` so e emitido quando houver evidencia tecnica
     suficiente.
-14. Evidencia tecnica suficiente significa:
+14. Evidencia tecnica suficiente significa, no schema atual:
     - `pgcode == "23505"` (unique violation no PostgreSQL)
-    - combinacao dos dois, nao apenas suspeita
-15. Se houver `IntegrityError` sem evidencia tecnica suficiente de duplicidade,
+    - com `constraint_name` registrado em `details` quando estiver disponivel
+15. Se o model passar a ter outras `unique constraints` com semantica diferente,
+    a regra deve ser endurecida para tambem inspecionar `constraint_name`.
+16. Se houver `IntegrityError` sem evidencia tecnica suficiente de duplicidade,
     o erro cai em `EnrollmentTechnicalPersistenceError`.
-16. `DatabaseError` e `IntegrityError` nao duplicado sao distinguidos por
+17. `DatabaseError` e `IntegrityError` nao duplicado sao distinguidos por
     `code/details` dentro de `EnrollmentTechnicalPersistenceError`.
-17. O acoplamento especifico ao PostgreSQL fica confinado ao adapter Django.
-18. A docstring do `create(...)` no port explicita:
+18. O acoplamento especifico ao PostgreSQL fica confinado ao adapter Django.
+19. A docstring do `create(...)` no port explicita:
     - que a unicidade final e garantida na persistencia
     - que duplicidade vem por `EnrollmentDuplicationError`
     - que as demais falhas vem por `EnrollmentTechnicalPersistenceError`
-19. `EnrollmentTechnicalPersistenceError` tambem e usado no `save()` para falhas
+20. `EnrollmentTechnicalPersistenceError` tambem e usado no `save()` para falhas
     tecnicas de banco, substituindo `InfrastructureError` no contrato da
     application.
 
@@ -138,11 +140,10 @@ Este plano foca principalmente em:
 - testes de service atualizados para `DATABASE_ERROR`
 - teste de infra atualizado para `EnrollmentTechnicalPersistenceError`
 
-**Pendente**
+**Observacao**
 
-- testes de integracao do adapter para criacao bem-sucedida
-- testes de duplicidade tipada no adapter com banco real
-- testes de falha tecnica no adapter com banco real
+- a suite atual ja cobre sucesso, duplicidade por business key, colisao explicita de `id` e falha tecnica tipada no adapter
+- como endurecimento futuro, ainda vale adicionar uma assercao explicita de ausencia de persistencia parcial no teste de falha tecnica
 
 ### TASK 9 - Atualizar documentacao oficial [CONCLUIDA]
 
@@ -151,6 +152,28 @@ Este plano foca principalmente em:
 - ADR 012 atualizado com `EnrollmentTechnicalPersistenceError`
 - checklists do ADR 012 atualizados
 - `criar_matricula.md` atualizado: pre-check removido, taxonomia final de erros aplicada, estado atual da implementacao corrigido
+
+### TASK 10 - Refatorar a tipagem contratual dos erros de persistencia [PLANEJADA]
+
+**Objetivo**
+
+- remover a dependencia de `cast(...)` nos services da matricula
+- manter `ApplicationPersistenceError` generica
+- introduzir uma fronteira contratual tipada apenas no contexto `academic.enrollment`
+
+**Escopo previsto**
+
+- manter `ApplicationPersistenceError` desacoplada de `ErrorCodes`
+- criar uma subclasse intermediaria para erros de persistencia da matricula que ja podem ser expostos com `ErrorCodes`
+- migrar `EnrollmentDuplicationError` e `EnrollmentTechnicalPersistenceError` para essa intermediaria
+- avaliar se `ConcurrencyConflictError` e `EnrollmentPersistenceNotFoundError` devem permanecer traduzidos pela Application
+- remover `cast(...)` dos call sites em `create_enrollment.py` e `_state_change_flow.py` onde o erro ja for contratual
+- adicionar cobertura de teste na Application para preservacao do `code` tecnico vindo do repositorio
+- alinhar a documentacao da taxonomia final
+
+**Documento de apoio**
+
+- ver [plano_refatoracao_tipagem_erros_persistencia_enrollment.md](/d:/TI/School_management/Education_manegment/docs/backlog/plano_refatoracao_tipagem_erros_persistencia_enrollment.md)
 
 ## Ordem Recomendada
 
@@ -163,3 +186,4 @@ Este plano foca principalmente em:
 7. ~~TASK 7~~ concluida
 8. ~~TASK 8~~ concluida
 9. ~~TASK 9~~ concluida
+10. TASK 10 - planejada: tipagem contratual dos erros de persistencia

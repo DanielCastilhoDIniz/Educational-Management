@@ -283,12 +283,12 @@ class Enrollment:
 
     def pull_domain_events(self) -> list[DomainEvent]:
         """
-        Return and clear pending domain events recorded by this aggregate.
-        This is a "pull" operation:
-        - returns a snapshot of `_domain_events`;
-        - clears the internal buffer (subsequent calls return an empty list).
+            Return and clear pending domain events recorded by this aggregate.
+            This is a "pull" operation:
+            - returns a snapshot of `_domain_events`;
+            - clears the internal buffer (subsequent calls return an empty list).
 
-        Intended to be called by the Application Layer once per use case.
+            Intended to be called by the Application Layer once per use case.
         """
 
         domain_events = list(self._domain_events)

@@ -7,14 +7,12 @@ from .base_models import CreatedAtModel, MutableSnapshotModel
 
 class EnrollmentModel(CreatedAtModel, MutableSnapshotModel):
     """
-        Log imutável (append-only) de transições do aggregate Enrollment.
-
-        - transition_id: identificador único para deduplicação
-        - occurred_at: timestamp do fato de domínio (UTC / tz-aware)
-        - action: comando que disparou a transição (CONCLUDE/CANCEL/SUSPEND)
-        - from_state/to_state: estados da transição
-        - actor_id: quem executou (obrigatório; pode ser 'system' em jobs via convenção na aplicação)
+    Data model to represent an enrollment in the academic system. 
+    This model is designed to be a faithful representation of the enrollment aggregate,
+    allowing for the persistence and retrieval of the enrollment state,
+    as well as the tracking of its state transitions over time.
     """
+
     objects: models.Manager["EnrollmentModel"]  # type: ignore[override]
 
     class StateChoices(models.TextChoices):
