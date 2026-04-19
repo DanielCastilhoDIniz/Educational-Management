@@ -161,7 +161,7 @@ class DjangoEnrollmentRepository(EnrollmentRepository):
                             details={
                                 "aggregate_id": enrollment.id,
                                 "expected_version": enrollment.version,
-
+                                "persisted_version": persisted_snapshot.version,
                                 }
                         )
                     else:
