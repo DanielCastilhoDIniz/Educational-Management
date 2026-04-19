@@ -119,7 +119,7 @@ class User:
     
     # matrix de transições permitidas
     ALLOWED_TRANSITIONS = {
-        UserState.PENDING:   {UserState.ACTIVE},
+        UserState.PENDING:   {UserState.ACTIVE, UserState.INACTIVE},
         UserState.ACTIVE:    {UserState.SUSPENDED, UserState.INACTIVE},
         UserState.SUSPENDED: {UserState.INACTIVE, UserState.ACTIVE},
 }

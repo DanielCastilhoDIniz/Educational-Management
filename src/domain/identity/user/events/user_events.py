@@ -120,7 +120,7 @@ class UserSuspended(UserStateChanged):
 class UserInactivated(UserStateChanged):
 
     def __post_init__(self):
-        if self.from_state not in (UserState.ACTIVE, UserState.SUSPENDED):
+        if self.from_state not in (UserState.ACTIVE, UserState.SUSPENDED, UserState.PENDING):
 
             raise InvalidStateTransitionError(
                 code="invalid_event_state",
@@ -128,7 +128,7 @@ class UserInactivated(UserStateChanged):
                 details={
                     'event': "UserInactivated",
                     'actual_state': self.from_state.value,
-                    'expected_state':f"{UserState.ACTIVE.value} or {UserState.SUSPENDED.value}"
+                    'expected_state':f"{UserState.ACTIVE.value} or {UserState.SUSPENDED.value} or {UserState.PENDING.value}"
                 }
             )
         if self.to_state !=  UserState.INACTIVE:

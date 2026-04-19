@@ -15,8 +15,8 @@ matricula e um caso de uso diferente e precisa de contrato proprio para evitar:
 - taxonomia de erros inconsistente entre port, service e adapter
 
 No estado atual do projeto, o domínio ja sabe criar a matricula, a Application
-ja expoe um fluxo proprio de criacao e o port ja possui `create(...)`, mas o
-adapter principal de infraestrutura ainda esta em consolidacao.
+ja expoe um fluxo proprio de criacao, o port ja possui `create(...)` e o
+adapter principal de infraestrutura ja esta consolidado para o fluxo atual.
 
 ## Decisao
 Adotar um contrato de criacao separado do contrato de update.
@@ -105,10 +105,10 @@ Adotar um contrato de criacao separado do contrato de update.
 - `institution_id` ja e obrigatorio no service e no aggregate
 - `EnrollmentCreated` ja foi adotado e ja e emitido no domínio
 - o pre-check saiu do fluxo principal de criação
-- o adapter principal Django esta consolidado
-- a classificação conservadora de duplicidade ainda depende de observação do
-  `IntegrityError` real em runtime
-- o contrato textual do port ainda precisa ser lapidado para refletir esse ADR
+- o adapter principal Django ja esta consolidado para o fluxo atual
+- a classificacao de duplicidade ja esta implementada com base em
+  `pgcode == "23505"` para o schema atual
+- o contrato textual do port ja reflete o fluxo atual de criacao
 
 ## Regras e invariantes
 - `save()` nao cria matricula implicitamente
@@ -161,7 +161,7 @@ Adotar um contrato de criacao separado do contrato de update.
 - [x] Existe teste de investigação para observar o `IntegrityError` real em colisao de `id`.
 - [x] Existe teste de investigação para observar o `IntegrityError` real em duplicidade por business key.
 - [x] Existe teste de duplicidade tipada no adapter apos a regra final de classificação.
-- [ x] Existe teste para falha técnica sem persistencia parcial.
+- [ ] Existe teste para falha técnica sem persistencia parcial.
 - [x] Existe teste garantindo que criação nao reutiliza indevidamente o fluxo de update.
 - [x] Existe teste para evento `EnrollmentCreated`.
 
