@@ -100,6 +100,8 @@ def test_create_enrollment_infra_fail_raises_EnrollmentTechnicalPersistenceError
     assert exc_info.value.code == ErrorCodes.DATABASE_ERROR
     assert exc_info.value.message == "Failed to create enrollment due to a database error."
     assert exc_info.value.details == {"error": "db error"}
+    assert EnrollmentModel.objects.count() == 0
+    assert EnrollmentTransitionModel.objects.count() == 0
     
 @pytest.mark.django_db
 def test_create_enrollment_with_enrollment_keys_collision():
