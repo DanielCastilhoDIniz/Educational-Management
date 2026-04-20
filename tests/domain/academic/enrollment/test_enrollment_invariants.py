@@ -3,8 +3,8 @@ from datetime import UTC, datetime
 import pytest
 
 from domain.academic.enrollment.entities.enrollment import Enrollment
-from domain.shared.domain_error import DomainError
 from domain.academic.enrollment.value_objects.enrollment_status import EnrollmentState
+from domain.shared.domain_error import DomainError
 
 
 def make_enrollment(*, state: EnrollmentState = EnrollmentState.ACTIVE) -> Enrollment:
