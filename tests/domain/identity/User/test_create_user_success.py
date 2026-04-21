@@ -1,7 +1,5 @@
 from datetime import UTC, date, datetime
 
-import pytest
-
 from domain.identity.user.entities.user import User
 from domain.identity.user.events.user_events import UserCreated
 from domain.identity.user.value_objects.legal_identity import LegalIdentity, LegalIdentityType
