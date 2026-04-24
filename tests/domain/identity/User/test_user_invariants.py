@@ -4,7 +4,6 @@ import pytest
 
 from domain.identity.user.entities.user import User
 from domain.identity.user.errors.user_errors import UserRequiredGuardianIDError
-from domain.identity.user.events.user_events import UserCreated
 from domain.identity.user.value_objects.legal_identity import LegalIdentity, LegalIdentityType
 from domain.identity.user.value_objects.user_state import UserState
 from domain.shared.domain_error import DomainError

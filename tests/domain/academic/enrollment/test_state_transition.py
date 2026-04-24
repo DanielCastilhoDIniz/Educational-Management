@@ -2,9 +2,9 @@ from datetime import UTC, datetime
 
 import pytest
 
-from domain.shared.domain_error import DomainError
 from domain.academic.enrollment.value_objects.enrollment_status import EnrollmentState
 from domain.academic.enrollment.value_objects.state_transition import StateTransition
+from domain.shared.domain_error import DomainError
 
 
 def test_rejects_none_occurred_at() -> None:
@@ -51,7 +51,6 @@ def test_normalizes_naive_occurred_at_to_utc() -> None:
 
     assert transition.occurred_at.tzinfo == UTC
     assert transition.occurred_at == occurred_at.replace(tzinfo=UTC)
-
 
 def test_rejects_same_from_and_to_state() -> None:
     with pytest.raises(DomainError) as exc_info:

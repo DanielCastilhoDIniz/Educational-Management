@@ -8,9 +8,8 @@ from uuid import uuid4
 from domain.identity.user.errors.user_errors import (
     InvalidStateTransitionError,
     JustificationRequiredError,
-    UserRequiredGuardianIDError
+    UserRequiredGuardianIDError,
 )
-    
 from domain.identity.user.events.user_events import (
     UserActivated,
     UserCreated,
@@ -342,6 +341,7 @@ class User:
         create_event = UserCreated(
             aggregate_id=user.id,
             actor_id=user.created_by,
+            occurred_at=created_at,
             legal_identity=user.legal_identity,
             full_name=user.full_name,
             email=user.email,
