@@ -170,7 +170,7 @@ class User:
                 ["suspended_at"],
             ),
             UserState.INACTIVE: (
-                ["inactivated_at"]
+                ["inactivated_at"],
             ),
             UserState.PENDING: (
                 ["created_at"],              
@@ -425,7 +425,7 @@ class User:
         self._assert_transition_allowed(UserState.ACTIVE)
         if self.state != UserState.SUSPENDED:
             raise InvalidStateTransitionError(
-                code="invalid_event_state",
+                code="invalid_state_transition",
                 message="User can only be unlocked from SUSPENDED state",
                 details={
                     'event': "UserUnlocked",

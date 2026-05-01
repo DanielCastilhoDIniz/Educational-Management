@@ -1,15 +1,17 @@
-from dataclasses import fields
+
 from datetime import UTC, date, datetime, timedelta
 
 import pytest
 
 from domain.identity.user.entities.user import User
-from domain.identity.user.errors.user_errors import UserRequiredGuardianIDError
+from domain.identity.user.errors.user_errors import (
+    JustificationRequiredError,
+    UserRequiredGuardianIDError,
+)
+from domain.identity.user.events.user_events import UserCreated
 from domain.identity.user.value_objects.legal_identity import LegalIdentity, LegalIdentityType
 from domain.identity.user.value_objects.user_state import UserState
 from domain.shared.domain_error import DomainError
-from domain.identity.user.errors.user_errors import JustificationRequiredError
-
 
 # ---------------------------------helper---------------------------------------
 
@@ -57,6 +59,7 @@ def make_valid_rehydrate_kwargs():
 def test_create_user_raises_error_for_user_minors_without_guardian():
       
     with pytest.raises(UserRequiredGuardianIDError) as exc_info:
+        
         user = User.create(
             legal_identity=LegalIdentity(
                 identity_type=LegalIdentityType.CPF,
@@ -161,3 +164,60 @@ def test_validate_justification_required_for_state_transitions(make_user, state,
     with pytest.raises(JustificationRequiredError) as exc_info:
         command(user)
     assert exc_info.value.code == expected_code
+
+def test_normalizes_naive_create_at_to_utc_in_rehydrate() -> None:
+    create_at = datetime(2026, 1, 15, 10, 30, 0)
+    kwargs = make_valid_rehydrate_kwargs()
+    kwargs["created_at"] = create_at  # Simulate a naive datetime input during rehydration
+
+    user = User(**kwargs)
+
+    assert user.created_at is not None
+    assert user.created_at.tzinfo == UTC
+    assert user.created_at == create_at.replace(tzinfo=UTC)
+
+    
+# -------------------invariants for create user -------------------
+
+def test_create_user_without_email_success():
+    # Arrange
+    user = User.create(
+        legal_identity=LegalIdentity(
+            identity_type=LegalIdentityType.CPF,
+            identity_number="12345678912",
+            identity_issuer="PB"
+        ),
+        full_name="user-1",
+        birth_date=date(1990, 1, 1),
+        created_by="actor-1",
+        occurred_at=datetime.now(UTC)
+    
+    )
+
+    # Assert
+    assert isinstance(user, User)
+    assert user.state == UserState.PENDING
+    assert user.activated_at is None
+    assert user.suspended_at is None
+    assert user.inactivated_at is None
+    assert user.created_at is not None
+    assert user.created_by == "actor-1"
+    assert user.full_name == "user-1"
+    assert user.birth_date == date(1990, 1, 1)
+
+    assert user.email is None
+    assert len(user._domain_events) == 1
+    assert len(user.transitions) == 0
+    
+    e = user._domain_events[-1]
+
+    assert isinstance(e, UserCreated)
+    assert e.aggregate_id == user.id
+    assert e.actor_id == "actor-1"
+    assert e.full_name == "user-1"
+    assert e.birth_date == date(1990, 1, 1)
+    assert e.occurred_at is not None
+    assert e.occurred_at == user.created_at
+    assert e.event_id is not None
+
+

@@ -4,7 +4,6 @@ from datetime import date
 
 from domain.identity.user.errors.user_errors import (
     InvalidStateTransitionError,
-    UserRequiredGuardianIDError,
 )
 from domain.identity.user.value_objects.legal_identity import LegalIdentity
 from domain.identity.user.value_objects.user_state import UserState
@@ -58,7 +57,7 @@ class UserActivated(UserStateChanged):
     def __post_init__(self):
         if self.from_state !=  UserState.PENDING:
             raise InvalidStateTransitionError(
-                code="invalid_event_state",
+                code="invalid_state_transition",
                 message="UserActivated event must have from_state=PENDING",
                 details={
                     'event': "UserActivated",
@@ -68,7 +67,7 @@ class UserActivated(UserStateChanged):
             )
         if self.to_state !=  UserState.ACTIVE:
             raise InvalidStateTransitionError(
-                code="invalid_event_state",
+                code="invalid_state_transition",
                 message="UserActivated event must have to_state=ACTIVE",
                 details={
                     'event': "UserActivated",
@@ -83,7 +82,7 @@ class UserSuspended(UserStateChanged):
     def __post_init__(self):
         if self.from_state !=  UserState.ACTIVE:
             raise InvalidStateTransitionError(
-                code="invalid_event_state",
+                code="invalid_state_transition",
                 message="UserSuspended event must have from_state=ACTIVE",
                 details={
                     'event': "UserSuspended",
@@ -93,7 +92,7 @@ class UserSuspended(UserStateChanged):
             )
         if self.to_state !=  UserState.SUSPENDED:
             raise InvalidStateTransitionError(
-                code="invalid_event_state",
+                code="invalid_state_transition",
                 message="UserSuspended event must have to_state=SUSPENDED",
                 details={
                     'event': "UserSuspended",
@@ -109,7 +108,7 @@ class UserInactivated(UserStateChanged):
         if self.from_state not in (UserState.ACTIVE, UserState.SUSPENDED, UserState.PENDING):
 
             raise InvalidStateTransitionError(
-                code="invalid_event_state",
+                code="invalid_state_transition",
                 message="UserInactivated event must have from_state=ACTIVE or SUSPENDED",
                 details={
                     'event': "UserInactivated",
@@ -119,7 +118,7 @@ class UserInactivated(UserStateChanged):
             )
         if self.to_state !=  UserState.INACTIVE:
             raise InvalidStateTransitionError(
-                code="invalid_event_state",
+                code="invalid_state_transition",
                 message="UserInactivated event must have to_state=INACTIVE",
                 details={
                     'event': "UserInactivated",
@@ -133,7 +132,7 @@ class UserUnlocked(UserStateChanged):
     def __post_init__(self):
         if self.from_state !=  UserState.SUSPENDED:
             raise InvalidStateTransitionError(
-                code="invalid_event_state",
+                code="invalid_state_transition",
                 message="UserUnlocked event must have from_state=SUSPENDED",
                 details={
                     'event': "UserUnlocked",
@@ -143,7 +142,7 @@ class UserUnlocked(UserStateChanged):
             )
         if self.to_state !=  UserState.ACTIVE:
             raise InvalidStateTransitionError(
-                code="invalid_event_state",
+                code="invalid_state_transition",
                 message="UserUnlocked event must have to_state=ACTIVE",
                 details={
                     'event': "UserUnlocked",

@@ -2,6 +2,7 @@ from datetime import UTC, datetime
 
 import pytest
 
+from domain.identity.user.errors.user_errors import InvalidStateTransitionError
 from domain.identity.user.value_objects.user_state import UserState
 from domain.identity.user.value_objects.user_transition import UserTransition
 from domain.shared.domain_error import DomainError
@@ -94,21 +95,23 @@ def test_valid_state_transition() -> None:
       (UserState.PENDING, lambda u: u.suspend(actor_id="admin-1", justification="Violation of terms"), "invalid_state_transition"),
         (UserState.ACTIVE, lambda u:u.activate(actor_id="admin-1"), "invalid_state_transition"),
         (UserState.SUSPENDED, lambda u:u.suspend(actor_id="admin-1", justification="Repeated violation"), "invalid_state_transition"),
+      (UserState.PENDING, lambda u: u.unlock(actor_id="admin-1", justification="Justification required"), "invalid_state_transition"),
+        (UserState.ACTIVE, lambda u:u.unlock(actor_id="admin-1", justification="Justification required"), "invalid_state_transition"),
     
     ])
 
 def test_forbidden_transitions(make_user, state, command, expected_code):
     user = make_user(state=state)
-    with pytest.raises(DomainError) as exc_info:
+    with pytest.raises(InvalidStateTransitionError) as exc_info:
         command(user)
     assert exc_info.value.code == expected_code
 
    
-def test_raises_invalid_state_transition(make_user) -> None:
+def test_raises_invalid_event_state(make_user) -> None:
     user  = make_user(state=UserState.PENDING)
 
     
-    with pytest.raises(DomainError) as exc_info:
+    with pytest.raises(InvalidStateTransitionError) as exc_info:
         user.suspend(
             actor_id="admin-1",
             justification="Violation of terms")
