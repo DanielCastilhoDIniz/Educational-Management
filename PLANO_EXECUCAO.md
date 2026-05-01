@@ -68,11 +68,11 @@
 
 ### Qui 01/05
 
-- [ ] Implementar `UserRepository` (port abstrato)
-- [ ] Implementar `ErrorCodes` (enum de códigos do contexto User)
-- [ ] Implementar `ApplicationResult` (DTO de retorno dos services)
-- [ ] Implementar `DomainErrorMapper` (traduz `DomainError` → `ApplicationError`)
-- [ ] Implementar `PersistenceErrors` (hierarquia de erros de persistência do User)
+- [x] Implementar `UserRepository` (port abstrato)
+- [x] Implementar `ErrorCodes` (enum de códigos do contexto User)
+- [x] Implementar `ApplicationResult` (DTO de retorno dos services)
+- [x] Implementar `DomainErrorMapper` (traduz `DomainError` → `ApplicationError`)
+- [x] Implementar `PersistenceErrors` (hierarquia de erros de persistência do User)
 
 ---
 
