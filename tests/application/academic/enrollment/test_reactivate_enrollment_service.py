@@ -6,7 +6,7 @@ from application.academic.enrollment.services.reactivate_enrollment import (
 )
 from domain.academic.enrollment.events.enrollment_events import EnrollmentReactivated
 from domain.academic.enrollment.value_objects.enrollment_status import EnrollmentState
-from tests.application.fakes import (
+from tests.application.academic.enrollment.fakes import (
     FailingEnrollmentRepository,
     InMemoryEnrollmentRepository,
     ScriptedEnrollment,

@@ -78,11 +78,11 @@
 
 ### Sex 02/05
 
-- [ ] Implementar fake `InMemoryUserRepository`
-- [ ] Implementar `CreateUser` service
-- [ ] Teste: criação bem-sucedida retorna resultado com sucesso e evento
-- [ ] Teste: duplicidade levanta erro de duplicação
-- [ ] Teste: falha técnica de persistência retorna resultado com erro
+- [x] Implementar fake `InMemoryUserRepository`
+- [x] Implementar `CreateUser` service
+- [x] Teste: criação bem-sucedida retorna resultado com sucesso e evento
+- [x] Teste: duplicidade levanta erro de duplicação
+- [x] Teste: falha técnica de persistência retorna resultado com erro
 
 ---
 

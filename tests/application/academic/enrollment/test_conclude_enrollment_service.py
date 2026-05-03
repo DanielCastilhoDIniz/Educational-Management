@@ -5,7 +5,7 @@ from application.academic.enrollment.services.conclude_enrollment import Conclud
 from domain.academic.enrollment.events.enrollment_events import EnrollmentConcluded
 from domain.academic.enrollment.value_objects.conclusion_verdict import ConclusionVerdict
 from domain.academic.enrollment.value_objects.enrollment_status import EnrollmentState
-from tests.application.fakes import (
+from tests.application.academic.enrollment.fakes import (
     FailingEnrollmentRepository,
     InMemoryEnrollmentRepository,
     ScriptedEnrollment,

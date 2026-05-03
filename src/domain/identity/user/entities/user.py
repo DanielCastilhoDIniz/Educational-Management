@@ -66,6 +66,9 @@ class User:
     inactivated_at: datetime | None = None
     unlocked_at: datetime | None = None
 
+    version: int = 1
+
+
     transitions: list[UserTransition] = field(default_factory=list)
     _domain_events: list[DomainEvent] = field(default_factory=list)
 

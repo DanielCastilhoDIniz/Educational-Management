@@ -3,8 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from application.shared.application_error import ApplicationError
-from domain.shared.domain_event import DomainEvent
 from domain.academic.enrollment.value_objects.enrollment_status import EnrollmentState
+from domain.shared.domain_event import DomainEvent
 
 
 @dataclass(frozen=True, kw_only=True)

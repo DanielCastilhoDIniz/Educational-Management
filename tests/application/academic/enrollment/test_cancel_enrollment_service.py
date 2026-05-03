@@ -4,7 +4,7 @@ from application.academic.enrollment.dto.errors.error_codes import ErrorCodes
 from application.academic.enrollment.services.cancel_enrollment import CancelEnrollmentService
 from domain.academic.enrollment.events.enrollment_events import EnrollmentCancelled
 from domain.academic.enrollment.value_objects.enrollment_status import EnrollmentState
-from tests.application.fakes import (
+from tests.application.academic.enrollment.fakes import (
     FailingEnrollmentRepository,
     InMemoryEnrollmentRepository,
     ScriptedEnrollment,
