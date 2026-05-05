@@ -88,11 +88,11 @@
 
 ### Sáb 03/05
 
-- [ ] Implementar `ActivateUser` service
-- [ ] Testes do `ActivateUser`: sucesso, user não encontrado, transição inválida, falha de persistência
-- [ ] Implementar `SuspendUser` service
-- [ ] Testes do `SuspendUser`: sucesso, user não encontrado, transição inválida, falha de persistência
-- [ ] Commit geral da semana
+- [x] Implementar `ActivateUser` service
+- [x] Testes do `ActivateUser`: sucesso, user não encontrado, transição inválida, falha de persistência
+- [x] Implementar `SuspendUser` service
+- [x] Testes do `SuspendUser`: sucesso, user não encontrado, transição inválida, falha de persistência
+- [x] Commit geral da semana
 
 ---
 

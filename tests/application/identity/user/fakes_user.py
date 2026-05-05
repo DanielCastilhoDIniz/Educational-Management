@@ -61,6 +61,10 @@ class InMemoryUserRepository:
         self.items[user.id] = user
         self.save_calls += 1
         return user.version
+    
+    def seed(self, user: HasAggregateId) -> None:
+        self.items[user.id] = user
+    
 
     def create(self, user: User) -> int:
         if user.id in self.items:
