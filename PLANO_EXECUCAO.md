@@ -104,9 +104,9 @@
 
 ### Seg 05/05
 
-- [ ] Implementar `UnblockUser` service + testes
-- [ ] Implementar `CloseUser` service + testes
-- [ ] Application layer do User completa — todos os testes passando
+- [x] Implementar `UnblockUser` service + testes
+- [x] Implementar `CloseUser` service + testes
+- [x] Application layer do User completa — todos os testes passando
 
 ---
 

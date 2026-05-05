@@ -7,7 +7,6 @@ from application.identity.user.services._state_change_flow import (
     build_not_found_result,
     finalize_state_change,
 )
-from domain.identity.user.entities.user import User
 from domain.shared.domain_error import DomainError
 
 
