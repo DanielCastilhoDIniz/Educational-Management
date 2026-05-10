@@ -2,7 +2,10 @@ import uuid
 
 from django.db import models
 
-from .base_models import CreatedAtModel, MutableSnapshotModel
+from apps.shared.models.base_models import (
+    CreatedAtModel,
+    MutableSnapshotModel,
+)
 
 
 class EnrollmentModel(CreatedAtModel, MutableSnapshotModel):

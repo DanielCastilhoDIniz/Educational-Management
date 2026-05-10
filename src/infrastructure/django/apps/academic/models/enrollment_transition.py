@@ -3,7 +3,7 @@ import uuid
 from django.db import models
 from django.utils import timezone
 
-from .base_models import CreatedAtModel
+from apps.shared.models.base_models import CreatedAtModel
 
 
 class EnrollmentTransitionModel(CreatedAtModel):

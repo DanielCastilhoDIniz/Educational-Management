@@ -44,6 +44,7 @@ THIRD_PARTY_APPS = [
 
 LOCAL_APPS = [
     "apps.academic.apps.AcademicConfig",
+    "apps.identity.apps.IdentityConfig",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
