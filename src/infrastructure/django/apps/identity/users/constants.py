@@ -1,0 +1,3 @@
+import uuid
+
+IDENTITY_USER_TRANSITION_NS = uuid.UUID("02af263c-715d-4319-8e7e-b981d985364a")
