@@ -2,15 +2,11 @@ import uuid
 
 from apps.identity.models.user_model import UserModel
 from apps.identity.models.user_transition_model import UserTransitionModel
+from apps.identity.users.transition_id import make_user_transition_id
 from domain.identity.user.entities.user import User
+from domain.identity.user.value_objects.legal_identity import LegalIdentity, LegalIdentityType
 from domain.identity.user.value_objects.user_state import UserState
 from domain.identity.user.value_objects.user_transition import UserTransition
-
-from apps.identity.users.transition_id import make_user_transition_id
-
-from domain.identity.user.value_objects.legal_identity import LegalIdentity, LegalIdentityType
-
-
 
 
 class UserMapper:

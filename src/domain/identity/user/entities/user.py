@@ -37,7 +37,6 @@ class UserEventFactory(Protocol):
     ) -> DomainEvent:
         ...
 
-
         
 @dataclass
 class User:
@@ -68,10 +67,8 @@ class User:
 
     version: int = 1
 
-
     transitions: list[UserTransition] = field(default_factory=list)
     _domain_events: list[DomainEvent] = field(default_factory=list)
-
 
 # validation and invariants
     def __post_init__(self) -> None:
@@ -108,8 +105,7 @@ class User:
             raise DomainError(code="invalid_legal_identity", message="legal_identity is required")
         
         self._assert_guardian_required(self.guardian_id)
-               
-        
+                  
         
     def _normalize_datetimes(self) -> None:
         self.created_at = self._normalize_datetime_strict(self.created_at, field_name="created_at")
