@@ -15,7 +15,9 @@ from apps.academic.models.enrollment_model import EnrollmentModel
 from apps.academic.models.enrollment_transition import EnrollmentTransitionModel
 from domain.academic.enrollment.entities.enrollment import Enrollment
 
+ # **** The comments in Portuguese are temporary and for educational purposes.*****
 
+ 
 class DjangoEnrollmentRepository(EnrollmentRepository):
     """
         Concrete Django implementation of the EnrollmentRepository port.
@@ -39,17 +41,23 @@ class DjangoEnrollmentRepository(EnrollmentRepository):
         Raises:
             Any mapper/persistence inconsistency exception is allowed to propagate.
         """
+
+        # 1. Recuperamos o "Estado Atual" (Snapshot) do banco.
+        # Em DDD, evitamos expor o modelo do banco (ORM) para as camadas externas.
         snapshot = EnrollmentModel.objects.filter(id=enrollment_id).first()
 
         if snapshot is None:
             return None
-
+    # 2. Recuperamos o histórico de mudanças (Audit Trail).
+    # Isso é essencial para garantir que o Agregado possa validar regras baseadas no passado.
         transitions_list = list(
             EnrollmentTransitionModel.objects.filter(enrollment=snapshot).order_by("occurred_at")
         )
-
+    # 3. Transformamos dados frios de banco em um Objeto de Domínio vivo.
+    # O Mapper isola o conhecimento sobre o Django ORM da lógica de negócio.
         return EnrollmentMapper.to_domain(snapshot=snapshot, transitions=transitions_list)
 
+    
     @staticmethod
     def _is_same_persisted_snapshot(
         *,
@@ -94,19 +102,24 @@ class DjangoEnrollmentRepository(EnrollmentRepository):
             the aggregate origin version.
             EnrollmentTechnicalPersistenceError:
             For integrity, database-level technical failures or missing  transitions list.
+         **** The comments in Portuguese are temporary and for educational purposes.*****
         """
         # Extracting aggregate metadata for persistence logic
+
+        # Definimos a nova versão baseada na atual. 
+        # Esse é o pilar da Concorrência Otimista: garantir que ninguém alterou o dado entre a leitura e a escrita.
         origin_id = enrollment.id
         origin_version = enrollment.version
+        new_version = origin_version + 1
+        now = datetime.now(UTC)
 
+        # extração para o ORM 
         state = enrollment.state.value
         concluded_at = enrollment.concluded_at
         cancelled_at = enrollment.cancelled_at
         suspended_at = enrollment.suspended_at
         reactivated_at = enrollment.reactivated_at
 
-        new_version = origin_version + 1
-        now = datetime.now(UTC)
 
         if not enrollment.transitions:
             raise EnrollmentTechnicalPersistenceError(
@@ -115,6 +128,7 @@ class DjangoEnrollmentRepository(EnrollmentRepository):
                 details={"enrollment_id": enrollment.id},
             )
         try:
+            # Iniciamos uma transação atômica: ou salvamos o estado E a transição, ou nada é gravado.
             # Atomic block to ensure Snapshot and Transition are persisted together
             with transaction.atomic():
                 updated_rows = EnrollmentModel.objects.filter(id=origin_id, version=origin_version).update(
@@ -128,6 +142,7 @@ class DjangoEnrollmentRepository(EnrollmentRepository):
                 )
 
                 # Handle cases where no rows were updated (Conflict or Not Found)
+                # Se 'updated_rows' for 0, significa que o registro sumiu ou alguém salvou uma versão nova antes de nós.
                 if updated_rows == 0:
                     persisted_snapshot = EnrollmentModel.objects.filter(id=origin_id).first()
 
@@ -137,6 +152,7 @@ class DjangoEnrollmentRepository(EnrollmentRepository):
                             enrollment_id=origin_id,
                         )
 
+                        # Se a atualização deu certo, gravamos o evento que gerou essa mudança (Append-only log).
                         if (
                             EnrollmentTransitionModel.objects.filter(
                                 transition_id=persisted_transition.transition_id
@@ -237,8 +253,8 @@ class DjangoEnrollmentRepository(EnrollmentRepository):
             # corresponde apenas aos cenários de duplicidade que este contrato trata
             # de forma uniforme: colisão explícita de id ou duplicidade da business key.
             # Se este model passar a ter outras unique constraints com semântica diferente,
-            # esta regra deve ser endurecida para também inspecionar o constraint_name.
-
+            # esta regra deve ser endurecida para também inspecionar o constraint_name.# No fluxo atual de create(), uma unique violation do PostgreSQL (23505)
+           
             if pg_code == "23505":
                 raise EnrollmentDuplicationError(
                     code=ErrorCodes.DUPLICATE_ENROLLMENT,

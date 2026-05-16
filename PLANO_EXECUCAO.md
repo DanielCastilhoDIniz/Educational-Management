@@ -19,12 +19,12 @@
 ### Concluído
 - Contexto `Enrollment` — domínio, application, infra, testes, CI/CD
 - Contexto `User` — domínio completo e testado
+- Contexto `User` — application layer completa (port, services, fakes, testes)
 
 ### Em andamento
-- Contexto `User` — testes de domínio com 8 lacunas identificadas
+- Contexto `User` — infrastructure (model, mapper, repository, testes de integração)
 
 ### Pendente
-- `User` application layer (port, services, testes)
 - `User` infrastructure (model, mapper, repository, testes)
 - Contexto `Role` — domínio + testes
 - Contexto `Institution + Course` — ADR + domínio + testes
@@ -40,7 +40,7 @@
 
 ---
 
-### Ter 29/04
+### Qua 29/04
 
 - [x] Rehydration com ACTIVE sem `activated_at` levanta `DomainError`
 - [x] Rehydration com SUSPENDED sem `suspended_at` levanta `DomainError`
@@ -52,7 +52,7 @@
 
 ---
 
-### Qua 30/04
+### Qui 30/04
 
 - [x] `inactivate()` a partir de `PENDING` — happy path
 - [x] `inactivate()` a partir de `SUSPENDED` — happy path
@@ -66,7 +66,7 @@
 
 ---
 
-### Qui 01/05
+### Sex 01/05
 
 - [x] Implementar `UserRepository` (port abstrato)
 - [x] Implementar `ErrorCodes` (enum de códigos do contexto User)
@@ -76,7 +76,7 @@
 
 ---
 
-### Sex 02/05
+### Sáb 02/05
 
 - [x] Implementar fake `InMemoryUserRepository`
 - [x] Implementar `CreateUser` service
@@ -86,7 +86,7 @@
 
 ---
 
-### Sáb 03/05
+### Dom 03/05
 
 - [x] Implementar `ActivateUser` service
 - [x] Testes do `ActivateUser`: sucesso, user não encontrado, transição inválida, falha de persistência
@@ -96,13 +96,13 @@
 
 ---
 
-## Semana 2 — 05 Mai a 10 Mai
+## Semana 2 — 05 Mai a 11 Mai
 
 **Meta da semana:** Concluir Application layer do `User`, iniciar Infrastructure e domínio do `Role`.
 
 ---
 
-### Seg 05/05
+### Ter 05/05
 
 - [x] Implementar `UnblockUser` service + testes
 - [x] Implementar `CloseUser` service + testes
@@ -110,30 +110,30 @@
 
 ---
 
-### Ter 06/05
+### Qua 06/05
 
-- [ ] Implementar `UserModel` (Django ORM)
-- [ ] Implementar `UserTransitionModel` (Django ORM)
-- [ ] Criar e aplicar migration
-
----
-
-### Qua 07/05
-
-- [ ] Implementar `UserMapper` (domínio ↔ persistence)
-- [ ] Testar mapper: aggregate → model e model → aggregate
+- [x] Implementar `UserModel` (Django ORM)
+- [x] Implementar `UserTransitionModel` (Django ORM)
+- [x] Criar e aplicar migration
 
 ---
 
-### Qui 08/05
+### Qui 07/05
 
-- [ ] Implementar `DjangoUserRepository.get_by_id()`
-- [ ] Implementar `DjangoUserRepository.save()`
-- [ ] Implementar `DjangoUserRepository.create()`
+- [x] Implementar `UserMapper` (domínio ↔ persistence)
+- [x] Testar mapper: aggregate → model e model → aggregate
 
 ---
 
-### Sex 09/05
+### Sex 08/05
+
+- [x] Implementar `DjangoUserRepository.get_by_id()`
+- [x] Implementar `DjangoUserRepository.save()`
+- [x] Implementar `DjangoUserRepository.create()`
+
+---
+
+### Sáb 09/05
 
 - [ ] Teste de integração: criar User no PostgreSQL
 - [ ] Teste de integração: rehydration via `get_by_id`
@@ -142,7 +142,7 @@
 
 ---
 
-### Sáb 10/05
+### Seg 11/05
 
 - [ ] `RoleState` — estados possíveis do Role
 - [ ] `Role` aggregate — invariantes e factory method
@@ -152,13 +152,13 @@
 
 ---
 
-## Semana 3 — 12 Mai a 17 Mai
+## Semana 3 — 12 Mai a 18 Mai
 
 **Meta da semana:** Implementar os contextos `Institution` e `Course`.
 
 ---
 
-### Seg 12/05
+### Ter 12/05
 
 - [ ] ADR para `Institution` — decisões de design documentadas
 - [ ] ADR para `Course` — decisões de design documentadas
@@ -166,20 +166,20 @@
 
 ---
 
-### Ter 13/05
+### Qua 13/05
 
 - [ ] `Institution` aggregate — invariantes, estados, factory method
 - [ ] `Institution` errors e events
 
 ---
 
-### Qua 14/05
+### Qui 14/05
 
 - [ ] Testes de domínio do `Institution`
 
 ---
 
-### Qui 15/05
+### Sex 15/05
 
 - [ ] `Course` aggregate — invariantes, factory method
 - [ ] `Course` errors e events
@@ -187,7 +187,7 @@
 
 ---
 
-### Sex 16/05
+### Sáb 16/05
 
 - [ ] `InstitutionRepository` + `CourseRepository` (ports)
 - [ ] `CreateInstitution` service + fakes + testes básicos
@@ -195,7 +195,7 @@
 
 ---
 
-### Sáb 17/05
+### Seg 18/05
 
 - [ ] `InstitutionModel` + `CourseModel` + migrations
 - [ ] Mappers + repositories básicos
@@ -203,33 +203,33 @@
 
 ---
 
-## Semana 4 — 19 Mai a 24 Mai
+## Semana 4 — 19 Mai a 25 Mai
 
 **Meta da semana:** Implementar o domínio e a application layer do `Membership`.
 
 ---
 
-### Seg 19/05
+### Ter 19/05
 
 - [ ] `MembershipState` — estados e máquina de transições
 - [ ] `MembershipTransition` value object
 
 ---
 
-### Ter 20/05
+### Qua 20/05
 
 - [ ] `Membership` aggregate — invariantes, factory method
 - [ ] `Membership` events e errors
 
 ---
 
-### Qua 21/05
+### Qui 21/05
 
 - [ ] Testes de domínio do `Membership` (invariants, transitions, events, pull)
 
 ---
 
-### Qui 22/05
+### Sex 22/05
 
 - [ ] `MembershipRepository` (port)
 - [ ] `ErrorCodes` do Membership
@@ -238,7 +238,7 @@
 
 ---
 
-### Sex 23/05
+### Sáb 23/05
 
 - [ ] `VincularUsuario` service + fakes + testes
 - [ ] `AtivarMembership` service + fakes + testes
@@ -247,34 +247,34 @@
 
 ---
 
-### Sáb 24/05
+### Seg 25/05
 
 - [ ] Testes de application do Membership — todos os cenários
 - [ ] Commit geral da semana
 
 ---
 
-## Semana 5 — 26 Mai a 31 Mai
+## Semana 5 — 26 Mai a 01 Jun
 
 **Meta da semana:** Fechar `Membership` infrastructure e expor endpoints HTTP básicos.
 
 ---
 
-### Seg 26/05
+### Ter 26/05
 
 - [ ] `MembershipModel` + migrations
 - [ ] `MembershipMapper`
 
 ---
 
-### Ter 27/05
+### Qua 27/05
 
 - [ ] `DjangoMembershipRepository` — implementação completa
 - [ ] Testes de integração do `Membership` (PostgreSQL)
 
 ---
 
-### Qua 28/05
+### Qui 28/05
 
 - [ ] Endpoint POST `/users/` — criar usuário
 - [ ] Endpoint POST `/users/{id}/activate/` — ativar usuário
@@ -282,7 +282,7 @@
 
 ---
 
-### Qui 29/05
+### Sex 29/05
 
 - [ ] Endpoint POST `/enrollments/` — criar matrícula
 - [ ] Error handling middleware (traduz `ApplicationError` → resposta HTTP)
@@ -290,7 +290,7 @@
 
 ---
 
-### Sex 30/05
+### Sáb 30/05
 
 - [ ] README técnico: arquitetura, camadas, decisões de design
 - [ ] Exemplos de uso (curl ou httpie)
@@ -298,7 +298,7 @@
 
 ---
 
-### Sáb 31/05
+### Seg 01/06
 
 - [ ] Revisão final de código
 - [ ] Limpeza: remover arquivos temporários, comentários desnecessários
