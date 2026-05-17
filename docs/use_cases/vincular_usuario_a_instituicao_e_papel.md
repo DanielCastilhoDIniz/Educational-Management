@@ -112,9 +112,9 @@ Associar um `User` existente a uma instituição com um papel definido, criando 
 
 ## Políticas Consultadas
 - [Política de Autorização e Matriz de Atores](../policies/politica_autorizacao_e_matriz_de_atores.md) — valida atores e escopos para este caso de uso.
-- [ADR 020 - Identidade, Acesso e Membership Institucional](../adr/020-identity-access-and-membership.md) — decisão de separação entre `User` e `Membership`.
-- [ADR 031 - Design do Aggregate Membership](../adr/031-membership-aggregate-design.md) — campos, chave de negócio, `registration_code` e estados do `Membership`.
-- [ADR 032 - Design do Aggregate User](../adr/032-user-aggregate-design.md) — exigência de `User.state == ACTIVE` para criação de `Membership`.
+- [ADR 020 - Identidade, Acesso e Membership Institucional](../adr/30-identity-access/020-identity-access-and-membership.md) — decisão de separação entre `User` e `Membership`.
+- [ADR 031 - Design do Aggregate Membership](../adr/30-identity-access/031-membership-aggregate-design.md) — campos, chave de negócio, `registration_code` e estados do `Membership`.
+- [ADR 032 - Design do Aggregate User](../adr/30-identity-access/032-user-aggregate-design.md) — exigência de `User.state == ACTIVE` para criação de `Membership`.
 
 ---
 
@@ -123,3 +123,4 @@ Associar um `User` existente a uma instituição com um papel definido, criando 
 - O `Membership` nasce `SUSPENDED`: o acesso só é liberado após `AtivarMembership`.
 - Vínculos `INACTIVE` não podem ser reativados por este caso de uso — existe um caso de uso dedicado.
 - A emissão de `MembershipCreated` e o consumo downstream são responsabilidade de outros contextos.
+

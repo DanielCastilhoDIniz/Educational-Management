@@ -1,4 +1,4 @@
-﻿# Trilha de Promocao para a Documentacao Oficial
+# Trilha de Promocao para a Documentacao Oficial
 
 ## Objetivo
 Definir em que ordem os documentos do pacote proposto devem migrar para a trilha oficial de `docs/`, priorizando o que reduz risco imediato e o que habilita o crescimento do SaaS sem retrabalho.
@@ -10,7 +10,7 @@ Definir em que ordem os documentos do pacote proposto devem migrar para a trilha
 - primeiro sobem contratos e fronteiras; depois detalhes operacionais; por ultimo documentos de expansao ou otimizacao
 
 ## Destinos Oficiais Sugeridos
-- ADRs aprovados continuam em `docs/adr/`
+- ADRs aprovados continuam em `docs/adr/`, organizados por subpastas tematicas
 - casos de uso aprovados vao para `docs/use_cases/`
 - politicas aprovadas devem ganhar um diretorio oficial proprio, sugerido: `docs/policies/`
 - visao de produto e contextos podem ir para `docs/product/` ou `docs/contexts/`, se esses diretorios forem adotados
@@ -24,8 +24,8 @@ Promover primeiro porque essas decisoes contaminam todos os contextos futuros.
 ### Promover
 - `visao_produto_saas.md`
 - `contexts/mapa_de_bounded_contexts.md`
-- `adr/019-multi-tenant-and-institution-isolation.md`
-- `adr/020-identity-access-and-membership.md`
+- `adr/20-platform-api/019-multi-tenant-and-institution-isolation.md`
+- `adr/30-identity-access/020-identity-access-and-membership.md`
 - `policies/politica_multi_tenancy_e_isolamento.md`
 - `policies/politica_identidade_papeis_e_permissoes.md`
 - `checklists/08-multi_tenancy_e_autorizacao.md`
@@ -42,9 +42,9 @@ Sem isso, o produto corre o risco de crescer com tenant implito, roles difusas e
 Promover logo depois porque esse e o contexto mais maduro do codigo atual.
 
 ### Promover
-- `adr/012-create-enrollment-contract.md`
-- `adr/013-error-taxonomy-and-failure-mapping.md`
-- `adr/014-enrollment-state-matrix-and-lifecycle-timestamps.md`
+- `adr/10-enrollment/012-create-enrollment-contract.md`
+- `adr/00-foundations/013-error-taxonomy-and-failure-mapping.md`
+- `adr/10-enrollment/014-enrollment-state-matrix-and-lifecycle-timestamps.md`
 - `use_cases/criar_matricula.md`
 - `use_cases/consultar_matricula_por_id.md`
 - `use_cases/suspender_matricula.md`
@@ -69,8 +69,8 @@ Esses documentos fecham lacunas diretamente ligadas ao desenho e aos testes que 
 Promover quando o produto entrar claramente na fase de cadastro institucional amplo.
 
 ### Promover
-- `adr/021-academic-structure-school-year-period-class-group-subject.md`
-- `adr/024-student-guardian-and-contact-data.md`
+- `adr/40-academic-reporting/021-academic-structure-school-year-period-class-group-subject.md`
+- `adr/40-academic-reporting/024-student-guardian-and-contact-data.md`
 - `use_cases/cadastrar_usuario.md`
 - `use_cases/vincular_usuario_a_instituicao_e_papel.md`
 - `use_cases/cadastrar_estudante.md`
@@ -95,8 +95,8 @@ Esses documentos estabilizam os dados mestres do dominio escolar e evitam que ma
 Promover quando o time entrar de fato em diario, frequencia e notas.
 
 ### Promover
-- `adr/022-attendance-and-lesson-journal.md`
-- `adr/023-assessment-gradebook-and-period-closing.md`
+- `adr/40-academic-reporting/022-attendance-and-lesson-journal.md`
+- `adr/40-academic-reporting/023-assessment-gradebook-and-period-closing.md`
 - `use_cases/registrar_aula.md`
 - `use_cases/lancar_frequencia.md`
 - `use_cases/lancar_avaliacao_e_notas.md`
@@ -118,10 +118,10 @@ Esse bloco representa a operacao escolar cotidiana e precisa subir como conjunto
 Promover quando o produto precisar transformar dados operacionais em consulta gerencial, saida formal e experiencia do estudante.
 
 ### Promover
-- `adr/025-reporting-and-official-records.md`
-- `adr/026-reporting-read-models-and-query-contracts.md`
-- `adr/027-report-filters-exports-and-pagination.md`
-- `adr/028-student-dashboard-and-metric-aggregation.md`
+- `adr/40-academic-reporting/025-reporting-and-official-records.md`
+- `adr/40-academic-reporting/026-reporting-read-models-and-query-contracts.md`
+- `adr/40-academic-reporting/027-report-filters-exports-and-pagination.md`
+- `adr/40-academic-reporting/028-student-dashboard-and-metric-aggregation.md`
 - `reporting/catalogo_de_relatorios_e_saidas.md`
 - `reporting/matriz_de_filtros_relatorios.md`
 - `reporting/dicionario_de_metricas_academicas.md`
@@ -151,7 +151,7 @@ Esse grupo impede que relatorios e dashboards nascam como consultas oportunistas
 Promover quando o time decidir expor os primeiros casos de uso por HTTP ou outra interface remota equivalente.
 
 ### Promover
-- `adr/029-api-delivery-strategy-and-http-surface.md`
+- `adr/20-platform-api/029-api-delivery-strategy-and-http-surface.md`
 - `interfaces/guia_da_camada_api_http.md`
 - `interfaces/api_autenticacao_membership_e_contexto_de_tenant.md`
 - `interfaces/api_rotas_http_fase_1_enrollment.md`
@@ -175,10 +175,10 @@ Esse grupo evita que a API nasca como detalhe acoplado ao framework, sem tenancy
 Promover por ultimo, mas antes da fase de escala real do produto.
 
 ### Promover
-- `adr/015-actor-authority-and-audit-responsibility.md`
-- `adr/016-domain-event-delivery-and-outbox.md`
-- `adr/017-testing-strategy-and-quality-gates.md`
-- `adr/018-observability-audit-and-operational-support.md`
+- `adr/30-identity-access/015-actor-authority-and-audit-responsibility.md`
+- `adr/20-platform-api/016-domain-event-delivery-and-outbox.md`
+- `adr/00-foundations/017-testing-strategy-and-quality-gates.md`
+- `adr/20-platform-api/018-observability-audit-and-operational-support.md`
 - `policies/politica_privacidade_e_lgpd.md`
 - `checklists/01-prontidao_arquitetural.md`
 - `checklists/02-definicao_de_caso_de_uso.md`
@@ -202,11 +202,11 @@ Se fosse escolher os primeiros documentos para subir agora, eu promoveria nesta 
 
 1. `visao_produto_saas.md`
 2. `contexts/mapa_de_bounded_contexts.md`
-3. `adr/019-multi-tenant-and-institution-isolation.md`
-4. `adr/020-identity-access-and-membership.md`
-5. `adr/012-create-enrollment-contract.md`
-6. `adr/013-error-taxonomy-and-failure-mapping.md`
-7. `adr/014-enrollment-state-matrix-and-lifecycle-timestamps.md`
+3. `adr/20-platform-api/019-multi-tenant-and-institution-isolation.md`
+4. `adr/30-identity-access/020-identity-access-and-membership.md`
+5. `adr/10-enrollment/012-create-enrollment-contract.md`
+6. `adr/00-foundations/013-error-taxonomy-and-failure-mapping.md`
+7. `adr/10-enrollment/014-enrollment-state-matrix-and-lifecycle-timestamps.md`
 8. `use_cases/criar_matricula.md`
 9. `policies/politica_criacao_de_matricula.md`
 10. `policies/politica_timestamps_e_utc.md`
@@ -218,3 +218,4 @@ Uma onda so deve ser considerada promovida quando:
 - o destino oficial foi definido
 - o README oficial ou mapa documental passou a apontar para eles
 - os checklists relevantes foram acoplados ao fluxo real de desenvolvimento, quando aplicavel
+

@@ -76,10 +76,11 @@ Confirmar a identidade de um `User` recém-cadastrado, transitando seu estado de
 
 ## Políticas Consultadas
 - [Política de Autorização e Matriz de Atores](../policies/politica_autorizacao_e_matriz_de_atores.md) — valida quais atores podem ativar usuários.
-- [ADR 032 - Design do Aggregate User](../adr/032-user-aggregate-design.md) — define a transição `PENDING → ACTIVE` e o `UserTransition`.
+- [ADR 032 - Design do Aggregate User](../adr/30-identity-access/032-user-aggregate-design.md) — define a transição `PENDING → ACTIVE` e o `UserTransition`.
 
 ---
 
 ## Observações
 - A ativação confirma que a identidade foi verificada por um ator responsável — não é um processo automático.
 - Após a ativação, o próximo passo natural é `VincularUsuarioAInstituicaoEPapel`.
+

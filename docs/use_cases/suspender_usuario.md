@@ -76,7 +76,7 @@ Bloquear temporariamente a identidade global de um `User`, transitando de `ACTIV
 
 ## Políticas Consultadas
 - [Política de Autorização e Matriz de Atores](../policies/politica_autorizacao_e_matriz_de_atores.md)
-- [ADR 032 - Design do Aggregate User](../adr/032-user-aggregate-design.md)
+- [ADR 032 - Design do Aggregate User](../adr/30-identity-access/032-user-aggregate-design.md)
 
 ---
 
@@ -84,3 +84,4 @@ Bloquear temporariamente a identidade global de um `User`, transitando de `ACTIV
 - Suspensão de `User` é uma ação de plataforma, não institucional — afeta todas as instituições.
 - Para bloquear o acesso de um usuário em apenas uma instituição, use `SuspenderMembership`.
 - A `reason` é obrigatória e imutável após o registro — não pode ser alterada retroativamente.
+

@@ -78,7 +78,7 @@ Reativar um `User` que se encontra em estado `SUSPENDED`, transitando para `ACTI
 
 ## Políticas Consultadas
 - [Política de Autorização e Matriz de Atores](../policies/politica_autorizacao_e_matriz_de_atores.md) — valida quais atores podem desbloquear usuários e em quais condições.
-- [ADR 032 - Design do Aggregate User](../adr/032-user-aggregate-design.md) — define a transição `SUSPENDED → ACTIVE` e o `UserTransition`.
+- [ADR 032 - Design do Aggregate User](../adr/30-identity-access/032-user-aggregate-design.md) — define a transição `SUSPENDED → ACTIVE` e o `UserTransition`.
 
 ---
 
@@ -86,3 +86,4 @@ Reativar um `User` que se encontra em estado `SUSPENDED`, transitando para `ACTI
 - Os `Membership` **não mudam de estado** durante a suspensão nem no desbloqueio. O acesso é negado/restaurado pela camada de autorização que verifica `User.state` antes de qualquer operação.
 - A `reason` é obrigatória — o desbloqueio de um usuário suspenso é uma decisão que precisa de rastreabilidade.
 - A intervenção do `administrador_plataforma` deve ser usada apenas em emergências e sempre gerará registro de auditoria completo.
+

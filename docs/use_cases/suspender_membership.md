@@ -78,7 +78,7 @@ Bloquear temporariamente o vínculo de um `User` com uma instituição específi
 
 ## Políticas Consultadas
 - [Política de Autorização e Matriz de Atores](../policies/politica_autorizacao_e_matriz_de_atores.md)
-- [ADR 031 - Design do Aggregate Membership](../adr/031-membership-aggregate-design.md)
+- [ADR 031 - Design do Aggregate Membership](../adr/30-identity-access/031-membership-aggregate-design.md)
 
 ---
 
@@ -86,3 +86,4 @@ Bloquear temporariamente o vínculo de um `User` com uma instituição específi
 - A separação de atores reflete separação de deveres: o motivo financeiro pertence exclusivamente à `gestao_financeira`, evitando interferência da direção em decisões de caixa.
 - Para bloquear o acesso em todas as instituições, use `SuspenderUsuario`.
 - O desbloqueio após inadimplência é realizado via `AtivarMembership` pela `gestao_financeira`.
+

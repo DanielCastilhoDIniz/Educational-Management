@@ -91,7 +91,7 @@ Registrar a identidade global mínima de uma pessoa no sistema, criando um `User
 
 ## Políticas Consultadas
 - [Política de Autorização e Matriz de Atores](../policies/politica_autorizacao_e_matriz_de_atores.md) — valida quais atores podem cadastrar usuários e com qual escopo.
-- [ADR 032 - Design do Aggregate User](../adr/032-user-aggregate-design.md) — define campos, chave de negócio, estados e regras do aggregate.
+- [ADR 032 - Design do Aggregate User](../adr/30-identity-access/032-user-aggregate-design.md) — define campos, chave de negócio, estados e regras do aggregate.
 
 ---
 
@@ -101,3 +101,4 @@ Registrar a identidade global mínima de uma pessoa no sistema, criando um `User
 - O estado `PENDING` permite reserva de vaga antes de confirmação de identidade.
 - Um `User` em estado `PENDING` **não pode** ter `Membership` criado.
 - A escolha de não retornar o `user_id` existente no FA-02 é intencional: evita enumeração de identidades cadastradas.
+

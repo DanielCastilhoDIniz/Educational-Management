@@ -148,7 +148,7 @@ Em `tests` que usam `_state_change_flow.py`:
 Atualizar, ao final:
 
 - `docs/backlog/plano_refatoracao_fluxo_criacao_matricula.md`
-- `docs/adr/012-create-enrollment-contract.md`
+- `docs/adr/10-enrollment/012-create-enrollment-contract.md`
 
 O que precisa ficar claro:
 
@@ -219,3 +219,4 @@ forem verdadeiros:
   complexidade antes de existir repeticao suficiente em outros contextos
 - nao mudar a taxonomia do adapter sem verificar antes se os testes e a
   documentacao ainda contam a mesma historia
+

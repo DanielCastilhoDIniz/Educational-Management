@@ -77,7 +77,7 @@ Encerrar definitivamente a identidade global de um `User`, transitando para `INA
 
 ## Políticas Consultadas
 - [Política de Autorização e Matriz de Atores](../policies/politica_autorizacao_e_matriz_de_atores.md)
-- [ADR 032 - Design do Aggregate User](../adr/032-user-aggregate-design.md)
+- [ADR 032 - Design do Aggregate User](../adr/30-identity-access/032-user-aggregate-design.md)
 
 ---
 
@@ -86,3 +86,4 @@ Encerrar definitivamente a identidade global de um `User`, transitando para `INA
 - Os `Membership` associados **não mudam de estado** — são bloqueados pela camada de autorização que verifica `User.state` antes de qualquer operação.
 - Encerramento de `User` em `PENDING` não é permitido — use a transição `PENDING → INACTIVE` apenas quando aplicável pelo domínio; este caso de uso opera sobre identidades já ativas ou suspensas.
 - Para encerrar apenas o vínculo com uma instituição específica, use `EncerrarMembership`.
+

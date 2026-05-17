@@ -331,11 +331,11 @@ Use estes termos no projeto:
 
 - `DOMIAIN_ROLES.md`
 - `README.md`
-- `docs/adr/001-enrollment-persistence.md`
-- `docs/adr/003-Ubiquitous-languagePTbr.md`
-- `docs/adr/005-Domain-eventes.md`
-- `docs/adr/007-domain-layer-core.md`
-- `docs/adr/008-application-layer-use-case-orchestration.md`
-- `docs/adr/009-infrastructure-layer-adapters-persistence-publication.md`
-- `docs/adr/010-interface-http-boundary.md`
+- `docs/adr/00-foundations/001-Ubiquitous-languagePTbr.md`
+- `docs/adr/00-foundations/003-Domain-eventes.md`
+- `docs/adr/00-foundations/004-domain-layer-core.md`
+- `docs/adr/00-foundations/005-application-layer-use-case-orchestration.md`
+- `docs/adr/20-platform-api/007-infrastructure-layer-adapters-persistence-publication.md`
+- `docs/adr/10-enrollment/008-enrollment-persistence.md`
+- `docs/adr/20-platform-api/011-interface-http-boundary.md`
 

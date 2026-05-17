@@ -4,7 +4,7 @@
 Padronizar como o time cria, atualiza e revisa documentacao do projeto.
 
 ## Regras Sugeridas
-- ADRs vao para `docs/adr/` ou `docs/proposta_documental/adr/` enquanto propostos
+- ADRs aprovados vao para `docs/adr/`, organizados por tema ou contexto; documentos ainda exploratorios podem permanecer em `docs/proposta_documental/`
 - casos de uso vao para `docs/use_cases/` ou proposta equivalente
 - politicas ficam em diretorio proprio
 - documentos de stack, operacao e governanca ficam separados de casos de uso

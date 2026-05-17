@@ -78,7 +78,7 @@ Encerrar definitivamente o vínculo de um `User` com uma instituição, transita
 
 ## Políticas Consultadas
 - [Política de Autorização e Matriz de Atores](../policies/politica_autorizacao_e_matriz_de_atores.md)
-- [ADR 031 - Design do Aggregate Membership](../adr/031-membership-aggregate-design.md)
+- [ADR 031 - Design do Aggregate Membership](../adr/30-identity-access/031-membership-aggregate-design.md)
 
 ---
 
@@ -86,3 +86,4 @@ Encerrar definitivamente o vínculo de um `User` com uma instituição, transita
 - `INACTIVE` é estado terminal — não existe caso de uso de reativação de `Membership` encerrado.
 - Para vincular novamente o mesmo `User` à mesma instituição após encerramento, é necessário criar um novo `Membership` via `VincularUsuarioAInstituicaoEPapel`.
 - O histórico do vínculo anterior é preservado pelo `INACTIVE` existente — não há conflito com a nova criação.
+

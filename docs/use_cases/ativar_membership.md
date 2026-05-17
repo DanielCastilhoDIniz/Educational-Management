@@ -78,7 +78,7 @@ Ativar um `Membership` que se encontra em estado `SUSPENDED`, transitando para `
 
 ## Políticas Consultadas
 - [Política de Autorização e Matriz de Atores](../policies/politica_autorizacao_e_matriz_de_atores.md) — valida quais atores podem reativar memberships.
-- [ADR 031 - Design do Aggregate Membership](../adr/031-membership-aggregate-design.md) — define a transição `SUSPENDED → ACTIVE` e o `MembershipTransition`.
+- [ADR 031 - Design do Aggregate Membership](../adr/30-identity-access/031-membership-aggregate-design.md) — define a transição `SUSPENDED → ACTIVE` e o `MembershipTransition`.
 
 ---
 
@@ -86,3 +86,4 @@ Ativar um `Membership` que se encontra em estado `SUSPENDED`, transitando para `
 - A suspensão de um `Membership` é cirúrgica: afeta apenas o vínculo com a instituição específica.
 - A suspensão de um `User` derruba o acesso em todas as instituições — independente do estado dos `Membership`.
 - A `reason` é obrigatória para garantir rastreabilidade da decisão de reativação.
+
