@@ -135,10 +135,10 @@
 
 ### Sáb 09/05
 
-- [ ] Teste de integração: criar User no PostgreSQL
-- [ ] Teste de integração: rehydration via `get_by_id`
-- [ ] Teste de integração: salvar transição via `save`
-- [ ] Teste de integração: duplicidade levanta `UserDuplicationError`
+- [x] Teste de integração: criar User no PostgreSQL
+- [x] Teste de integração: rehydration via `get_by_id`
+- [x] Teste de integração: salvar transição via `save`
+- [x] Teste de integração: duplicidade levanta `UserDuplicationError`
 
 ---
 

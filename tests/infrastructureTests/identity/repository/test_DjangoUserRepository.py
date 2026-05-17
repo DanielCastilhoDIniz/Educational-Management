@@ -15,6 +15,7 @@ from application.identity.user.errors.persistence_errors import (
 )
 from domain.identity.user.entities.user import User
 from domain.identity.user.value_objects.legal_identity import LegalIdentity, LegalIdentityType
+from infrastructure.django.apps.identity.users.transition_id import make_user_transition_id
 from infrastructureTests.identity.factory.new_user_factory import factory_create_user_for_tests
 
 
@@ -253,3 +254,185 @@ def test_create_user_raises_duplication_error_on_duplicate_identity() -> None:
     assert e.value.code == ErrorCodes.DUPLICATE_USER
     assert e.value.message == "A user with the same identifiers already exists."
     assert e.value.details is not None
+
+@pytest.mark.django_db(transaction=True)
+def test_save_return_concurrency_conflict_error() -> None:
+    # Arrange:
+    user = factory_create_user_for_tests()
+    repository = DjangoUserRepository()
+    result_one = repository.get_by_id(user_id=str(user.id))
+
+    assert result_one is not None
+
+    result_one.suspend(
+        actor_id=str(uuid.uuid4()),
+        occurred_at=datetime.now(UTC),
+        justification="justification"
+    )
+
+    # Act:
+    result_two = UserModel.objects.get(id=str(user.id))
+    result_two.version += 1
+    result_two.save()
+
+
+    with pytest.raises(ConcurrencyConflictError) as e:
+        repository.save(result_one)
+
+    assert e.value.code == ErrorCodes.CONCURRENCY_CONFLICT
+    assert e.value.message in "The user exists, but its persisted version \
+                                does not match the aggregate origin version."
+    assert e.value.details is not None
+    assert e.value.details["expected_version"] == result_one.version
+    assert e.value.details["aggregate_id"] == str(user.id)
+
+
+@pytest.mark.django_db(transaction=True)
+def test_retry_should_not_create_transition() -> None:
+
+    repository = DjangoUserRepository()
+    user = factory_create_user_for_tests()
+
+    result = repository.get_by_id(user_id=str(user.id))
+    assert result is not None
+
+    result.inactivate(
+        actor_id=str(uuid.uuid4()),
+        occurred_at=datetime.now(UTC),
+        justification="justification"
+    )
+    initial_transitions_count = len(result.transitions)
+
+    first_version = repository.save(result)
+    retry_version = repository.save(result)
+
+    assert initial_transitions_count == 1
+    assert first_version == user.version + 1
+    assert retry_version == first_version
+    assert len(result.transitions) == initial_transitions_count
+
+    user_after = UserModel.objects.get(id=str(user.id))
+    transitions_after = UserTransitionModel.objects.filter(user_id=str(user.id))
+
+    assert transitions_after.count() == initial_transitions_count
+    assert user_after.version == first_version
+
+    assert transitions_after[0].action == "inactivate"
+    assert transitions_after[0].from_state == "active"
+    assert transitions_after[0].to_state == "inactive"
+    assert transitions_after[0].actor_id is not None
+    assert transitions_after[0].occurred_at is not None
+    assert transitions_after[0].justification == "justification"
+    assert transitions_after[0].created_at is not None
+    assert transitions_after[0].transition_id is not None
+
+@pytest.mark.django_db(transaction=True)
+def test_bd_remains_consistent_when_transition_fails_to_save() -> None:
+    
+    # Arrange:
+    repository = DjangoUserRepository()
+    user = factory_create_user_for_tests()
+
+    result = repository.get_by_id(user_id=str(user.id))
+    assert result is not None
+    
+    origin_id = user.id
+    origin_version = user.version
+    origin_state = user.state
+
+    actor_id = str(uuid.uuid4())
+    occurred_at = datetime.now(UTC)
+    justification = "justification"
+
+    result.suspend(
+        actor_id=actor_id,
+        occurred_at=occurred_at,
+        justification=justification
+    )
+    
+    transition_expected = make_user_transition_id(
+        user_id=origin_id,
+        action="suspend",
+        from_state=origin_state,
+        to_state="suspended",
+        actor_id=actor_id,
+        occurred_at=occurred_at,
+        justification=justification
+    )
+
+    new_transition = UserTransitionModel.objects.create(
+        transition_id=transition_expected,
+        user_id=origin_id,
+        action="suspend",
+        from_state=origin_state,
+        to_state="suspended",
+        actor_id=actor_id,
+        occurred_at=occurred_at,
+        justification=justification
+    )
+
+    with pytest.raises(UserTechnicalPersistenceError) as e:
+        repository.save(result)
+
+    assert e.value.code ==  ErrorCodes.DATABASE_ERROR
+    assert e.value.message == "A critical error occurred on the database server."
+    assert e.value.details is not None
+
+    query_1 = UserModel.objects.get(id=origin_id)
+    assert query_1.version == origin_version
+    assert query_1.state == origin_state
+
+    query_2 = UserTransitionModel.objects.filter(user_id=origin_id).count()
+    assert query_2 == 1
+
+@pytest.mark.django_db(transaction=True)
+def test_save_raises_when_no_transitions() -> None:
+    
+    # Arrange:
+    user = User.create(
+        legal_identity=LegalIdentity(
+            identity_type=LegalIdentityType.CPF,
+            identity_number="12345678912",
+            identity_issuer="PB"
+        ),
+        full_name="user-1",
+        birth_date=date(1990, 1, 1),
+        created_by="actor-1",
+        email="exemple1@email.com",
+        occurred_at=datetime.now(UTC),
+    )
+    repository = DjangoUserRepository()
+
+
+    # Act:
+    with pytest.raises(UserTechnicalPersistenceError) as e:
+        repository.save(user)
+        
+    assert e.value.code == ErrorCodes.MISSING_TRANSITIONS
+    assert e.value.message == "No transitions to persist for the user."
+
+@pytest.mark.django_db(transaction=True)
+def test_save_raises_user_not_found() -> None:
+    # Arrange:
+    repository = DjangoUserRepository()
+    user = factory_create_user_for_tests()
+
+    result = repository.get_by_id(user_id=str(user.id))
+    assert result is not None
+
+    result.suspend(
+        actor_id=str(uuid.uuid4()),
+        occurred_at=datetime.now(UTC),
+        justification="justification"
+    )
+
+    UserModel.objects.filter(id=str(user.id)).delete()
+
+    with pytest.raises(UserPersistenceNotFoundError) as e:
+        repository.save(result)
+
+  
+    assert e.value.code == ErrorCodes.USER_NOT_FOUND
+    assert e.value.message == "The user snapshot was not found for persistence update."
+    assert e.value.details is not None
+

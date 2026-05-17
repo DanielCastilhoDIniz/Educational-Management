@@ -156,7 +156,7 @@ class DjangoUserRepository(UserRepository):
                             return new_version
 
                         raise ConcurrencyConflictError(
-                            code="version_mismatch",
+                            code=ErrorCodes.CONCURRENCY_CONFLICT,
                             message="The user exists, but its persisted version \
                                 does not match the aggregate origin version.",
                             details={
@@ -167,7 +167,7 @@ class DjangoUserRepository(UserRepository):
                         )
                     else:
                         raise UserPersistenceNotFoundError(
-                            code="user_not_found",
+                            code=ErrorCodes.USER_NOT_FOUND,
                             message="The user snapshot was not found for persistence update.",
                             details={
                                         "user_id": origin_id,
