@@ -20,9 +20,10 @@
 - Contexto `Enrollment` — domínio, application, infra, testes, CI/CD
 - Contexto `User` — domínio completo e testado
 - Contexto `User` — application layer completa (port, services, fakes, testes)
+- Contexto `User` — infrastructure (model, mapper, repository, testes de integração)
 
 ### Em andamento
-- Contexto `User` — infrastructure (model, mapper, repository, testes de integração)
+
 
 ### Pendente
 - `User` infrastructure (model, mapper, repository, testes)

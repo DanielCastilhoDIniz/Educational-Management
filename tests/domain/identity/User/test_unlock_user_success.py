@@ -21,6 +21,7 @@ def test_unlock_user_success(make_user):
     assert user_1.unlocked_at is not None
     assert len(user_1.transitions) == 1
     assert len(user_1._domain_events) == 1
+    assert user_1.unlocked_at is not None
     
     
     e = user_1._domain_events[-1]

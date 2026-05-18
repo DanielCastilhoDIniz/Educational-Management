@@ -9,7 +9,7 @@ leitura incremental e manutencao das referencias cruzadas.
 | Status | Quantidade |
 | --- | ---: |
 | `Aprovado` | 11 |
-| `Proposto` | 19 |
+| `Proposto` | 20 |
 | `Implementado` | 1 |
 | `Sem secao padrao de status` | 1 |
 
@@ -61,6 +61,7 @@ Observacao:
 - [ADR 020 - Identidade, Acesso e Membership Institucional](30-identity-access/020-identity-access-and-membership.md) - `Proposto`
 - [ADR 031 - Design do Aggregate Membership](30-identity-access/031-membership-aggregate-design.md) - `Proposto`
 - [ADR 032 - Design do Aggregate User](30-identity-access/032-user-aggregate-design.md) - `Implementado`
+- [ADR 033 - Design do Aggregate Role](30-identity-access/033-role-aggregate-design.md) - `Proposto`
 
 ### 40 - Estrutura Academica, Reporting e Expansao do Produto
 

@@ -36,6 +36,8 @@ def test_unlock_user_success():
     assert result.changed is True
     assert result.aggregate_id == user.id
 
+    
+
     assert result.new_state == UserState.ACTIVE
     assert event.from_state.value == UserState.SUSPENDED.value
     assert event.to_state.value == UserState.ACTIVE.value
