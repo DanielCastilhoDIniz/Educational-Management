@@ -65,6 +65,9 @@ O campo `guardian_id` pertence ao aggregate `User` (identidade), nao ao `Members
 **Troca de Escola**
 Quando um aluno muda de instituicao, o `Membership` anterior transiciona para `INACTIVE` e um novo `Membership` e criado na nova instituicao. O historico do vinculo anterior e preservado nativamente. Nenhum dado e apagado.
 
+**Suspensao por Inadimplencia (gestao_financeira)**
+A `gestao_financeira` suspende o `Membership.state` (vinculo institucional), nunca o `User.state` (identidade global). Se o mesmo aluno estiver matriculado na Escola A e na Escola B, a inadimplencia na Escola A suspende apenas o `Membership` da Escola A — o acesso a Escola B permanece intacto. O `User` continua `ACTIVE`. Isso garante que a identidade global nao seja penalizada por conflitos financeiros de um tenant especifico.
+
 ---
 
 ## 4. Matriz de Autorização Operacional
@@ -74,7 +77,7 @@ A autorização é validada na camada de **Application**, antes da execução de
 | :--- | :--- | :--- | :--- | :--- |
 | **Cadastrar Usuario** | `administrador_plataforma` | Qualquer `User` | Sem restricao (cross-tenant) | N/A |
 | **Cadastrar Usuario** | `direcao_estrategica` | Equipe da instituicao | `target.institution_id == actor.institution_id` | N/A |
-| **Cadastrar Usuario** | `secretaria` | Alunos e responsaveis | `target.role` deve ser inferior ao nivel da secretaria | N/A |
+| **Cadastrar Usuario** | `secretaria` | Alunos e responsaveis | `target.role` deve ter nível inferior ao da secretaria | User e Membership institucional devem ser criados na mesma transação para evitar User órfão no sistema |
 | **Cadastrar Usuario** | `sistema` | Alunos | Baseado no contrato do gateway de pagamento | N/A |
 | **Ativar Usuario** | `administrador_plataforma` | Qualquer `User` | Sem restricao | `User.state == PENDING` |
 | **Ativar Usuario** | `direcao_estrategica` | Usuarios do proprio tenant | `target.institution_id == actor.institution_id` | `User.state == PENDING` |
@@ -123,6 +126,9 @@ A autorização deve seguir o fluxo de precedência:
 3.  **Permissão Funcional:** O papel (`Role`) deve conter o escopo necessário para o Caso de Uso.
 4.  **Predicado de Atribuição:** Para papéis curriculares, o `course_id` deve coincidir com o recurso acessado.
 
+**Implementação Django/Python — Evitando Queries Redundantes:**
+As verificações dos passos 1 e 2 (`User.state` e `Membership.state`) devem ocorrer uma única vez no **middleware de autenticação/captura de tenant**, populando `request.user` e `request.membership` antes de qualquer use case ser executado. A camada de Application recebe esses objetos já validados e foca exclusivamente no **Predicado de Atribuição** (passo 4) e nos escopos granulares do caso de uso. Isso elimina queries redundantes ao banco a cada verificação de acesso.
+
 ### 4.2. Identidade de Serviço (Service Accounts)
 * Devem possuir identificadores únicos e não compartilhados.
 * **Audit Trail:** Toda ação disparada pelo ator `sistema` deve registrar o ID da rotina e o timestamp original.
@@ -149,7 +155,24 @@ A robustez desta política deve ser garantida por uma suíte de testes de integr
 
 ---
 
-## 6. Evolução e Auditoria
+## 6. Encerramento, LGPD e Preservação de Histórico
+
+O caso de uso **Encerrar** (User ou Membership) é mapeado como **Soft Delete / Anonimização**, nunca como exclusão física de registros.
+
+### Encerrar Membership
+- `Membership.state` transiciona para `INACTIVE` (estado terminal).
+- O histórico de matrículas, notas e frequências vinculadas ao `Membership` é preservado integralmente — obrigação legal de guarda de registros acadêmicos.
+- Nenhum dado é deletado fisicamente.
+
+### Encerrar User
+- `User.state` transiciona para `INACTIVE` (estado terminal).
+- Dados de identificação pessoal (nome, email, CPF) podem ser anonimizados sob demanda explícita do titular (direito ao esquecimento — LGPD Art. 18).
+- O histórico acadêmico e financeiro associado é preservado em forma anonimizada para cumprir obrigações legais de guarda.
+- A anonimização é um processo separado, acionado pela `direcao_estrategica` ou `administrador_plataforma`, e não ocorre automaticamente com o encerramento.
+
+---
+
+## 7. Evolução e Auditoria
 * **Logs:** Toda negação de acesso (403) deve ser logada com o contexto completo (User ID, Role ID, Resource ID, Scope Requested).
 * **Revisão:** Esta matriz deve ser revisada semestralmente ou a cada novo módulo crítico adicionado ao sistema.
 
