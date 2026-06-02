@@ -98,7 +98,7 @@ class User:
         if self.birth_date is None:
             raise DomainError(code="invalid_birth_date", message="birth_date is required")
         
-        if self.birth_date > date.today():
+        if self.birth_date > datetime.now(UTC):
             raise DomainError(code="invalid_birth_date", message="birth_date cannot be in the future")
         
         if self.legal_identity is None:
@@ -142,7 +142,7 @@ class User:
             )
 
     def _is_adult(self):
-        today = date.today()
+        today = datetime.now(UTC)
         age = today.year - self.birth_date.year
 
         if (today.month, today.day) < (self.birth_date.month, self.birth_date.day):
@@ -325,7 +325,7 @@ class User:
         ) -> User:
 
         created_at = cls._occurred_at_or_now(occurred_at)
-
+        
         user = cls(
             id=str(uuid4()),
             legal_identity=legal_identity,
@@ -360,6 +360,7 @@ class User:
             occurred_at: datetime | None = None,
 
     ) -> None:
+        
     
         self._assert_transition_allowed(UserState.ACTIVE)
         self._apply_state_transition(
@@ -421,7 +422,9 @@ class User:
             occurred_at: datetime | None = None,
             justification: str
     ) -> None:
+        
         self._assert_transition_allowed(UserState.ACTIVE)
+
         if self.state != UserState.SUSPENDED:
             raise InvalidStateTransitionError(
                 code="invalid_state_transition",

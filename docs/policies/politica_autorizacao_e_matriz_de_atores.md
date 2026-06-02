@@ -151,6 +151,153 @@ Observacoes:
 | **Reativar Role** *(futuro)* | `administrador_plataforma` | Qualquer `Role` | Sem restricao | `Role.status == INACTIVE`; reativacao auditavel | `ROLE_ACTIVATE` |
 | **Configurar Politica Institucional** *(futuro)* | `direcao_estrategica` | Politicas do proprio tenant | `target.institution_id == actor.institution_id` | Alteracoes auditaveis; congelamento por periodo quando aplicavel | `POLICY_CONFIGURE` |
 
+### 4.1. Matriz Espelhada por Ator
+A tabela abaixo reproduz a mesma matriz operacional, agora agrupada por ator para consulta direta de responsabilidades e limites de acesso.
+
+#### `administrador_plataforma`
+| Caso de Uso | Alvo | Validacao de Escopo | Condicao Adicional | Capability requerida |
+| :--- | :--- | :--- | :--- | :--- |
+| **Cadastrar Usuario** | Qualquer `User` | Sem restricao (cross-tenant) | N/A | `USER_CREATE` |
+| **Ativar Usuario** | Qualquer `User` | Sem restricao | `User.state == PENDING` | `USER_ACTIVATE` |
+| **Desbloquear Usuario** | Qualquer `User` | Sem restricao | `User.state == SUSPENDED`; intervencao de emergencia; audit trail obrigatorio | `USER_UNLOCK` |
+| **Suspender Usuario** | Qualquer `User` | Sem restricao | `User.state == ACTIVE`; requer justificativa; audit trail obrigatorio | `USER_SUSPEND` |
+| **Encerrar Usuario** | Qualquer `User` | Sem restricao | `User.state in (ACTIVE, SUSPENDED)`; irreversivel; requer justificativa | `USER_CLOSE` |
+| **Vincular Usuario a Instituicao** | Qualquer vinculo | Sem restricao | `User.state == ACTIVE` | `MEMBERSHIP_CREATE` |
+| **Ativar Membership** | Qualquer `Membership` | Sem restricao | `Membership.state == SUSPENDED` | `MEMBERSHIP_ACTIVATE` |
+| **Encerrar Membership** | Qualquer `Membership` | Sem restricao | `Membership.state in (ACTIVE, SUSPENDED)`; irreversivel; requer justificativa | `MEMBERSHIP_CLOSE` |
+| **Cadastrar Instituicao** *(organizacional)* | Nova `Institution` | Sem restricao (cross-tenant) | Cria o tenant; dados minimos obrigatorios | `INSTITUTION_CREATE` |
+| **Cadastrar Rede, Instituicao e Unidade** | Estrutura organizacional global | Sem restricao (cross-tenant) | Duplicidade organizacional resolvida; politica de cadastro organizacional aplicada | `NETWORK_STRUCTURE_CREATE` |
+| **Trocar Papel de Membership** *(futuro)* | Memberships do proprio tenant ou qualquer `Membership` | `target.institution_id == actor.institution_id` ou sem restricao | Troca auditavel; `role_id` anterior preservado no historico; `course_id` compativel com o novo papel | `MEMBERSHIP_ROLE_CHANGE` |
+| **Criar Role** *(futuro)* | Catalogo global de papeis | Sem restricao | `code` unico; nivel valido; audit trail obrigatorio | `ROLE_CREATE` |
+| **Desativar Role** *(futuro)* | Qualquer `Role` | Sem restricao | Papel entra em `INACTIVE`; efeito nao retroativo sobre memberships existentes deve ser auditado | `ROLE_DEACTIVATE` |
+| **Reativar Role** *(futuro)* | Qualquer `Role` | Sem restricao | `Role.status == INACTIVE`; reativacao auditavel | `ROLE_ACTIVATE` |
+
+#### `direcao_estrategica`
+| Caso de Uso | Alvo | Validacao de Escopo | Condicao Adicional | Capability requerida |
+| :--- | :--- | :--- | :--- | :--- |
+| **Cadastrar Usuario** | Equipe da instituicao | `target_membership.institution_id == actor.institution_id` | Fluxo composto de onboarding institucional | `USER_CREATE` + `MEMBERSHIP_CREATE` |
+| **Ativar Usuario** | Usuarios do proprio tenant | `target_membership.institution_id == actor.institution_id` | `User.state == PENDING` | `USER_ACTIVATE` |
+| **Desbloquear Usuario** | Usuarios do proprio tenant | `target_membership.institution_id == actor.institution_id` | `User.state == SUSPENDED` | `USER_UNLOCK` |
+| **Vincular Usuario a Instituicao** | Vinculos do proprio tenant | `target.institution_id == actor.institution_id` | `User.state == ACTIVE` | `MEMBERSHIP_CREATE` |
+| **Ativar Membership** | Memberships do proprio tenant | `target.institution_id == actor.institution_id` | `Membership.state == SUSPENDED` | `MEMBERSHIP_ACTIVATE` |
+| **Suspender Membership** | Memberships do proprio tenant | `target.institution_id == actor.institution_id` | `Membership.state == ACTIVE`; requer justificativa | `MEMBERSHIP_SUSPEND` |
+| **Encerrar Membership** | Memberships do proprio tenant | `target.institution_id == actor.institution_id` | `Membership.state in (ACTIVE, SUSPENDED)`; irreversivel; requer justificativa | `MEMBERSHIP_CLOSE` |
+| **Configurar Instituicao** *(organizacional)* | Propria `Institution` | `target.institution_id == actor.institution_id` | Perfil, endereco, contato, logo | `INSTITUTION_CONFIGURE` |
+| **Cadastrar Estudante** | Estudantes do proprio tenant | `target.institution_id == actor.institution_id` | Unicidade conforme politica de cadastro | `STUDENT_CREATE` |
+| **Cadastrar Professor** | Professores do proprio tenant | `target.institution_id == actor.institution_id` | Unicidade conforme politica institucional | `TEACHER_CREATE` |
+| **Cadastrar Responsavel e Vincular ao Estudante** | Responsaveis e vinculos com estudantes do proprio tenant | `target.institution_id == actor.institution_id` | Estudante existe; relacao permitida pela politica institucional | `GUARDIAN_CREATE` |
+| **Criar Ano Letivo e Periodos** | Estrutura academica do proprio tenant | `target.institution_id == actor.institution_id` | `secretaria` apenas com permissao ampliada; sem conflito estrutural; politica de calendario valida | `SCHOOL_YEAR_CREATE` |
+| **Criar Turma** | Turmas do proprio tenant | `target.institution_id == actor.institution_id` | Ano e periodo existem; chave de negocio unica no escopo | `CLASS_GROUP_CREATE` |
+| **Associar Professor a Disciplina e Turma** | Atribuicoes docentes do proprio tenant | `target.institution_id == actor.institution_id` | Professor, disciplina e turma existem; vinculo permitido pela politica institucional | `TEACHER_ASSIGN` |
+| **Fechar Periodo e Calcular Media** | Periodo do proprio tenant | `target.institution_id == actor.institution_id` | Periodo elegivel; politicas congeladas e resolvidas; dados minimos disponiveis | `PERIOD_CLOSE` |
+| **Trocar Papel de Membership** *(futuro)* | Memberships do proprio tenant ou qualquer `Membership` | `target.institution_id == actor.institution_id` ou sem restricao | Troca auditavel; `role_id` anterior preservado no historico; `course_id` compativel com o novo papel | `MEMBERSHIP_ROLE_CHANGE` |
+| **Configurar Politica Institucional** *(futuro)* | Politicas do proprio tenant | `target.institution_id == actor.institution_id` | Alteracoes auditaveis; congelamento por periodo quando aplicavel | `POLICY_CONFIGURE` |
+
+#### `gestao_financeira`
+| Caso de Uso | Alvo | Validacao de Escopo | Condicao Adicional | Capability requerida |
+| :--- | :--- | :--- | :--- | :--- |
+| **Ativar Membership** | Memberships do proprio tenant | `target.institution_id == actor.institution_id` | `Membership.state == SUSPENDED`; reativacao apos confirmacao de pagamento | `MEMBERSHIP_ACTIVATE` |
+| **Suspender Membership** | Memberships do proprio tenant | `target.institution_id == actor.institution_id` | `Membership.state == ACTIVE`; inadimplencia; requer justificativa | `MEMBERSHIP_SUSPEND` |
+
+#### `secretaria`
+| Caso de Uso | Alvo | Validacao de Escopo | Condicao Adicional | Capability requerida |
+| :--- | :--- | :--- | :--- | :--- |
+| **Cadastrar Usuario** | Alunos e responsaveis | `target_membership.institution_id == actor.institution_id` | `target.role` deve ter nivel inferior ao da secretaria; `User` e `Membership` devem nascer na mesma transacao | `USER_CREATE` + `MEMBERSHIP_CREATE` |
+| **Configurar Instituicao** *(organizacional)* | Propria `Institution` | `target.institution_id == actor.institution_id` | Delegado pela `direcao_estrategica` | `INSTITUTION_CONFIGURE` |
+| **Criar Matricula** | Alunos do proprio tenant | `target.institution_id == actor.institution_id` | `User.state == ACTIVE`, `Membership.state == ACTIVE` | `ENROLLMENT_CREATE` |
+| **Consultar Matricula** | Matriculas do proprio tenant | `target.institution_id == actor.institution_id` | N/A | `ENROLLMENT_READ` |
+| **Listar Historico de Matricula** | Historico append-only da matricula | `target.institution_id == actor.institution_id` | Acesso a trilha de auditoria permitido | `ENROLLMENT_HISTORY_READ` |
+| **Suspender Matricula** | Matriculas do proprio tenant | `target.institution_id == actor.institution_id` | `Enrollment.state == ACTIVE`; exige justificativa; politicas externas permitem suspensao | `ENROLLMENT_SUSPEND` |
+| **Reativar Matricula** | Matriculas do proprio tenant | `target.institution_id == actor.institution_id` | `Enrollment.state == SUSPENDED`; exige justificativa; politicas externas permitem reativacao | `ENROLLMENT_REACTIVATE` |
+| **Cancelar Matricula** | Matriculas do proprio tenant | `target.institution_id == actor.institution_id` | Apenas em janelas permitidas; exige justificativa | `ENROLLMENT_CANCEL` |
+| **Cadastrar Estudante** | Estudantes do proprio tenant | `target.institution_id == actor.institution_id` | Unicidade conforme politica de cadastro | `STUDENT_CREATE` |
+| **Cadastrar Professor** | Professores do proprio tenant | `target.institution_id == actor.institution_id` | Unicidade conforme politica institucional | `TEACHER_CREATE` |
+| **Cadastrar Responsavel e Vincular ao Estudante** | Responsaveis e vinculos com estudantes do proprio tenant | `target.institution_id == actor.institution_id` | Estudante existe; relacao permitida pela politica institucional | `GUARDIAN_CREATE` |
+| **Criar Ano Letivo e Periodos** | Estrutura academica do proprio tenant | `target.institution_id == actor.institution_id` | `secretaria` apenas com permissao ampliada; sem conflito estrutural; politica de calendario valida | `SCHOOL_YEAR_CREATE` |
+| **Criar Turma** | Turmas do proprio tenant | `target.institution_id == actor.institution_id` | Ano e periodo existem; chave de negocio unica no escopo | `CLASS_GROUP_CREATE` |
+| **Associar Professor a Disciplina e Turma** | Atribuicoes docentes do proprio tenant | `target.institution_id == actor.institution_id` | Professor, disciplina e turma existem; vinculo permitido pela politica institucional | `TEACHER_ASSIGN` |
+| **Consultar Boletim do Estudante** | Boletim do estudante | Recurso pessoal ou `target.institution_id == actor.institution_id` | Politica de visibilidade aplicada; `Membership.state == ACTIVE` quando aplicavel | `GRADEBOOK_STUDENT_READ` |
+| **Emitir Boletim Oficial** | Documento oficial do estudante | `target.institution_id == actor.institution_id` | Periodo elegivel ou fechado; dados consolidados disponiveis; emissao auditavel | `REPORT_OFFICIAL_ISSUE` |
+| **Emitir Relatorio de Frequencia** | Relatorio de frequencia | Professor restrito ao proprio escopo; demais no proprio tenant | Filtros validos; exportacao usa o mesmo criterio da tela | `REPORT_READ` + `REPORT_EXPORT` |
+| **Emitir Relatorio de Aulas Registradas** | Relatorio de aulas registradas | Professor restrito ao proprio escopo; demais no proprio tenant | Pode incluir pendencias de diario; filtros validos | `REPORT_READ` + `REPORT_EXPORT` |
+| **Emitir Relatorio de Desempenho por Disciplina** | Relatorio de desempenho por disciplina | Professor restrito ao proprio escopo quando permitido; demais no proprio tenant | Regime avaliativo resolvido para o recorte | `REPORT_READ` + `REPORT_EXPORT` |
+| **Validar Doc. Civil** *(futuro)* | `User.identity` | `target_membership.institution_id == actor.institution_id` | Tarefa de conformidade legal | `USER_IDENTITY_VALIDATE` |
+| **Trancar ou Transferir** *(futuro)* | `Membership` | `target.institution_id == actor.institution_id` | Gestao de ocupacao e fluxo de caixa | `MEMBERSHIP_TRANSFER` |
+| **Emitir Certificado** *(futuro)* | `Membership` | `target.institution_id == actor.institution_id` | Fe publica da secretaria academica | `CERTIFICATE_ISSUE` |
+
+#### `coordenacao`
+| Caso de Uso | Alvo | Validacao de Escopo | Condicao Adicional | Capability requerida |
+| :--- | :--- | :--- | :--- | :--- |
+| **Consultar Matricula** | Matriculas do proprio tenant | `target.institution_id == actor.institution_id` | N/A | `ENROLLMENT_READ` |
+| **Listar Historico de Matricula** | Historico append-only da matricula | `target.institution_id == actor.institution_id` | Acesso a trilha de auditoria permitido | `ENROLLMENT_HISTORY_READ` |
+| **Associar Professor a Disciplina e Turma** | Atribuicoes docentes do proprio tenant | `target.institution_id == actor.institution_id` | Professor, disciplina e turma existem; vinculo permitido pela politica institucional | `TEACHER_ASSIGN` |
+| **Registrar Aula** | Aulas das proprias atribuicoes ou fluxo de correcao autorizado | `target.course_id == actor.membership.course_id` | Aula dentro da janela permitida; `coordenacao` apenas em fluxo de correcao ou retificacao autorizado | `LESSON_RECORD` |
+| **Lancar Frequencia** | Frequencias das proprias atribuicoes ou fluxo de retificacao autorizado | `target.course_id == actor.membership.course_id` | Aula existe; janela aberta ou permissao de retificacao; estudantes pertencem a turma ou aula | `ATTENDANCE_RECORD` |
+| **Lancar Avaliacao e Notas** | Avaliacoes e notas das proprias atribuicoes | `target.course_id == actor.membership.course_id` | Regime avaliativo vigente permite; janela aberta ou permissao de retificacao | `GRADE_RECORD` |
+| **Fechar Periodo e Calcular Media** | Periodo do proprio tenant | `target.institution_id == actor.institution_id` | Periodo elegivel; politicas congeladas e resolvidas; dados minimos disponiveis | `PERIOD_CLOSE` |
+| **Consultar Boletim do Estudante** | Boletim do estudante | Recurso pessoal ou `target.institution_id == actor.institution_id` | Politica de visibilidade aplicada; `Membership.state == ACTIVE` quando aplicavel | `GRADEBOOK_STUDENT_READ` |
+| **Emitir Boletim Oficial** | Documento oficial do estudante | `target.institution_id == actor.institution_id` | Periodo elegivel ou fechado; dados consolidados disponiveis; emissao auditavel | `REPORT_OFFICIAL_ISSUE` |
+| **Emitir Relatorio de Frequencia** | Relatorio de frequencia | Professor restrito ao proprio escopo; demais no proprio tenant | Filtros validos; exportacao usa o mesmo criterio da tela | `REPORT_READ` + `REPORT_EXPORT` |
+| **Emitir Relatorio de Aulas Registradas** | Relatorio de aulas registradas | Professor restrito ao proprio escopo; demais no proprio tenant | Pode incluir pendencias de diario; filtros validos | `REPORT_READ` + `REPORT_EXPORT` |
+| **Emitir Relatorio de Desempenho por Disciplina** | Relatorio de desempenho por disciplina | Professor restrito ao proprio escopo quando permitido; demais no proprio tenant | Regime avaliativo resolvido para o recorte | `REPORT_READ` + `REPORT_EXPORT` |
+| **Criar Grade Curricular** *(futuro)* | `Course`/`Subject` | `target.institution_id == actor.institution_id` | Definicao tecnica de ensino | `CURRICULUM_CREATE` |
+| **Aprovar Diario de Classe** *(futuro)* | `LessonPlan` | `target.course_id == actor.membership.course_id` | Auditoria da entrega pedagogica | `LESSON_APPROVE` |
+| **Auditar Notas** *(futuro)* | `Grade` | `target.course_id == actor.membership.course_id` | Garante a integridade pedagogica | `GRADE_AUDIT` |
+
+#### `suporte_adm`
+| Caso de Uso | Alvo | Validacao de Escopo | Condicao Adicional | Capability requerida |
+| :--- | :--- | :--- | :--- | :--- |
+| **Desbloquear Usuario** | Usuarios do proprio tenant | `target_membership.institution_id == actor.institution_id` | `User.state == SUSPENDED`; requer autorizacao explicita | `USER_UNLOCK` |
+| **Configurar Instituicao** *(organizacional)* | Propria `Institution` | `target.institution_id == actor.institution_id` | Delegado pela `direcao_estrategica` | `INSTITUTION_CONFIGURE` |
+| **Consultar Matricula** | Matriculas do proprio tenant | `target.institution_id == actor.institution_id` | N/A | `ENROLLMENT_READ` |
+| **Listar Historico de Matricula** | Historico append-only da matricula | `target.institution_id == actor.institution_id` | Acesso a trilha de auditoria permitido | `ENROLLMENT_HISTORY_READ` |
+| **Cancelar Matricula** | Matriculas do proprio tenant | `target.institution_id == actor.institution_id` | Apenas em janelas permitidas; exige justificativa | `ENROLLMENT_CANCEL` |
+
+#### `professor`
+| Caso de Uso | Alvo | Validacao de Escopo | Condicao Adicional | Capability requerida |
+| :--- | :--- | :--- | :--- | :--- |
+| **Registrar Aula** | Aulas das proprias atribuicoes ou fluxo de correcao autorizado | `target.course_id == actor.membership.course_id` | Aula dentro da janela permitida; `coordenacao` apenas em fluxo de correcao ou retificacao autorizado | `LESSON_RECORD` |
+| **Lancar Frequencia** | Frequencias das proprias atribuicoes ou fluxo de retificacao autorizado | `target.course_id == actor.membership.course_id` | Aula existe; janela aberta ou permissao de retificacao; estudantes pertencem a turma ou aula | `ATTENDANCE_RECORD` |
+| **Lancar Avaliacao e Notas** | Avaliacoes e notas das proprias atribuicoes | `target.course_id == actor.membership.course_id` | Regime avaliativo vigente permite; janela aberta ou permissao de retificacao | `GRADE_RECORD` |
+| **Emitir Relatorio de Frequencia** | Relatorio de frequencia | Professor restrito ao proprio escopo; demais no proprio tenant | Filtros validos; exportacao usa o mesmo criterio da tela | `REPORT_READ` + `REPORT_EXPORT` |
+| **Emitir Relatorio de Aulas Registradas** | Relatorio de aulas registradas | Professor restrito ao proprio escopo; demais no proprio tenant | Pode incluir pendencias de diario; filtros validos | `REPORT_READ` + `REPORT_EXPORT` |
+| **Emitir Relatorio de Desempenho por Disciplina** | Relatorio de desempenho por disciplina | Professor restrito ao proprio escopo quando permitido; demais no proprio tenant | Regime avaliativo resolvido para o recorte | `REPORT_READ` + `REPORT_EXPORT` |
+
+#### `estudante`
+| Caso de Uso | Alvo | Validacao de Escopo | Condicao Adicional | Capability requerida |
+| :--- | :--- | :--- | :--- | :--- |
+| **Consultar Boletim do Estudante** | Boletim do estudante | Recurso pessoal ou `target.institution_id == actor.institution_id` | Politica de visibilidade aplicada; `Membership.state == ACTIVE` quando aplicavel | `GRADEBOOK_STUDENT_READ` |
+| **Consultar Painel do Estudante** | Painel consolidado do estudante | Recurso pessoal ou vinculo valido com o estudante | Metricas oficiais e parciais devem ser distinguidas; filtros validos | `DASHBOARD_STUDENT_READ` |
+
+#### `responsavel`
+| Caso de Uso | Alvo | Validacao de Escopo | Condicao Adicional | Capability requerida |
+| :--- | :--- | :--- | :--- | :--- |
+| **Consultar Boletim do Estudante** | Boletim do estudante | Recurso pessoal ou `target.institution_id == actor.institution_id` | Politica de visibilidade aplicada; `Membership.state == ACTIVE` quando aplicavel | `GRADEBOOK_STUDENT_READ` |
+| **Consultar Painel do Estudante** | Painel consolidado do estudante | Recurso pessoal ou vinculo valido com o estudante | Metricas oficiais e parciais devem ser distinguidas; filtros validos | `DASHBOARD_STUDENT_READ` |
+
+#### `sistema`
+| Caso de Uso | Alvo | Validacao de Escopo | Condicao Adicional | Capability requerida |
+| :--- | :--- | :--- | :--- | :--- |
+| **Cadastrar Usuario** | Alunos | Baseado no contrato do gateway de pagamento | Fluxo tecnico auditavel | `USER_CREATE` + `MEMBERSHIP_CREATE` |
+| **Criar Matricula** | Alunos do proprio tenant | `target.institution_id == actor.institution_id` | `User.state == ACTIVE`, `Membership.state == ACTIVE` | `ENROLLMENT_CREATE` |
+| **Consultar Matricula** | Matriculas do proprio tenant | `target.institution_id == actor.institution_id` | N/A | `ENROLLMENT_READ` |
+| **Listar Historico de Matricula** | Historico append-only da matricula | `target.institution_id == actor.institution_id` | Acesso a trilha de auditoria permitido | `ENROLLMENT_HISTORY_READ` |
+| **Suspender Matricula** | Matriculas do proprio tenant | `target.institution_id == actor.institution_id` | `Enrollment.state == ACTIVE`; exige justificativa; politicas externas permitem suspensao | `ENROLLMENT_SUSPEND` |
+| **Reativar Matricula** | Matriculas do proprio tenant | `target.institution_id == actor.institution_id` | `Enrollment.state == SUSPENDED`; exige justificativa; politicas externas permitem reativacao | `ENROLLMENT_REACTIVATE` |
+| **Cancelar Matricula** | Matriculas do proprio tenant | `target.institution_id == actor.institution_id` | Apenas em janelas permitidas; exige justificativa | `ENROLLMENT_CANCEL` |
+| **Fechar Periodo e Calcular Media** | Periodo do proprio tenant | `target.institution_id == actor.institution_id` | Periodo elegivel; politicas congeladas e resolvidas; dados minimos disponiveis | `PERIOD_CLOSE` |
+| **Consultar Boletim do Estudante** | Boletim do estudante | Recurso pessoal ou `target.institution_id == actor.institution_id` | Politica de visibilidade aplicada; `Membership.state == ACTIVE` quando aplicavel | `GRADEBOOK_STUDENT_READ` |
+| **Consultar Painel do Estudante** | Painel consolidado do estudante | Recurso pessoal ou vinculo valido com o estudante | Metricas oficiais e parciais devem ser distinguidas; filtros validos | `DASHBOARD_STUDENT_READ` |
+| **Emitir Boletim Oficial** | Documento oficial do estudante | `target.institution_id == actor.institution_id` | Periodo elegivel ou fechado; dados consolidados disponiveis; emissao auditavel | `REPORT_OFFICIAL_ISSUE` |
+| **Emitir Relatorio de Frequencia** | Relatorio de frequencia | Professor restrito ao proprio escopo; demais no proprio tenant | Filtros validos; exportacao usa o mesmo criterio da tela | `REPORT_READ` + `REPORT_EXPORT` |
+| **Emitir Relatorio de Aulas Registradas** | Relatorio de aulas registradas | Professor restrito ao proprio escopo; demais no proprio tenant | Pode incluir pendencias de diario; filtros validos | `REPORT_READ` + `REPORT_EXPORT` |
+| **Emitir Relatorio de Desempenho por Disciplina** | Relatorio de desempenho por disciplina | Professor restrito ao proprio escopo quando permitido; demais no proprio tenant | Regime avaliativo resolvido para o recorte | `REPORT_READ` + `REPORT_EXPORT` |
+
+#### `integracao_autorizada`
+| Caso de Uso | Alvo | Validacao de Escopo | Condicao Adicional | Capability requerida |
+| :--- | :--- | :--- | :--- | :--- |
+| **Criar Matricula** | Alunos do proprio tenant | `target.institution_id == actor.institution_id` | `User.state == ACTIVE`, `Membership.state == ACTIVE` | `ENROLLMENT_CREATE` |
+
 ---
 
 ## 5. Diretrizes de Design e Seguranca

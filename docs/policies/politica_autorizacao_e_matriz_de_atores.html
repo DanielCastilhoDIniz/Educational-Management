@@ -2,7 +2,7 @@
         <html>
         <head>
             <meta charset="UTF-8">
-            <title>&#x1f3db;&#xfe0f; Pol&iacute;tica de Autoriza&ccedil;&atilde;o e Governan&ccedil;a de Acesso</title>
+            <title>Politica de Autorizacao e Governanca de Acesso</title>
             <style>
 /* From extension vscode.github */
 /*---------------------------------------------------------------------------------------------
@@ -138,44 +138,44 @@
         
         </head>
         <body class="vscode-body vscode-light">
-            <h1 id="️-política-de-autorização-e-governança-de-acesso">🏛️ Política de Autorização e Governança de Acesso</h1>
+            <h1 id="politica-de-autorizacao-e-governanca-de-acesso">Politica de Autorizacao e Governanca de Acesso</h1>
 <h2 id="1-objetivo">1. Objetivo</h2>
-<p>Estabelecer as diretrizes de controle de acesso para a plataforma, garantindo o <strong>Princípio do Menor Privilégio</strong>. Esta política define a <strong>relação tridimensional</strong> entre <strong>Atores</strong> (<code>Roles</code>), <strong>Casos de Uso</strong> (<code>Capabilities</code>) e os limites de seus <strong>Escopos</strong> (<code>Tenants</code>/<code>Courses</code>), servindo como <strong>especificação executável</strong> para engenharia e testes. O sistema adota um modelo híbrido de autorização baseado em papéis (<strong>RBAC</strong>) com validação de escopos e atributos (<strong>ABAC</strong>).</p>
+<p>Estabelecer as diretrizes de controle de acesso para a plataforma, garantindo o <strong>Principio do Menor Privilegio</strong>. Esta politica define a <strong>relacao tridimensional</strong> entre <strong>Atores</strong> (papeis humanos e principals tecnicos), <strong>Casos de Uso</strong> (<code>Capabilities</code>) e os limites de seus <strong>Escopos</strong> (<code>Tenants</code>/<code>Courses</code>), servindo como <strong>especificacao executavel</strong> para engenharia e testes. O sistema adota um modelo hibrido de autorizacao baseado em papeis (<strong>RBAC</strong>) com validacao de escopos e atributos (<strong>ABAC</strong>).</p>
 <hr>
 <h2 id="2-taxonomia-de-atores">2. Taxonomia de Atores</h2>
 <h3 id="nivel-0-plataforma-cross-tenant">Nivel 0: Plataforma (Cross-Tenant)</h3>
 <ul>
-<li><strong><code>administrador_plataforma</code></strong> — Superusuário do SaaS. Não possui <code>Membership</code>. Identificado pelo sinalizador <code>is_superuser</code> no mecanismo de autenticação. Escopo global, irrestrito entre tenants. Responsável pela saúde do software, criação de instituições e gestão de recursos globais.</li>
+<li><strong><code>administrador_plataforma</code></strong> - Superusuario do SaaS. Nao possui <code>Membership</code>. Identificado pelo sinalizador <code>is_superuser</code> no mecanismo de autenticacao. Escopo global, irrestrito entre tenants. Responsavel pela saude do software, criacao de instituicoes e gestao de recursos globais.</li>
 </ul>
-<h3 id="nivel-1-estratégico-institucional">Nivel 1: Estratégico Institucional</h3>
+<h3 id="nivel-1-estrategico-institucional">Nivel 1: Estrategico Institucional</h3>
 <ul>
-<li><strong><code>direcao_estrategica</code></strong> — <code>Membership</code> com <code>course_id = null</code>. Autoridade de governança institucional: configuração do tenant, concessão e revogação de papéis, gestão de identidade e vínculos. Inclui: Diretor Geral e cargos equivalentes.</li>
-<li><strong><code>gestao_financeira</code></strong> — <code>Membership</code> com <code>course_id = null</code>. Autoridade sobre saúde financeira da instituição. Único papel que pode suspender <code>Membership</code> por inadimplência e reativá-lo após confirmação de pagamento. Inclui: Controller Financeiro e cargos equivalentes. <em>(escopo financeiro completo previsto para Fase 2)</em></li>
+<li><strong><code>direcao_estrategica</code></strong> - <code>Membership</code> com <code>course_id = null</code>. Autoridade de governanca institucional: configuracao do tenant, concessao e revogacao de papeis, gestao de identidade e vinculos. Inclui diretor geral e cargos equivalentes.</li>
+<li><strong><code>gestao_financeira</code></strong> - <code>Membership</code> com <code>course_id = null</code>. Autoridade sobre saude financeira da instituicao. Unico papel que pode suspender <code>Membership</code> por inadimplencia e reativa-lo apos confirmacao de pagamento. Inclui controller financeiro e cargos equivalentes. <em>(escopo financeiro completo previsto para Fase 2)</em></li>
 </ul>
 <h3 id="nivel-2-operacional-interno">Nivel 2: Operacional Interno</h3>
 <ul>
-<li><strong><code>secretaria</code></strong> — Guardiã do vínculo legal e contratual (<code>Enrollment</code>/<code>Membership</code>). Atua no ciclo de vida de entrada e saída do usuário no ecossistema (matrículas, transferências, emissão de documentos oficiais). Escopo institucional ou por curso.</li>
-<li><strong><code>coordenacao</code></strong> — Guardiã da qualidade de ensino e conformidade curricular. Foco no Conteúdo (<code>Course</code>/<code>Subject</code>) e no Desempenho (<code>Grades</code>/<code>Calendar</code>). Responsável pelo fechamento de períodos, aprovação de diários e alocação docente. Escopo institucional ou por curso.</li>
-<li><strong><code>suporte_adm</code></strong> — Operador administrativo com escopos restritos e permissões pontuais delegadas pela <code>direcao_estrategica</code>.</li>
+<li><strong><code>secretaria</code></strong> - Guardiao do vinculo legal e contratual (<code>Enrollment</code>/<code>Membership</code>). Atua no ciclo de vida de entrada e saida do usuario no ecossistema: matriculas, transferencias e emissao de documentos oficiais. Escopo institucional ou por curso.</li>
+<li><strong><code>coordenacao</code></strong> - Guardiao da qualidade de ensino e conformidade curricular. Foco em conteudo (<code>Course</code>/<code>Subject</code>) e desempenho (<code>Grades</code>/<code>Calendar</code>). Responsavel por fechamento de periodos, aprovacao de diarios e alocacao docente. Escopo institucional ou por curso.</li>
+<li><strong><code>suporte_adm</code></strong> - Operador administrativo com escopos restritos e permissoes pontuais delegadas pela <code>direcao_estrategica</code>.</li>
 </ul>
-<h3 id="nivel-3-execução-curricular">Nivel 3: Execução Curricular</h3>
+<h3 id="nivel-3-execucao-curricular">Nivel 3: Execucao Curricular</h3>
 <ul>
-<li><strong><code>professor</code></strong> — Escopo sempre restrito ao <code>course_id</code> das próprias atribuições ativas de componentes curriculares.</li>
+<li><strong><code>professor</code></strong> - Escopo sempre restrito ao <code>course_id</code> das proprias atribuicoes ativas de componentes curriculares.</li>
 </ul>
 <h3 id="nivel-4-utilizador-final">Nivel 4: Utilizador Final</h3>
 <ul>
-<li><strong><code>estudante</code></strong> — Acesso estritamente pessoal (self-service) aos próprios registros acadêmicos e financeiros.</li>
-<li><strong><code>responsavel</code></strong> — Acesso limitado aos dados dos estudantes vinculados via <code>guardian_id</code>.</li>
+<li><strong><code>estudante</code></strong> - Acesso estritamente pessoal (self-service) aos proprios registros academicos e financeiros.</li>
+<li><strong><code>responsavel</code></strong> - Acesso limitado aos dados dos estudantes vinculados via <code>guardian_id</code>.</li>
 </ul>
-<h3 id="autômatos-e-serviços">Autômatos e Serviços</h3>
+<h3 id="automatos-e-servicos">Automatos e Servicos</h3>
 <ul>
-<li><strong><code>sistema</code></strong> — Jobs agendados e rotinas de consolidação de dados. Deve registrar ID da rotina e timestamp em toda ação.</li>
-<li><strong><code>integracao_autorizada</code></strong> — APIs de terceiros e sistemas parceiros com credenciais dedicadas.</li>
+<li><strong><code>sistema</code></strong> - Jobs agendados e rotinas de consolidacao de dados. Deve registrar ID da rotina e timestamp em toda acao.</li>
+<li><strong><code>integracao_autorizada</code></strong> - APIs de terceiros e sistemas parceiros com credenciais dedicadas.</li>
 </ul>
 <hr>
-<h2 id="3-modelo-de-dados-de-autorização-erd-conceitual">3. Modelo de Dados de Autorização (ERD Conceitual)</h2>
+<h2 id="3-modelo-de-dados-de-autorizacao-erd-conceitual">3. Modelo de Dados de Autorizacao (ERD Conceitual)</h2>
 <h3 id="relacionamentos-principais">Relacionamentos principais</h3>
-<pre><code>+--------------+            +-------------------+            +-----------------+
+<pre><code class="language-text">+--------------+            +-------------------+            +-----------------+
 |     User     | 1        N |    Membership     | N        1 |   Institution   |
 | (Identity)   +------------+ (Tenant Boundary) +------------+    (Tenant)     |
 +--------------+            +---------+---------+            +-----------------+
@@ -188,33 +188,40 @@
                             +---------+---------+
                                       |
                                       | capabilities
-                                      | (mapa estático no Domínio — não persistido em banco)
+                                      | (mapa estatico no Dominio - nao persistido em banco)
                                       |
                             +---------+---------+
                             |    Capability     |
                             | (StrEnum no       |
-                            |   Domínio)        |
+                            |   Dominio)        |
                             +-------------------+
 </code></pre>
 <ul>
-<li>Um <code>User</code> pode ter múltiplos <code>Membership</code> (um por instituição/curso)</li>
-<li>Uma <code>Institution</code> pode ter múltiplos <code>Membership</code> (um por usuário/curso)</li>
+<li>Um <code>User</code> pode ter multiplos <code>Membership</code> (um por instituicao/curso)</li>
+<li>Uma <code>Institution</code> pode ter multiplos <code>Membership</code> (um por usuario/curso)</li>
 <li>Um <code>Role</code> define o conjunto de <code>Capabilities</code> que o <code>Membership</code> herda</li>
-<li><code>Capabilities</code> são um mapa estático no domínio (<code>frozenset[Capability]</code> computado a partir de <code>Role.code</code>) — não são armazenadas em banco de dados</li>
-<li>O <code>Membership</code> referencia <code>Role</code> pelo <code>role_id</code> — não carrega escopos diretamente</li>
+<li><code>Capabilities</code> sao um mapa estatico no dominio (<code>frozenset[Capability]</code> computado a partir de <code>Role.code</code>) e nao sao armazenadas em banco de dados</li>
+<li>O <code>Membership</code> referencia <code>Role</code> pelo <code>role_id</code> e nao carrega escopos diretamente</li>
 </ul>
 <h3 id="edge-cases-documentados">Edge Cases documentados</h3>
 <p><strong>Administrador da Plataforma</strong>
-Não possui <code>Membership</code>. Identificado pelo sinalizador <code>is_superuser</code> no mecanismo de autenticação (Django auth). A camada de autorização verifica esse sinalizador antes de exigir <code>Membership</code>, concedendo acesso global irrestrito.</p>
+Nao possui <code>Membership</code>. Identificado pelo sinalizador <code>is_superuser</code> no mecanismo de autenticacao (Django auth). A camada de autorizacao verifica esse sinalizador antes de exigir <code>Membership</code>, concedendo acesso global irrestrito.</p>
 <p><strong>Aluno Menor de Idade</strong>
-O campo <code>guardian_id</code> pertence ao aggregate <code>User</code> (identidade), não ao <code>Membership</code> (vínculo). O responsável legal é o mesmo independente da escola em que o aluno estiver matriculado.</p>
+O campo <code>guardian_id</code> pertence ao aggregate <code>User</code> (identidade), nao ao <code>Membership</code> (vinculo). O responsavel legal e o mesmo independente da escola em que o aluno estiver matriculado.</p>
 <p><strong>Troca de Escola</strong>
-Quando um aluno muda de instituição, o <code>Membership</code> anterior transiciona para <code>INACTIVE</code> e um novo <code>Membership</code> é criado na nova instituição. O histórico do vínculo anterior é preservado nativamente. Nenhum dado é apagado.</p>
-<p><strong>Suspensão por Inadimplência (<code>gestao_financeira</code>)</strong>
-A <code>gestao_financeira</code> suspende o <code>Membership.state</code> (vínculo institucional), nunca o <code>User.state</code> (identidade global). Se o mesmo aluno estiver matriculado na Escola A e na Escola B, a inadimplência na Escola A suspende apenas o <code>Membership</code> da Escola A — o acesso à Escola B permanece intacto. O <code>User</code> continua <code>ACTIVE</code>. Isso garante que a identidade global não seja penalizada por conflitos financeiros de um tenant específico.</p>
+Quando um aluno muda de instituicao, o <code>Membership</code> anterior transiciona para <code>INACTIVE</code> e um novo <code>Membership</code> e criado na nova instituicao. O historico do vinculo anterior e preservado nativamente. Nenhum dado e apagado.</p>
+<p><strong>Suspensao por Inadimplencia (<code>gestao_financeira</code>)</strong>
+A <code>gestao_financeira</code> suspende o <code>Membership.state</code> (vinculo institucional), nunca o <code>User.state</code> (identidade global). Se o mesmo aluno estiver matriculado na Escola A e na Escola B, a inadimplencia na Escola A suspende apenas o <code>Membership</code> da Escola A - o acesso a Escola B permanece intacto. O <code>User</code> continua <code>ACTIVE</code>. Isso garante que a identidade global nao seja penalizada por conflitos financeiros de um tenant especifico.</p>
 <hr>
-<h2 id="4-matriz-de-autorização-operacional">4. Matriz de Autorização Operacional</h2>
-<p>A autorização é validada na camada de <strong>Application</strong>, antes da execução de qualquer lógica de domínio.</p>
+<h2 id="4-matriz-de-autorizacao-operacional">4. Matriz de Autorizacao Operacional</h2>
+<p>A autorizacao e validada na camada de <strong>Application</strong>, antes da execucao de qualquer logica de dominio.</p>
+<p>Esta secao e normatizada pelo <a href="../adr/30-identity-access/034-operational-authorization-matrix-and-capabilities.html">ADR 034 - Matriz Operacional de Autorizacao com Capabilities Explicitas</a>.</p>
+<p>Observacoes:</p>
+<ul>
+<li>a coluna <code>Capability requerida</code> usa o nome do enum por legibilidade; o valor serializado canonico continua no formato <code>resource:action</code></li>
+<li>principals tecnicos (<code>sistema</code>, <code>integracao_autorizada</code>, <code>administrador_plataforma</code>) podem satisfazer a capability por contrato proprio, sem instanciar <code>Role</code></li>
+<li>linhas marcadas como <code>(futuro)</code> documentam extensao esperada, mas nao entram no minimo obrigatorio de implementacao ate que o caso de uso seja promovido</li>
+</ul>
 <table>
 <thead>
 <tr>
@@ -223,6 +230,7 @@ A <code>gestao_financeira</code> suspende o <code>Membership.state</code> (vínc
 <th style="text-align:left">Alvo</th>
 <th style="text-align:left">Validacao de Escopo</th>
 <th style="text-align:left">Condicao Adicional</th>
+<th style="text-align:left">Capability requerida</th>
 </tr>
 </thead>
 <tbody>
@@ -232,27 +240,31 @@ A <code>gestao_financeira</code> suspende o <code>Membership.state</code> (vínc
 <td style="text-align:left">Qualquer <code>User</code></td>
 <td style="text-align:left">Sem restricao (cross-tenant)</td>
 <td style="text-align:left">N/A</td>
+<td style="text-align:left"><code>USER_CREATE</code></td>
 </tr>
 <tr>
 <td style="text-align:left"><strong>Cadastrar Usuario</strong></td>
 <td style="text-align:left"><code>direcao_estrategica</code></td>
 <td style="text-align:left">Equipe da instituicao</td>
-<td style="text-align:left"><code>target.institution_id == actor.institution_id</code></td>
-<td style="text-align:left">N/A</td>
+<td style="text-align:left"><code>target_membership.institution_id == actor.institution_id</code></td>
+<td style="text-align:left">Fluxo composto de onboarding institucional</td>
+<td style="text-align:left"><code>USER_CREATE</code> + <code>MEMBERSHIP_CREATE</code></td>
 </tr>
 <tr>
 <td style="text-align:left"><strong>Cadastrar Usuario</strong></td>
 <td style="text-align:left"><code>secretaria</code></td>
 <td style="text-align:left">Alunos e responsaveis</td>
-<td style="text-align:left"><code>target.role</code> deve ter nível inferior ao da secretaria</td>
-<td style="text-align:left">User e Membership institucional devem ser criados na mesma transação para evitar User órfão no sistema</td>
+<td style="text-align:left"><code>target_membership.institution_id == actor.institution_id</code></td>
+<td style="text-align:left"><code>target.role</code> deve ter nivel inferior ao da secretaria; <code>User</code> e <code>Membership</code> devem nascer na mesma transacao</td>
+<td style="text-align:left"><code>USER_CREATE</code> + <code>MEMBERSHIP_CREATE</code></td>
 </tr>
 <tr>
 <td style="text-align:left"><strong>Cadastrar Usuario</strong></td>
 <td style="text-align:left"><code>sistema</code></td>
 <td style="text-align:left">Alunos</td>
 <td style="text-align:left">Baseado no contrato do gateway de pagamento</td>
-<td style="text-align:left">N/A</td>
+<td style="text-align:left">Fluxo tecnico auditavel</td>
+<td style="text-align:left"><code>USER_CREATE</code> + <code>MEMBERSHIP_CREATE</code></td>
 </tr>
 <tr>
 <td style="text-align:left"><strong>Ativar Usuario</strong></td>
@@ -260,20 +272,23 @@ A <code>gestao_financeira</code> suspende o <code>Membership.state</code> (vínc
 <td style="text-align:left">Qualquer <code>User</code></td>
 <td style="text-align:left">Sem restricao</td>
 <td style="text-align:left"><code>User.state == PENDING</code></td>
+<td style="text-align:left"><code>USER_ACTIVATE</code></td>
 </tr>
 <tr>
 <td style="text-align:left"><strong>Ativar Usuario</strong></td>
 <td style="text-align:left"><code>direcao_estrategica</code></td>
 <td style="text-align:left">Usuarios do proprio tenant</td>
-<td style="text-align:left"><code>target.institution_id == actor.institution_id</code></td>
+<td style="text-align:left"><code>target_membership.institution_id == actor.institution_id</code></td>
 <td style="text-align:left"><code>User.state == PENDING</code></td>
+<td style="text-align:left"><code>USER_ACTIVATE</code></td>
 </tr>
 <tr>
 <td style="text-align:left"><strong>Desbloquear Usuario</strong></td>
 <td style="text-align:left"><code>direcao_estrategica</code></td>
 <td style="text-align:left">Usuarios do proprio tenant</td>
-<td style="text-align:left"><code>target.institution_id == actor.institution_id</code></td>
+<td style="text-align:left"><code>target_membership.institution_id == actor.institution_id</code></td>
 <td style="text-align:left"><code>User.state == SUSPENDED</code></td>
+<td style="text-align:left"><code>USER_UNLOCK</code></td>
 </tr>
 <tr>
 <td style="text-align:left"><strong>Desbloquear Usuario</strong></td>
@@ -281,48 +296,15 @@ A <code>gestao_financeira</code> suspende o <code>Membership.state</code> (vínc
 <td style="text-align:left">Qualquer <code>User</code></td>
 <td style="text-align:left">Sem restricao</td>
 <td style="text-align:left"><code>User.state == SUSPENDED</code>; intervencao de emergencia; audit trail obrigatorio</td>
+<td style="text-align:left"><code>USER_UNLOCK</code></td>
 </tr>
 <tr>
 <td style="text-align:left"><strong>Desbloquear Usuario</strong></td>
 <td style="text-align:left"><code>suporte_adm</code></td>
 <td style="text-align:left">Usuarios do proprio tenant</td>
-<td style="text-align:left"><code>target.institution_id == actor.institution_id</code></td>
+<td style="text-align:left"><code>target_membership.institution_id == actor.institution_id</code></td>
 <td style="text-align:left"><code>User.state == SUSPENDED</code>; requer autorizacao explicita</td>
-</tr>
-<tr>
-<td style="text-align:left"><strong>Vincular Usuario a Instituicao</strong></td>
-<td style="text-align:left"><code>administrador_plataforma</code></td>
-<td style="text-align:left">Qualquer vinculo</td>
-<td style="text-align:left">Sem restricao</td>
-<td style="text-align:left"><code>User.state == ACTIVE</code></td>
-</tr>
-<tr>
-<td style="text-align:left"><strong>Vincular Usuario a Instituicao</strong></td>
-<td style="text-align:left"><code>direcao_estrategica</code></td>
-<td style="text-align:left">Vinculos do proprio tenant</td>
-<td style="text-align:left"><code>target.institution_id == actor.institution_id</code></td>
-<td style="text-align:left"><code>User.state == ACTIVE</code></td>
-</tr>
-<tr>
-<td style="text-align:left"><strong>Ativar Membership</strong></td>
-<td style="text-align:left"><code>administrador_plataforma</code></td>
-<td style="text-align:left">Qualquer <code>Membership</code></td>
-<td style="text-align:left">Sem restricao</td>
-<td style="text-align:left"><code>Membership.state == SUSPENDED</code></td>
-</tr>
-<tr>
-<td style="text-align:left"><strong>Ativar Membership</strong></td>
-<td style="text-align:left"><code>direcao_estrategica</code></td>
-<td style="text-align:left">Memberships do proprio tenant</td>
-<td style="text-align:left"><code>target.institution_id == actor.institution_id</code></td>
-<td style="text-align:left"><code>Membership.state == SUSPENDED</code></td>
-</tr>
-<tr>
-<td style="text-align:left"><strong>Ativar Membership</strong></td>
-<td style="text-align:left"><code>gestao_financeira</code></td>
-<td style="text-align:left">Memberships do proprio tenant</td>
-<td style="text-align:left"><code>target.institution_id == actor.institution_id</code></td>
-<td style="text-align:left"><code>Membership.state == SUSPENDED</code>; reativacao apos confirmacao de pagamento</td>
+<td style="text-align:left"><code>USER_UNLOCK</code></td>
 </tr>
 <tr>
 <td style="text-align:left"><strong>Suspender Usuario</strong></td>
@@ -330,34 +312,7 @@ A <code>gestao_financeira</code> suspende o <code>Membership.state</code> (vínc
 <td style="text-align:left">Qualquer <code>User</code></td>
 <td style="text-align:left">Sem restricao</td>
 <td style="text-align:left"><code>User.state == ACTIVE</code>; requer justificativa; audit trail obrigatorio</td>
-</tr>
-<tr>
-<td style="text-align:left"><strong>Suspender Membership</strong></td>
-<td style="text-align:left"><code>direcao_estrategica</code></td>
-<td style="text-align:left">Memberships do proprio tenant</td>
-<td style="text-align:left"><code>target.institution_id == actor.institution_id</code></td>
-<td style="text-align:left"><code>Membership.state == ACTIVE</code>; requer justificativa</td>
-</tr>
-<tr>
-<td style="text-align:left"><strong>Suspender Membership</strong></td>
-<td style="text-align:left"><code>gestao_financeira</code></td>
-<td style="text-align:left">Memberships do proprio tenant</td>
-<td style="text-align:left"><code>target.institution_id == actor.institution_id</code></td>
-<td style="text-align:left"><code>Membership.state == ACTIVE</code>; inadimplencia; requer justificativa</td>
-</tr>
-<tr>
-<td style="text-align:left"><strong>Encerrar Membership</strong></td>
-<td style="text-align:left"><code>administrador_plataforma</code></td>
-<td style="text-align:left">Qualquer <code>Membership</code></td>
-<td style="text-align:left">Sem restricao</td>
-<td style="text-align:left"><code>Membership.state in (ACTIVE, SUSPENDED)</code>; irreversivel; requer justificativa</td>
-</tr>
-<tr>
-<td style="text-align:left"><strong>Encerrar Membership</strong></td>
-<td style="text-align:left"><code>direcao_estrategica</code></td>
-<td style="text-align:left">Memberships do proprio tenant</td>
-<td style="text-align:left"><code>target.institution_id == actor.institution_id</code></td>
-<td style="text-align:left"><code>Membership.state in (ACTIVE, SUSPENDED)</code>; irreversivel; requer justificativa</td>
+<td style="text-align:left"><code>USER_SUSPEND</code></td>
 </tr>
 <tr>
 <td style="text-align:left"><strong>Encerrar Usuario</strong></td>
@@ -365,6 +320,79 @@ A <code>gestao_financeira</code> suspende o <code>Membership.state</code> (vínc
 <td style="text-align:left">Qualquer <code>User</code></td>
 <td style="text-align:left">Sem restricao</td>
 <td style="text-align:left"><code>User.state in (ACTIVE, SUSPENDED)</code>; irreversivel; requer justificativa</td>
+<td style="text-align:left"><code>USER_CLOSE</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Vincular Usuario a Instituicao</strong></td>
+<td style="text-align:left"><code>administrador_plataforma</code></td>
+<td style="text-align:left">Qualquer vinculo</td>
+<td style="text-align:left">Sem restricao</td>
+<td style="text-align:left"><code>User.state == ACTIVE</code></td>
+<td style="text-align:left"><code>MEMBERSHIP_CREATE</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Vincular Usuario a Instituicao</strong></td>
+<td style="text-align:left"><code>direcao_estrategica</code></td>
+<td style="text-align:left">Vinculos do proprio tenant</td>
+<td style="text-align:left"><code>target.institution_id == actor.institution_id</code></td>
+<td style="text-align:left"><code>User.state == ACTIVE</code></td>
+<td style="text-align:left"><code>MEMBERSHIP_CREATE</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Ativar Membership</strong></td>
+<td style="text-align:left"><code>administrador_plataforma</code></td>
+<td style="text-align:left">Qualquer <code>Membership</code></td>
+<td style="text-align:left">Sem restricao</td>
+<td style="text-align:left"><code>Membership.state == SUSPENDED</code></td>
+<td style="text-align:left"><code>MEMBERSHIP_ACTIVATE</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Ativar Membership</strong></td>
+<td style="text-align:left"><code>direcao_estrategica</code></td>
+<td style="text-align:left">Memberships do proprio tenant</td>
+<td style="text-align:left"><code>target.institution_id == actor.institution_id</code></td>
+<td style="text-align:left"><code>Membership.state == SUSPENDED</code></td>
+<td style="text-align:left"><code>MEMBERSHIP_ACTIVATE</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Ativar Membership</strong></td>
+<td style="text-align:left"><code>gestao_financeira</code></td>
+<td style="text-align:left">Memberships do proprio tenant</td>
+<td style="text-align:left"><code>target.institution_id == actor.institution_id</code></td>
+<td style="text-align:left"><code>Membership.state == SUSPENDED</code>; reativacao apos confirmacao de pagamento</td>
+<td style="text-align:left"><code>MEMBERSHIP_ACTIVATE</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Suspender Membership</strong></td>
+<td style="text-align:left"><code>direcao_estrategica</code></td>
+<td style="text-align:left">Memberships do proprio tenant</td>
+<td style="text-align:left"><code>target.institution_id == actor.institution_id</code></td>
+<td style="text-align:left"><code>Membership.state == ACTIVE</code>; requer justificativa</td>
+<td style="text-align:left"><code>MEMBERSHIP_SUSPEND</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Suspender Membership</strong></td>
+<td style="text-align:left"><code>gestao_financeira</code></td>
+<td style="text-align:left">Memberships do proprio tenant</td>
+<td style="text-align:left"><code>target.institution_id == actor.institution_id</code></td>
+<td style="text-align:left"><code>Membership.state == ACTIVE</code>; inadimplencia; requer justificativa</td>
+<td style="text-align:left"><code>MEMBERSHIP_SUSPEND</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Encerrar Membership</strong></td>
+<td style="text-align:left"><code>administrador_plataforma</code></td>
+<td style="text-align:left">Qualquer <code>Membership</code></td>
+<td style="text-align:left">Sem restricao</td>
+<td style="text-align:left"><code>Membership.state in (ACTIVE, SUSPENDED)</code>; irreversivel; requer justificativa</td>
+<td style="text-align:left"><code>MEMBERSHIP_CLOSE</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Encerrar Membership</strong></td>
+<td style="text-align:left"><code>direcao_estrategica</code></td>
+<td style="text-align:left">Memberships do proprio tenant</td>
+<td style="text-align:left"><code>target.institution_id == actor.institution_id</code></td>
+<td style="text-align:left"><code>Membership.state in (ACTIVE, SUSPENDED)</code>; irreversivel; requer justificativa</td>
+<td style="text-align:left"><code>MEMBERSHIP_CLOSE</code></td>
 </tr>
 <tr>
 <td style="text-align:left"><strong>Cadastrar Instituicao</strong> <em>(organizacional)</em></td>
@@ -372,6 +400,7 @@ A <code>gestao_financeira</code> suspende o <code>Membership.state</code> (vínc
 <td style="text-align:left">Nova <code>Institution</code></td>
 <td style="text-align:left">Sem restricao (cross-tenant)</td>
 <td style="text-align:left">Cria o tenant; dados minimos obrigatorios</td>
+<td style="text-align:left"><code>INSTITUTION_CREATE</code></td>
 </tr>
 <tr>
 <td style="text-align:left"><strong>Configurar Instituicao</strong> <em>(organizacional)</em></td>
@@ -379,6 +408,7 @@ A <code>gestao_financeira</code> suspende o <code>Membership.state</code> (vínc
 <td style="text-align:left">Propria <code>Institution</code></td>
 <td style="text-align:left"><code>target.institution_id == actor.institution_id</code></td>
 <td style="text-align:left">Perfil, endereco, contato, logo</td>
+<td style="text-align:left"><code>INSTITUTION_CONFIGURE</code></td>
 </tr>
 <tr>
 <td style="text-align:left"><strong>Configurar Instituicao</strong> <em>(organizacional)</em></td>
@@ -386,13 +416,23 @@ A <code>gestao_financeira</code> suspende o <code>Membership.state</code> (vínc
 <td style="text-align:left">Propria <code>Institution</code></td>
 <td style="text-align:left"><code>target.institution_id == actor.institution_id</code></td>
 <td style="text-align:left">Delegado pela <code>direcao_estrategica</code></td>
+<td style="text-align:left"><code>INSTITUTION_CONFIGURE</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Cadastrar Rede, Instituicao e Unidade</strong></td>
+<td style="text-align:left"><code>administrador_plataforma</code></td>
+<td style="text-align:left">Estrutura organizacional global</td>
+<td style="text-align:left">Sem restricao (cross-tenant)</td>
+<td style="text-align:left">Duplicidade organizacional resolvida; politica de cadastro organizacional aplicada</td>
+<td style="text-align:left"><code>NETWORK_STRUCTURE_CREATE</code></td>
 </tr>
 <tr>
 <td style="text-align:left"><strong>Criar Matricula</strong></td>
-<td style="text-align:left"><code>secretaria</code>, <code>sistema</code></td>
+<td style="text-align:left"><code>secretaria</code>, <code>sistema</code>, <code>integracao_autorizada</code></td>
 <td style="text-align:left">Alunos do proprio tenant</td>
 <td style="text-align:left"><code>target.institution_id == actor.institution_id</code></td>
 <td style="text-align:left"><code>User.state == ACTIVE</code>, <code>Membership.state == ACTIVE</code></td>
+<td style="text-align:left"><code>ENROLLMENT_CREATE</code></td>
 </tr>
 <tr>
 <td style="text-align:left"><strong>Consultar Matricula</strong></td>
@@ -400,55 +440,183 @@ A <code>gestao_financeira</code> suspende o <code>Membership.state</code> (vínc
 <td style="text-align:left">Matriculas do proprio tenant</td>
 <td style="text-align:left"><code>target.institution_id == actor.institution_id</code></td>
 <td style="text-align:left">N/A</td>
+<td style="text-align:left"><code>ENROLLMENT_READ</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><strong>Suspender/Reativar Matricula</strong></td>
-<td style="text-align:left"><code>secretaria</code></td>
+<td style="text-align:left"><strong>Listar Historico de Matricula</strong></td>
+<td style="text-align:left"><code>secretaria</code>, <code>coordenacao</code>, <code>suporte_adm</code>, <code>sistema</code></td>
+<td style="text-align:left">Historico append-only da matricula</td>
+<td style="text-align:left"><code>target.institution_id == actor.institution_id</code></td>
+<td style="text-align:left">Acesso a trilha de auditoria permitido</td>
+<td style="text-align:left"><code>ENROLLMENT_HISTORY_READ</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Suspender Matricula</strong></td>
+<td style="text-align:left"><code>secretaria</code>, <code>sistema</code></td>
 <td style="text-align:left">Matriculas do proprio tenant</td>
 <td style="text-align:left"><code>target.institution_id == actor.institution_id</code></td>
-<td style="text-align:left">Exige justificativa</td>
+<td style="text-align:left"><code>Enrollment.state == ACTIVE</code>; exige justificativa; politicas externas permitem suspensao</td>
+<td style="text-align:left"><code>ENROLLMENT_SUSPEND</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Reativar Matricula</strong></td>
+<td style="text-align:left"><code>secretaria</code>, <code>sistema</code></td>
+<td style="text-align:left">Matriculas do proprio tenant</td>
+<td style="text-align:left"><code>target.institution_id == actor.institution_id</code></td>
+<td style="text-align:left"><code>Enrollment.state == SUSPENDED</code>; exige justificativa; politicas externas permitem reativacao</td>
+<td style="text-align:left"><code>ENROLLMENT_REACTIVATE</code></td>
 </tr>
 <tr>
 <td style="text-align:left"><strong>Cancelar Matricula</strong></td>
-<td style="text-align:left"><code>secretaria</code>, <code>suporte_adm</code></td>
+<td style="text-align:left"><code>secretaria</code>, <code>suporte_adm</code>, <code>sistema</code></td>
 <td style="text-align:left">Matriculas do proprio tenant</td>
 <td style="text-align:left"><code>target.institution_id == actor.institution_id</code></td>
-<td style="text-align:left">Apenas em janelas permitidas</td>
+<td style="text-align:left">Apenas em janelas permitidas; exige justificativa</td>
+<td style="text-align:left"><code>ENROLLMENT_CANCEL</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><strong>Concluir Periodo</strong></td>
-<td style="text-align:left"><code>coordenacao</code>, <code>sistema</code></td>
+<td style="text-align:left"><strong>Cadastrar Estudante</strong></td>
+<td style="text-align:left"><code>secretaria</code>, <code>direcao_estrategica</code></td>
+<td style="text-align:left">Estudantes do proprio tenant</td>
+<td style="text-align:left"><code>target.institution_id == actor.institution_id</code></td>
+<td style="text-align:left">Unicidade conforme politica de cadastro</td>
+<td style="text-align:left"><code>STUDENT_CREATE</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Cadastrar Professor</strong></td>
+<td style="text-align:left"><code>secretaria</code>, <code>direcao_estrategica</code></td>
+<td style="text-align:left">Professores do proprio tenant</td>
+<td style="text-align:left"><code>target.institution_id == actor.institution_id</code></td>
+<td style="text-align:left">Unicidade conforme politica institucional</td>
+<td style="text-align:left"><code>TEACHER_CREATE</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Cadastrar Responsavel e Vincular ao Estudante</strong></td>
+<td style="text-align:left"><code>secretaria</code>, <code>direcao_estrategica</code></td>
+<td style="text-align:left">Responsaveis e vinculos com estudantes do proprio tenant</td>
+<td style="text-align:left"><code>target.institution_id == actor.institution_id</code></td>
+<td style="text-align:left">Estudante existe; relacao permitida pela politica institucional</td>
+<td style="text-align:left"><code>GUARDIAN_CREATE</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Criar Ano Letivo e Periodos</strong></td>
+<td style="text-align:left"><code>direcao_estrategica</code>, <code>secretaria</code></td>
+<td style="text-align:left">Estrutura academica do proprio tenant</td>
+<td style="text-align:left"><code>target.institution_id == actor.institution_id</code></td>
+<td style="text-align:left"><code>secretaria</code> apenas com permissao ampliada; sem conflito estrutural; politica de calendario valida</td>
+<td style="text-align:left"><code>SCHOOL_YEAR_CREATE</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Criar Turma</strong></td>
+<td style="text-align:left"><code>secretaria</code>, <code>direcao_estrategica</code></td>
+<td style="text-align:left">Turmas do proprio tenant</td>
+<td style="text-align:left"><code>target.institution_id == actor.institution_id</code></td>
+<td style="text-align:left">Ano e periodo existem; chave de negocio unica no escopo</td>
+<td style="text-align:left"><code>CLASS_GROUP_CREATE</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Associar Professor a Disciplina e Turma</strong></td>
+<td style="text-align:left"><code>secretaria</code>, <code>coordenacao</code>, <code>direcao_estrategica</code></td>
+<td style="text-align:left">Atribuicoes docentes do proprio tenant</td>
+<td style="text-align:left"><code>target.institution_id == actor.institution_id</code></td>
+<td style="text-align:left">Professor, disciplina e turma existem; vinculo permitido pela politica institucional</td>
+<td style="text-align:left"><code>TEACHER_ASSIGN</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Registrar Aula</strong></td>
+<td style="text-align:left"><code>professor</code>, <code>coordenacao</code></td>
+<td style="text-align:left">Aulas das proprias atribuicoes ou fluxo de correcao autorizado</td>
+<td style="text-align:left"><code>target.course_id == actor.membership.course_id</code></td>
+<td style="text-align:left">Aula dentro da janela permitida; <code>coordenacao</code> apenas em fluxo de correcao ou retificacao autorizado</td>
+<td style="text-align:left"><code>LESSON_RECORD</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Lancar Frequencia</strong></td>
+<td style="text-align:left"><code>professor</code>, <code>coordenacao</code></td>
+<td style="text-align:left">Frequencias das proprias atribuicoes ou fluxo de retificacao autorizado</td>
+<td style="text-align:left"><code>target.course_id == actor.membership.course_id</code></td>
+<td style="text-align:left">Aula existe; janela aberta ou permissao de retificacao; estudantes pertencem a turma ou aula</td>
+<td style="text-align:left"><code>ATTENDANCE_RECORD</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Lancar Avaliacao e Notas</strong></td>
+<td style="text-align:left"><code>professor</code>, <code>coordenacao</code></td>
+<td style="text-align:left">Avaliacoes e notas das proprias atribuicoes</td>
+<td style="text-align:left"><code>target.course_id == actor.membership.course_id</code></td>
+<td style="text-align:left">Regime avaliativo vigente permite; janela aberta ou permissao de retificacao</td>
+<td style="text-align:left"><code>GRADE_RECORD</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Fechar Periodo e Calcular Media</strong></td>
+<td style="text-align:left"><code>coordenacao</code>, <code>sistema</code>, <code>direcao_estrategica</code></td>
 <td style="text-align:left">Periodo do proprio tenant</td>
 <td style="text-align:left"><code>target.institution_id == actor.institution_id</code></td>
-<td style="text-align:left">Periodo deve estar ativo</td>
+<td style="text-align:left">Periodo elegivel; politicas congeladas e resolvidas; dados minimos disponiveis</td>
+<td style="text-align:left"><code>PERIOD_CLOSE</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><strong>Lancar Notas/Frequencia</strong></td>
-<td style="text-align:left"><code>professor</code></td>
-<td style="text-align:left">Proprias atribuicoes</td>
-<td style="text-align:left"><code>target.course_id == actor.membership.course_id</code></td>
-<td style="text-align:left">Dentro da janela letiva</td>
+<td style="text-align:left"><strong>Consultar Boletim do Estudante</strong></td>
+<td style="text-align:left"><code>secretaria</code>, <code>coordenacao</code>, <code>estudante</code>, <code>responsavel</code>, <code>sistema</code></td>
+<td style="text-align:left">Boletim do estudante</td>
+<td style="text-align:left">Recurso pessoal ou <code>target.institution_id == actor.institution_id</code></td>
+<td style="text-align:left">Politica de visibilidade aplicada; <code>Membership.state == ACTIVE</code> quando aplicavel</td>
+<td style="text-align:left"><code>GRADEBOOK_STUDENT_READ</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><strong>Consultar Boletim</strong></td>
-<td style="text-align:left"><code>estudante</code>, <code>responsavel</code></td>
-<td style="text-align:left">Proprio registro</td>
-<td style="text-align:left">Recurso pessoal</td>
-<td style="text-align:left"><code>Membership.state == ACTIVE</code></td>
+<td style="text-align:left"><strong>Consultar Painel do Estudante</strong></td>
+<td style="text-align:left"><code>estudante</code>, <code>responsavel</code>, <code>sistema</code></td>
+<td style="text-align:left">Painel consolidado do estudante</td>
+<td style="text-align:left">Recurso pessoal ou vinculo valido com o estudante</td>
+<td style="text-align:left">Metricas oficiais e parciais devem ser distinguidas; filtros validos</td>
+<td style="text-align:left"><code>DASHBOARD_STUDENT_READ</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Emitir Boletim Oficial</strong></td>
+<td style="text-align:left"><code>secretaria</code>, <code>coordenacao</code>, <code>sistema</code></td>
+<td style="text-align:left">Documento oficial do estudante</td>
+<td style="text-align:left"><code>target.institution_id == actor.institution_id</code></td>
+<td style="text-align:left">Periodo elegivel ou fechado; dados consolidados disponiveis; emissao auditavel</td>
+<td style="text-align:left"><code>REPORT_OFFICIAL_ISSUE</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Emitir Relatorio de Frequencia</strong></td>
+<td style="text-align:left"><code>secretaria</code>, <code>coordenacao</code>, <code>professor</code>, <code>sistema</code></td>
+<td style="text-align:left">Relatorio de frequencia</td>
+<td style="text-align:left">Professor restrito ao proprio escopo; demais no proprio tenant</td>
+<td style="text-align:left">Filtros validos; exportacao usa o mesmo criterio da tela</td>
+<td style="text-align:left"><code>REPORT_READ</code> + <code>REPORT_EXPORT</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Emitir Relatorio de Aulas Registradas</strong></td>
+<td style="text-align:left"><code>coordenacao</code>, <code>secretaria</code>, <code>professor</code>, <code>sistema</code></td>
+<td style="text-align:left">Relatorio de aulas registradas</td>
+<td style="text-align:left">Professor restrito ao proprio escopo; demais no proprio tenant</td>
+<td style="text-align:left">Pode incluir pendencias de diario; filtros validos</td>
+<td style="text-align:left"><code>REPORT_READ</code> + <code>REPORT_EXPORT</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Emitir Relatorio de Desempenho por Disciplina</strong></td>
+<td style="text-align:left"><code>coordenacao</code>, <code>secretaria</code>, <code>professor</code>, <code>sistema</code></td>
+<td style="text-align:left">Relatorio de desempenho por disciplina</td>
+<td style="text-align:left">Professor restrito ao proprio escopo quando permitido; demais no proprio tenant</td>
+<td style="text-align:left">Regime avaliativo resolvido para o recorte</td>
+<td style="text-align:left"><code>REPORT_READ</code> + <code>REPORT_EXPORT</code></td>
 </tr>
 <tr>
 <td style="text-align:left"><strong>Validar Doc. Civil</strong> <em>(futuro)</em></td>
 <td style="text-align:left"><code>secretaria</code></td>
 <td style="text-align:left"><code>User.identity</code></td>
-<td style="text-align:left"><code>target.institution_id == actor.institution_id</code></td>
+<td style="text-align:left"><code>target_membership.institution_id == actor.institution_id</code></td>
 <td style="text-align:left">Tarefa de conformidade legal</td>
+<td style="text-align:left"><code>USER_IDENTITY_VALIDATE</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><strong>Trancar/Transferir</strong> <em>(futuro)</em></td>
+<td style="text-align:left"><strong>Trancar ou Transferir</strong> <em>(futuro)</em></td>
 <td style="text-align:left"><code>secretaria</code></td>
 <td style="text-align:left"><code>Membership</code></td>
 <td style="text-align:left"><code>target.institution_id == actor.institution_id</code></td>
 <td style="text-align:left">Gestao de ocupacao e fluxo de caixa</td>
+<td style="text-align:left"><code>MEMBERSHIP_TRANSFER</code></td>
 </tr>
 <tr>
 <td style="text-align:left"><strong>Emitir Certificado</strong> <em>(futuro)</em></td>
@@ -456,6 +624,7 @@ A <code>gestao_financeira</code> suspende o <code>Membership.state</code> (vínc
 <td style="text-align:left"><code>Membership</code></td>
 <td style="text-align:left"><code>target.institution_id == actor.institution_id</code></td>
 <td style="text-align:left">Fe publica da secretaria academica</td>
+<td style="text-align:left"><code>CERTIFICATE_ISSUE</code></td>
 </tr>
 <tr>
 <td style="text-align:left"><strong>Criar Grade Curricular</strong> <em>(futuro)</em></td>
@@ -463,6 +632,7 @@ A <code>gestao_financeira</code> suspende o <code>Membership.state</code> (vínc
 <td style="text-align:left"><code>Course</code>/<code>Subject</code></td>
 <td style="text-align:left"><code>target.institution_id == actor.institution_id</code></td>
 <td style="text-align:left">Definicao tecnica de ensino</td>
+<td style="text-align:left"><code>CURRICULUM_CREATE</code></td>
 </tr>
 <tr>
 <td style="text-align:left"><strong>Aprovar Diario de Classe</strong> <em>(futuro)</em></td>
@@ -470,6 +640,7 @@ A <code>gestao_financeira</code> suspende o <code>Membership.state</code> (vínc
 <td style="text-align:left"><code>LessonPlan</code></td>
 <td style="text-align:left"><code>target.course_id == actor.membership.course_id</code></td>
 <td style="text-align:left">Auditoria da entrega pedagogica</td>
+<td style="text-align:left"><code>LESSON_APPROVE</code></td>
 </tr>
 <tr>
 <td style="text-align:left"><strong>Auditar Notas</strong> <em>(futuro)</em></td>
@@ -477,88 +648,123 @@ A <code>gestao_financeira</code> suspende o <code>Membership.state</code> (vínc
 <td style="text-align:left"><code>Grade</code></td>
 <td style="text-align:left"><code>target.course_id == actor.membership.course_id</code></td>
 <td style="text-align:left">Garante a integridade pedagogica</td>
+<td style="text-align:left"><code>GRADE_AUDIT</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><strong>Alocar Professor</strong> <em>(futuro)</em></td>
-<td style="text-align:left"><code>coordenacao</code></td>
-<td style="text-align:left"><code>Course_Teacher</code></td>
+<td style="text-align:left"><strong>Trocar Papel de Membership</strong> <em>(futuro)</em></td>
+<td style="text-align:left"><code>direcao_estrategica</code>, <code>administrador_plataforma</code></td>
+<td style="text-align:left">Memberships do proprio tenant ou qualquer <code>Membership</code></td>
+<td style="text-align:left"><code>target.institution_id == actor.institution_id</code> ou sem restricao</td>
+<td style="text-align:left">Troca auditavel; <code>role_id</code> anterior preservado no historico; <code>course_id</code> compativel com o novo papel</td>
+<td style="text-align:left"><code>MEMBERSHIP_ROLE_CHANGE</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Criar Role</strong> <em>(futuro)</em></td>
+<td style="text-align:left"><code>administrador_plataforma</code></td>
+<td style="text-align:left">Catalogo global de papeis</td>
+<td style="text-align:left">Sem restricao</td>
+<td style="text-align:left"><code>code</code> unico; nivel valido; audit trail obrigatorio</td>
+<td style="text-align:left"><code>ROLE_CREATE</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Desativar Role</strong> <em>(futuro)</em></td>
+<td style="text-align:left"><code>administrador_plataforma</code></td>
+<td style="text-align:left">Qualquer <code>Role</code></td>
+<td style="text-align:left">Sem restricao</td>
+<td style="text-align:left">Papel entra em <code>INACTIVE</code>; efeito nao retroativo sobre memberships existentes deve ser auditado</td>
+<td style="text-align:left"><code>ROLE_DEACTIVATE</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Reativar Role</strong> <em>(futuro)</em></td>
+<td style="text-align:left"><code>administrador_plataforma</code></td>
+<td style="text-align:left">Qualquer <code>Role</code></td>
+<td style="text-align:left">Sem restricao</td>
+<td style="text-align:left"><code>Role.status == INACTIVE</code>; reativacao auditavel</td>
+<td style="text-align:left"><code>ROLE_ACTIVATE</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Configurar Politica Institucional</strong> <em>(futuro)</em></td>
+<td style="text-align:left"><code>direcao_estrategica</code></td>
+<td style="text-align:left">Politicas do proprio tenant</td>
 <td style="text-align:left"><code>target.institution_id == actor.institution_id</code></td>
-<td style="text-align:left">Decisao de competencia tecnica</td>
+<td style="text-align:left">Alteracoes auditaveis; congelamento por periodo quando aplicavel</td>
+<td style="text-align:left"><code>POLICY_CONFIGURE</code></td>
 </tr>
 </tbody>
 </table>
 <hr>
-<h2 id="5-diretrizes-de-design-e-segurança">5. Diretrizes de Design e Segurança</h2>
-<h3 id="51-pipeline-de-validação-em-linha-early-return">5.1. Pipeline de Validação em Linha (Early Return)</h3>
-<p>Toda requisição que adentra o barramento da aplicação deve passar obrigatoriamente pela seguinte esteira sequencial de avaliação de curto-circuito:</p>
-<pre><code>[Requisição Entrada]
-         │
-         ▼
- 1. Autenticação Global ───► Se User.state != ACTIVE ───► Retorna 423 Locked
-         │
-         ▼
- 2. Isolamento de Tenant ──► Se Tenant_ID incompatível ─► Retorna 403 Forbidden
-         │
-         ▼
- 3. Escopo Funcional ────► Se Role não possui Capability ─► Retorna 403 Forbidden
-         │
-         ▼
- 4. Predicado de Atributo ─► Se course_id divergente ────► Retorna 403 Forbidden
-         │
-         ▼
+<h2 id="5-diretrizes-de-design-e-seguranca">5. Diretrizes de Design e Seguranca</h2>
+<h3 id="51-pipeline-de-validacao-em-linha-early-return">5.1. Pipeline de Validacao em Linha (Early Return)</h3>
+<p>Toda requisicao que adentra o barramento da aplicacao deve passar obrigatoriamente pela seguinte esteira sequencial de avaliacao de curto-circuito:</p>
+<pre><code class="language-text">[Requisicao Entrada]
+         |
+         v
+ 1. Autenticacao Global ---&gt; Se User.state != ACTIVE ---&gt; Retorna 423 Locked
+         |
+         v
+ 2. Isolamento de Tenant --&gt; Se Tenant_ID incompativel --&gt; Retorna 403 Forbidden
+         |
+         v
+ 3. Escopo Funcional -----&gt; Se principal nao possui Capability --&gt; Retorna 403 Forbidden
+         |
+         v
+ 4. Predicado de Atributo -&gt; Se course_id divergente -------&gt; Retorna 403 Forbidden
+         |
+         v
 [Executa Caso de Uso]
 </code></pre>
-<p><strong>Implementação Django/Python — Evitando Queries Redundantes:</strong>
-As verificações dos passos 1 e 2 (<code>User.state</code> e <code>Membership.state</code>) devem ocorrer uma única vez no <strong>middleware de autenticação/captura de tenant</strong>, populando <code>request.user</code> e <code>request.membership</code> antes de qualquer use case ser executado. A camada de Application recebe esses objetos já validados e foca exclusivamente no <strong>Predicado de Atribuição</strong> (passo 4) e nos escopos granulares do caso de uso via <code>role.has_capability(Capability.X)</code>. Isso elimina queries redundantes ao banco a cada verificação de acesso.</p>
-<h3 id="52-identidade-de-serviço-service-accounts">5.2. Identidade de Serviço (Service Accounts)</h3>
+<p><strong>Implementacao Django/Python - Evitando Queries Redundantes:</strong>
+As verificacoes dos passos 1 e 2 (<code>User.state</code> e <code>Membership.state</code>) devem ocorrer uma unica vez no <strong>middleware de autenticacao/captura de tenant</strong>, populando <code>request.user</code> e <code>request.membership</code> antes de qualquer use case ser executado. A camada de Application recebe esses objetos ja validados e foca no <strong>Predicado de Atribuicao</strong> (passo 4) e nos escopos granulares do caso de uso via <code>role.has_capability(Capability.X)</code> para atores humanos ou conjunto tecnico equivalente para service accounts. Isso elimina queries redundantes ao banco a cada verificacao de acesso.</p>
+<h3 id="52-identidade-de-servico-service-accounts">5.2. Identidade de Servico (Service Accounts)</h3>
 <ul>
-<li>Devem possuir identificadores únicos e não compartilhados.</li>
+<li>Devem possuir identificadores unicos e nao compartilhados.</li>
 <li>Toda chamada efetuada pelo ator <code>sistema</code> deve usar tokens assinados internamente de escopo restrito.</li>
 <li>O payload do comando deve conter metadados identificando a origem do disparo (<code>job_name</code>, <code>execution_id</code>, <code>timestamp</code>).</li>
-<li><strong>Audit Trail:</strong> Toda ação disparada pelo ator <code>sistema</code> deve registrar o ID da rotina e o timestamp original.</li>
-<li>É expressamente proibido que rotinas automáticas contornem as invariantes de validação de estado do Domínio.</li>
-<li>Proibido o uso de credenciais de serviço para acesso via interface de usuário (UI).</li>
+<li>Service accounts nao instanciam <code>Role</code> via aggregate institucional; elas recebem um conjunto tecnico explicito de <code>Capabilities</code> por contrato.</li>
+<li><strong>Audit Trail:</strong> Toda acao disparada pelo ator <code>sistema</code> deve registrar o ID da rotina e o timestamp original.</li>
+<li>E expressamente proibido que rotinas automaticas contornem as invariantes de validacao de estado do Dominio.</li>
+<li>Proibido o uso de credenciais de servico para acesso via interface de usuario (UI).</li>
 </ul>
-<h3 id="53-códigos-de-erro-padronizados">5.3. Códigos de Erro Padronizados</h3>
-<p>A camada de Application não deve expor mensagens nativas do banco ou do framework. Os erros de autorização devem seguir estritamente o catálogo estruturado:</p>
+<h3 id="53-codigos-de-erro-padronizados">5.3. Codigos de Erro Padronizados</h3>
+<p>A camada de Application nao deve expor mensagens nativas do banco ou do framework. Os erros de autorizacao devem seguir estritamente o catalogo estruturado:</p>
 <ul>
 <li><code>AUTHZ_IDENTITY_LOCKED</code>: Login ou identidade global suspensa ou inativa.</li>
-<li><code>AUTHZ_TENANT_BREACH</code>: Tentativa ilegal de travessia de fronteira entre instituições (cross-tenant injection).</li>
-<li><code>AUTHZ_MISSING_CAPABILITY</code>: O papel do usuário não possui a <code>Capability</code> necessária para a operação.</li>
-<li><code>AUTHZ_ATTRIBUTE_MISMATCH</code>: O usuário tem o papel correto, mas não possui atribuição para o objeto específico (ex: professor tentando lançar nota em turma onde não tem vínculo).</li>
-<li><code>AUTHZ_TEMPORAL_CONSTRAINT</code>: Operação bloqueada por regras cronológicas (janela letiva fechada, período encerrado).</li>
+<li><code>AUTHZ_TENANT_BREACH</code>: Tentativa ilegal de travessia de fronteira entre instituicoes (cross-tenant injection).</li>
+<li><code>AUTHZ_MISSING_CAPABILITY</code>: O principal autenticado nao possui a <code>Capability</code> necessaria para a operacao.</li>
+<li><code>AUTHZ_ATTRIBUTE_MISMATCH</code>: O usuario tem o papel correto, mas nao possui atribuicao para o objeto especifico (ex: professor tentando lancar nota em turma onde nao tem vinculo).</li>
+<li><code>AUTHZ_TEMPORAL_CONSTRAINT</code>: Operacao bloqueada por regras cronologicas (janela letiva fechada, periodo encerrado).</li>
 </ul>
 <hr>
-<h2 id="6-estratégia-de-testes-automatizados">6. Estratégia de Testes Automatizados</h2>
-<p>A robustez desta política deve ser garantida por uma suíte de testes de integração:</p>
+<h2 id="6-estrategia-de-testes-automatizados">6. Estrategia de Testes Automatizados</h2>
+<p>A robustez desta politica deve ser garantida por uma suite de testes de integracao:</p>
 <ul>
-<li><strong>Caminho Feliz:</strong> Ator com papel e escopo corretos executa a ação com sucesso.</li>
-<li><strong>Falha de Papel:</strong> Usuário autenticado, mas com papel insuficiente (ex: Estudante tentando cancelar matrícula).</li>
-<li><strong>Falha de Fronteira (Multi-tenancy):</strong> Secretaria da Instituição A tentando listar alunos da Instituição B.</li>
-<li><strong>Falha de Estado:</strong> Usuário com papel correto, mas em estado <code>SUSPENDED</code>, deve ter acesso negado.</li>
-<li><strong>Falha de Atribuição:</strong> Professor tentando lançar nota em curso onde não possui vínculo.</li>
+<li><strong>Caminho Feliz:</strong> Ator com papel e escopo corretos executa a acao com sucesso.</li>
+<li><strong>Falha de Papel:</strong> Usuario autenticado, mas com papel insuficiente (ex: estudante tentando cancelar matricula).</li>
+<li><strong>Falha de Fronteira (Multi-tenancy):</strong> Secretaria da Instituicao A tentando listar alunos da Instituicao B.</li>
+<li><strong>Falha de Estado:</strong> Usuario com papel correto, mas em estado <code>SUSPENDED</code>, deve ter acesso negado.</li>
+<li><strong>Falha de Atribuicao:</strong> Professor tentando lancar nota em curso onde nao possui vinculo.</li>
 </ul>
 <hr>
-<h2 id="7-encerramento-lgpd-e-preservação-de-histórico">7. Encerramento, LGPD e Preservação de Histórico</h2>
-<p>O caso de uso <strong>Encerrar</strong> (User ou Membership) é mapeado como <strong>Soft Delete / Anonimização</strong>, nunca como exclusão física de registros.</p>
+<h2 id="7-encerramento-lgpd-e-preservacao-de-historico">7. Encerramento, LGPD e Preservacao de Historico</h2>
+<p>O caso de uso <strong>Encerrar</strong> (<code>User</code> ou <code>Membership</code>) e mapeado como <strong>Soft Delete / Anonimizacao</strong>, nunca como exclusao fisica de registros.</p>
 <h3 id="encerrar-membership">Encerrar Membership</h3>
 <ul>
 <li><code>Membership.state</code> transiciona para <code>INACTIVE</code> (estado terminal).</li>
-<li>O histórico de matrículas, notas e frequências vinculadas ao <code>Membership</code> é preservado integralmente — obrigação legal de guarda de registros acadêmicos.</li>
-<li>Nenhum dado é deletado fisicamente.</li>
+<li>O historico de matriculas, notas e frequencias vinculadas ao <code>Membership</code> e preservado integralmente - obrigacao legal de guarda de registros academicos.</li>
+<li>Nenhum dado e deletado fisicamente.</li>
 </ul>
 <h3 id="encerrar-user">Encerrar User</h3>
 <ul>
 <li><code>User.state</code> transiciona para <code>INACTIVE</code> (estado terminal).</li>
-<li>Dados de identificação pessoal (nome, email, CPF) podem ser anonimizados sob demanda explícita do titular (direito ao esquecimento — LGPD Art. 18).</li>
-<li>O histórico acadêmico e financeiro associado é preservado em forma anonimizada para cumprir obrigações legais de guarda.</li>
-<li>A anonimização é um processo separado, acionado pela <code>direcao_estrategica</code> ou <code>administrador_plataforma</code>, e não ocorre automaticamente com o encerramento.</li>
+<li>Dados de identificacao pessoal (nome, email, CPF) podem ser anonimizados sob demanda explicita do titular (direito ao esquecimento - LGPD Art. 18).</li>
+<li>O historico academico e financeiro associado e preservado em forma anonimizada para cumprir obrigacoes legais de guarda.</li>
+<li>A anonimizacao e um processo separado, acionado pela <code>direcao_estrategica</code> ou <code>administrador_plataforma</code>, e nao ocorre automaticamente com o encerramento.</li>
 </ul>
 <hr>
-<h2 id="8-evolução-e-auditoria">8. Evolução e Auditoria</h2>
+<h2 id="8-evolucao-e-auditoria">8. Evolucao e Auditoria</h2>
 <ul>
-<li><strong>Logs:</strong> Toda negação de acesso (403) deve ser logada com o contexto completo (User ID, Role ID, Resource ID, Scope Requested).</li>
-<li><strong>Revisão:</strong> Esta matriz deve ser revisada semestralmente ou a cada novo módulo crítico adicionado ao sistema.</li>
+<li><strong>Logs:</strong> Toda negacao de acesso (403) deve ser logada com o contexto completo (<code>User ID</code>, <code>Role ID</code>, <code>Resource ID</code>, <code>Scope Requested</code>).</li>
+<li><strong>Revisao:</strong> Esta matriz e o ADR 034 devem ser revisados semestralmente ou a cada novo modulo critico adicionado ao sistema.</li>
 </ul>
 
             

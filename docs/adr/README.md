@@ -9,7 +9,7 @@ leitura incremental e manutencao das referencias cruzadas.
 | Status | Quantidade |
 | --- | ---: |
 | `Aprovado` | 13 |
-| `Proposto` | 20 |
+| `Proposto` | 21 |
 | `Implementado` | 1 |
 | `Sem secao padrao de status` | 1 |
 
@@ -63,6 +63,7 @@ Observacao:
 - [ADR 032 - Design do Aggregate User](30-identity-access/032-user-aggregate-design.md) - `Implementado`
 - [ADR 033 - Design do Aggregate Role](30-identity-access/033-role-aggregate-design.md) - `Proposto`
 - [ADR 034 - Matriz Operacional de Autorizacao com Capabilities Explicitas](30-identity-access/034-operational-authorization-matrix-and-capabilities.md) - `Aprovado`
+- [ADR 035 - Modelo de Extensibilidade de Papeis com Capabilities Configuráveis](30-identity-access/035-role-extensibility-with-configurable-capabilities.md) - `Proposto`
 
 ### 40 - Estrutura Academica, Reporting e Expansao do Produto
 

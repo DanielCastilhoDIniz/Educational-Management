@@ -115,28 +115,28 @@ O `administrador_plataforma` (nível 0) é identificado pelo sinalizador `is_sup
 - Criar seed com os papéis pré-definidos da taxonomia
 
 ## Checklist de Implementação
-- [ ] `Capability` StrEnum em `domain/identity/role/value_objects/capability.py`
-- [ ] `RoleStatus` enum com `ACTIVE` e `INACTIVE`
-- [ ] Aggregate `Role` com campos definidos neste ADR
-- [ ] Factory method `Role.create()` nasce em `ACTIVE`
-- [ ] `Role.capabilities` propriedade computada — retorna `frozenset[Capability]` baseado em `code`
-- [ ] `Role.has_capability(cap: Capability) -> bool`
-- [ ] Métodos `deactivate()` e `reactivate()` com validação de transição
-- [ ] `code` e `level` imutáveis após criação
-- [ ] Erros de domínio para transições inválidas e campos obrigatórios
+- [X] `Capability` StrEnum em `domain/identity/role/value_objects/capability.py`
+- [X] `RoleStatus` enum com `ACTIVE` e `INACTIVE`
+- [X] Aggregate `Role` com campos definidos neste ADR
+- [X] Factory method `Role.create()` nasce em `ACTIVE`
+- [X] `Role.capabilities` propriedade computada — retorna `frozenset[Capability]` baseado em `code`
+- [X] `Role.has_capability(cap: Capability) -> bool`
+- [X] Métodos `deactivate()` e `reactivate()` com validação de transição
+- [x] `code` e `level` imutáveis após criação
+- [X] Erros de domínio para transições inválidas e campos obrigatórios
 
 ## Checklist de Code Review
-- [ ] `Role` não referencia `User` nem `Membership` — é independente
-- [ ] `code` e `level` são imutáveis (sem setter, sem mutação interna)
-- [ ] `capabilities` é propriedade computada — sem coluna no banco, sem setter
-- [ ] `has_capability` recebe `Capability` (StrEnum), não string literal
-- [ ] Transições inválidas levantam erros de domínio, não exceções genéricas
-- [ ] `created_by` é imutável após criação
+- [X] `Role` não referencia `User` nem `Membership` — é independente
+- [X] `code` e `level` são imutáveis (sem setter, sem mutação interna)
+- [X] `capabilities` é propriedade computada — sem coluna no banco, sem setter
+- [X] `has_capability` recebe `Capability` (StrEnum), não string literal
+- [X] Transições inválidas levantam erros de domínio, não exceções genéricas
+- [X] `created_by` é imutável após criação
 
 ## Checklist de Testes
-- [ ] Criação com campos válidos nasce em `ACTIVE`
-- [ ] Tentativa de criar com `code` vazio levanta erro
-- [ ] Tentativa de criar com `name` vazio levanta erro
+- [x] Criação com campos válidos nasce em `ACTIVE`
+- [x] Tentativa de criar com `code` vazio levanta erro
+- [x] Tentativa de criar com `name` vazio levanta erro
 - [ ] `deactivate()` a partir de `ACTIVE` — happy path
 - [ ] `reactivate()` a partir de `INACTIVE` — happy path
 - [ ] Transição inválida levanta `InvalidStateTransitionError`
