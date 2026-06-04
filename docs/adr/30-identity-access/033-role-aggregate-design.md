@@ -137,10 +137,10 @@ O `administrador_plataforma` (nível 0) é identificado pelo sinalizador `is_sup
 - [x] Criação com campos válidos nasce em `ACTIVE`
 - [x] Tentativa de criar com `code` vazio levanta erro
 - [x] Tentativa de criar com `name` vazio levanta erro
-- [ ] `deactivate()` a partir de `ACTIVE` — happy path
-- [ ] `reactivate()` a partir de `INACTIVE` — happy path
-- [ ] Transição inválida levanta `InvalidStateTransitionError`
-- [ ] Tentativa de criar com `level` fora do intervalo 0–4 levanta erro de domínio
-- [ ] `role.capabilities` retorna o conjunto correto para cada `code` pré-definido
-- [ ] `role.has_capability()` retorna `True` para capability presente no papel
-- [ ] `role.has_capability()` retorna `False` para capability ausente no papel
+- [x] `deactivate()` a partir de `ACTIVE` — happy path
+- [x] `reactivate()` a partir de `INACTIVE` — happy path
+- [x] Transição inválida levanta `InvalidStateTransitionError`
+- [x] Tentativa de criar com `level` fora do intervalo 0–4 levanta erro de domínio
+- [x] `role.capabilities` retorna o conjunto correto para cada `code` pré-definido
+- [x] `role.has_capability()` retorna `True` para capability presente no papel
+- [x] `role.has_capability()` retorna `False` para capability ausente no papel

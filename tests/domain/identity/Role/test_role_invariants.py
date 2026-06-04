@@ -33,3 +33,32 @@ def test_create_role_raise_error_without_name(name):
     err = exc_info.value
     assert err.code == "invalid_name"
     assert err.message == "name is invalid"
+
+
+def test_create_role_raise_error_without_level():
+    with pytest.raises(DomainError) as exc_info:
+        Role.create(
+            name="secretaria",
+            code="secretaria",
+            level=None,
+            created_by="actor-1",
+            occurred_at=datetime.now(UTC)
+        )
+    err = exc_info.value
+    assert err.code == "invalid_level"
+    assert err.message == "level is invalid"
+
+@pytest.mark.parametrize("level", [-1, 5])
+def test_create_role_raise_error_with_invalid_level(level):
+    with pytest.raises(DomainError) as exc_info:
+        Role.create(
+            name="secretaria",
+            code="secretaria",
+            level=level,
+            created_by="actor-1",
+            occurred_at=datetime.now(UTC)
+        )
+    err = exc_info.value
+    assert err.code == "invalid_level"
+    assert err.message == "level must be a value between 0 and 4"
+    assert err.details == {"level": level}
